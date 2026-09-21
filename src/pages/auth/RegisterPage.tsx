@@ -1,13 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import { Alert } from '../../components/ui/Alert'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { FormField } from '../../components/ui/FormField'
 import { Input } from '../../components/ui/Input'
+import { PasswordInput } from '../../components/ui/PasswordInput'
 import { useAuth } from '../../features/auth/AuthContext'
 import { ApiError } from '../../lib/api'
 
@@ -34,8 +35,8 @@ type FormValues = z.infer<typeof schema>
 
 export function RegisterPage() {
   const { register: registerUser, status } = useAuth()
+  const navigate = useNavigate()
   const [formError, setFormError] = useState<string | null>(null)
-  const [submittedEmail, setSubmittedEmail] = useState<string | null>(null)
 
   const {
     register,
@@ -67,38 +68,10 @@ export function RegisterPage() {
         phone: values.phone || undefined,
         password: values.password,
       })
-      setSubmittedEmail(values.email)
+      navigate(`/verify-email?email=${encodeURIComponent(values.email)}`)
     } catch (err) {
       setFormError(err instanceof ApiError ? err.message : 'Une erreur est survenue')
     }
-  }
-
-  if (submittedEmail) {
-    return (
-      <Card className="p-6 sm:p-8">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-text-primary">Compte créé&nbsp;!</h1>
-          <p className="text-sm text-text-secondary">
-            Dernière étape&nbsp;: vérifiez votre adresse email.
-          </p>
-        </div>
-        <div className="mt-6 space-y-4">
-          <Alert variant="success">
-            Un email de vérification a été envoyé à <strong>{submittedEmail}</strong>. Ouvrez le
-            lien qu&apos;il contient (valable 24&nbsp;h) pour activer votre compte avant de vous
-            connecter.
-          </Alert>
-          <p className="text-sm text-text-muted">
-            Vous ne voyez rien&nbsp;? Pensez à vérifier vos courriers indésirables.
-          </p>
-          <Link to="/login">
-            <Button variant="outline" className="w-full">
-              Aller à la connexion
-            </Button>
-          </Link>
-        </div>
-      </Card>
-    )
   }
 
   return (
@@ -165,9 +138,8 @@ export function RegisterPage() {
         </FormField>
 
         <FormField label="Mot de passe" htmlFor="password" error={errors.password?.message}>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             autoComplete="new-password"
             placeholder="8 caractères minimum"
             error={Boolean(errors.password)}
@@ -180,9 +152,8 @@ export function RegisterPage() {
           htmlFor="confirmPassword"
           error={errors.confirmPassword?.message}
         >
-          <Input
+          <PasswordInput
             id="confirmPassword"
-            type="password"
             autoComplete="new-password"
             placeholder="••••••••"
             error={Boolean(errors.confirmPassword)}

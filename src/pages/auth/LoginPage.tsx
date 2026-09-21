@@ -8,6 +8,7 @@ import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { FormField } from '../../components/ui/FormField'
 import { Input } from '../../components/ui/Input'
+import { PasswordInput } from '../../components/ui/PasswordInput'
 import { ApiError } from '../../lib/api'
 import { useAuth } from '../../features/auth/AuthContext'
 
@@ -71,9 +72,8 @@ export function LoginPage() {
         </FormField>
 
         <FormField label="Mot de passe" htmlFor="password" error={errors.password?.message}>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             autoComplete="current-password"
             placeholder="••••••••"
             error={Boolean(errors.password)}

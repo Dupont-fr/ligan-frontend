@@ -30,12 +30,18 @@ export interface RegisterInput {
   password: string
 }
 
+export type CodePurpose = 'verify' | 'reset'
+
 export function register(input: RegisterInput): Promise<AuthUserResponse> {
   return apiPost<AuthUserResponse>('/api/auth/register', input)
 }
 
-export function verifyEmail(token: string): Promise<AuthUserResponse> {
-  return apiGet<AuthUserResponse>(`/api/auth/verify-email?token=${encodeURIComponent(token)}`)
+export function verifyCode(email: string, code: string): Promise<AuthUserResponse> {
+  return apiPost<AuthUserResponse>('/api/auth/verify-code', { email, code })
+}
+
+export function resendCode(email: string, purpose: CodePurpose): Promise<MessageResponse> {
+  return apiPost<MessageResponse>('/api/auth/resend-code', { email, purpose })
 }
 
 export function login(email: string, password: string): Promise<AuthUserResponse> {
@@ -58,6 +64,10 @@ export function forgotPassword(email: string): Promise<MessageResponse> {
   return apiPost<MessageResponse>('/api/auth/forgot-password', { email })
 }
 
-export function resetPassword(token: string, password: string): Promise<MessageResponse> {
-  return apiPost<MessageResponse>('/api/auth/reset-password', { token, password })
+export function verifyResetCode(email: string, code: string): Promise<MessageResponse> {
+  return apiPost<MessageResponse>('/api/auth/verify-reset-code', { email, code })
+}
+
+export function resetPassword(email: string, code: string, password: string): Promise<MessageResponse> {
+  return apiPost<MessageResponse>('/api/auth/reset-password', { email, code, password })
 }

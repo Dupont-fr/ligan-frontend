@@ -13,6 +13,7 @@ import {
   me as meApi,
   refreshUser as refreshApi,
   register as registerApi,
+  verifyCode as verifyCodeApi,
   type RegisterInput,
   type User,
 } from '../../services/auth'
@@ -24,6 +25,7 @@ interface AuthContextValue {
   status: AuthStatus
   login: (email: string, password: string) => Promise<User>
   register: (input: RegisterInput) => Promise<User>
+  verifyAccount: (email: string, code: string) => Promise<User>
   logout: () => Promise<void>
   refreshUser: () => Promise<User | null>
 }
@@ -94,6 +96,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       async register(input) {
         const data = await registerApi(input)
+        return data.user
+      },
+      async verifyAccount(email, code) {
+        const data = await verifyCodeApi(email, code)
+        setUser(data.user)
+        setStatus('authenticated')
         return data.user
       },
       async logout() {
