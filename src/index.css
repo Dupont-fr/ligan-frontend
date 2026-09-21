@@ -1,0 +1,45 @@
+@import 'tailwindcss';
+@import './styles/tokens.css';
+
+/* Dark mode géré par la classe .dark sur <html> */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Mapper les design tokens vers l'espace de nom Tailwind.
+   Les utilitaires générés utilisent var(--color-*) afin que
+   le thème sombre (.dark) bascule automatiquement. */
+@theme {
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-primary-light: #eef2ff;
+
+  --color-secondary: #06b6d4;
+  --color-secondary-light: #ecfeff;
+
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #64748b;
+  --color-text-muted: #94a3b8;
+
+  --color-success: #16a34a;
+  --color-success-light: #f0fdf4;
+  --color-error: #dc2626;
+  --color-error-light: #fef2f2;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fffbeb;
+  --color-info: #0ea5e9;
+  --color-info-light: #f0f9ff;
+
+  --color-border: #e2e8f0;
+  --color-border-light: #f1f5f9;
+}
+
+@layer base {
+  html {
+    @apply bg-background text-text-primary;
+  }
+  body {
+    @apply font-sans antialiased;
+  }
+}
