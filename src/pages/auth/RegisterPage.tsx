@@ -9,6 +9,7 @@ import { Card } from '../../components/ui/Card'
 import { FormField } from '../../components/ui/FormField'
 import { Input } from '../../components/ui/Input'
 import { PasswordInput } from '../../components/ui/PasswordInput'
+import { PasswordChecklist } from '../../components/ui/PasswordChecklist'
 import { useAuth } from '../../features/auth/AuthContext'
 import { ApiError } from '../../lib/api'
 
@@ -23,7 +24,13 @@ const schema = z
       .regex(/^\+?[0-9\s().-]{8,20}$/, 'Numéro de téléphone invalide')
       .optional()
       .or(z.literal('')),
-    password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères').max(128),
+    password: z
+      .string()
+      .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
+      .max(128, 'Le mot de passe est trop long')
+      .regex(/[a-z]/, 'Le mot de passe doit contenir au moins une minuscule')
+      .regex(/[A-Z]/, 'Le mot de passe doit contenir au moins une majuscule')
+      .regex(/[0-9]|[^A-Za-z0-9]/, 'Le mot de passe doit contenir au moins un chiffre ou un caractère spécial'),
     confirmPassword: z.string().min(1, 'Confirmez le mot de passe'),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -40,6 +47,7 @@ export function RegisterPage() {
 
   const {
     register,
+    watch,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
@@ -145,6 +153,7 @@ export function RegisterPage() {
             error={Boolean(errors.password)}
             {...register('password')}
           />
+          <PasswordChecklist password={watch('password')} />
         </FormField>
 
         <FormField

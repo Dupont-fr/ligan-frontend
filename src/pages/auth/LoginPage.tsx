@@ -46,6 +46,10 @@ export function LoginPage() {
       await login(values.email, values.password)
       navigate(from, { replace: true })
     } catch (err) {
+      if (err instanceof ApiError && err.status === 403) {
+        navigate(`/verify-email?email=${encodeURIComponent(values.email)}`)
+        return
+      }
       setFormError(err instanceof ApiError ? err.message : 'Une erreur est survenue')
     }
   }

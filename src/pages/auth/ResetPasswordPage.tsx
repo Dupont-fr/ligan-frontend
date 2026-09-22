@@ -9,6 +9,7 @@ import { Card } from '../../components/ui/Card'
 import { FormField } from '../../components/ui/FormField'
 import { Input } from '../../components/ui/Input'
 import { PasswordInput } from '../../components/ui/PasswordInput'
+import { PasswordChecklist } from '../../components/ui/PasswordChecklist'
 import { ApiError } from '../../lib/api'
 import { resendCode, resetPassword, verifyResetCode } from '../../services/auth'
 
@@ -19,7 +20,13 @@ const codeSchema = z.object({
 
 const passwordSchema = z
   .object({
-    password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères').max(128),
+    password: z
+      .string()
+      .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
+      .max(128, 'Le mot de passe est trop long')
+      .regex(/[a-z]/, 'Le mot de passe doit contenir au moins une minuscule')
+      .regex(/[A-Z]/, 'Le mot de passe doit contenir au moins une majuscule')
+      .regex(/[0-9]|[^A-Za-z0-9]/, 'Le mot de passe doit contenir au moins un chiffre ou un caractère spécial'),
     confirmPassword: z.string().min(1, 'Confirmez le mot de passe'),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -50,6 +57,10 @@ export function ResetPasswordPage() {
     resolver: zodResolver(passwordSchema),
     defaultValues: { password: '', confirmPassword: '' },
   })
+
+  const newPasswordWatch = passwordForm.watch
+
+  const passwordWatch = passwordForm.watch
 
   useEffect(() => {
     if (cooldown <= 0) return
