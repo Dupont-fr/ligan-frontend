@@ -28,6 +28,7 @@ export interface RegisterInput {
   email: string
   phone?: string
   password: string
+  role?: 'CUSTOMER' | 'PROFESSIONAL'
 }
 
 export type CodePurpose = 'verify' | 'reset'

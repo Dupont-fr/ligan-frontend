@@ -58,10 +58,6 @@ export function ResetPasswordPage() {
     defaultValues: { password: '', confirmPassword: '' },
   })
 
-  const newPasswordWatch = passwordForm.watch
-
-  const passwordWatch = passwordForm.watch
-
   useEffect(() => {
     if (cooldown <= 0) return
     const t = setInterval(() => setCooldown((c) => c - 1), 1000)
@@ -142,6 +138,7 @@ export function ResetPasswordPage() {
               error={Boolean(passwordForm.formState.errors.password)}
               {...passwordForm.register('password')}
             />
+            <PasswordChecklist password={passwordForm.watch('password')} />
           </FormField>
 
           <FormField

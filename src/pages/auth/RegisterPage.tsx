@@ -1,7 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { BriefcaseBusiness, Search } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useForm, useWatch } from 'react-hook-form'
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { z } from 'zod'
 import { Alert } from '../../components/ui/Alert'
 import { Button } from '../../components/ui/Button'
@@ -15,6 +16,7 @@ import { ApiError } from '../../lib/api'
 
 const schema = z
   .object({
+    role: z.enum(['CUSTOMER', 'PROFESSIONAL']),
     firstName: z.string().trim().min(2, 'Le prénom doit contenir au moins 2 caractères').max(60),
     lastName: z.string().trim().min(2, 'Le nom doit contenir au moins 2 caractères').max(60),
     email: z.string().trim().toLowerCase().email('Adresse email invalide'),
@@ -40,19 +42,38 @@ const schema = z
 
 type FormValues = z.infer<typeof schema>
 
+const roleOptions = [
+  {
+    value: 'CUSTOMER' as const,
+    icon: Search,
+    title: 'Je cherche un professionnel',
+    text: 'Trouvez et sollicitez des pros locaux.',
+  },
+  {
+    value: 'PROFESSIONAL' as const,
+    icon: BriefcaseBusiness,
+    title: 'Je suis professionnel',
+    text: 'Publiez vos activités et recevez des demandes.',
+  },
+]
+
 export function RegisterPage() {
   const { register: registerUser, status } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [formError, setFormError] = useState<string | null>(null)
 
   const {
     register,
     watch,
+    control,
+    setValue,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
+      role: 'CUSTOMER',
       firstName: '',
       lastName: '',
       email: '',
@@ -61,6 +82,15 @@ export function RegisterPage() {
       confirmPassword: '',
     },
   })
+
+  const selectedRole = useWatch({ control, name: 'role' })
+
+  useEffect(() => {
+    const roleParam = searchParams.get('role')
+    if (roleParam === 'PROFESSIONAL' || roleParam === 'CUSTOMER') {
+      setValue('role', roleParam)
+    }
+  }, [searchParams, setValue])
 
   if (status === 'authenticated') {
     return <Navigate to="/dashboard" replace />
@@ -75,6 +105,7 @@ export function RegisterPage() {
         email: values.email,
         phone: values.phone || undefined,
         password: values.password,
+        role: values.role,
       })
       navigate(`/verify-email?email=${encodeURIComponent(values.email)}`)
     } catch (err) {
@@ -87,8 +118,38 @@ export function RegisterPage() {
       <div className="space-y-1">
         <h1 className="text-2xl font-bold text-text-primary">Créer un compte</h1>
         <p className="text-sm text-text-secondary">
-          Rejoignez Ligan+ pour découvrir les professionnels locaux.
+          Rejoignez Ligan+ : cherchez un pro ou proposez vos services.
         </p>
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Type de compte">
+        {roleOptions.map((opt) => {
+          const active = (selectedRole ?? 'CUSTOMER') === opt.value
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onClick={() => setValue('role', opt.value, { shouldValidate: true })}
+              className={`rounded-[var(--radius-md)] border p-4 text-left transition-all ${
+                active
+                  ? 'border-primary bg-primary-light shadow-[var(--shadow-sm)]'
+                  : 'border-border bg-surface hover:border-text-muted'
+              }`}
+            >
+              <span
+                className={`inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-sm)] ${
+                  active ? 'bg-primary text-white' : 'bg-border-light text-text-secondary'
+                }`}
+              >
+                <opt.icon className="h-4.5 w-4.5" aria-hidden />
+              </span>
+              <p className="mt-2 text-sm font-semibold text-text-primary">{opt.title}</p>
+              <p className="mt-0.5 text-xs text-text-secondary">{opt.text}</p>
+            </button>
+          )
+        })}
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-6 space-y-4">

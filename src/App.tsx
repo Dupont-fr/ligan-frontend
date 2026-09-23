@@ -7,6 +7,7 @@ import { LoginPage } from './pages/auth/LoginPage'
 import { RegisterPage } from './pages/auth/RegisterPage'
 import { ResetPasswordPage } from './pages/auth/ResetPasswordPage'
 import { VerifyEmailPage } from './pages/auth/VerifyEmailPage'
+import { BrowsePage } from './pages/BrowsePage'
 import { DashboardPage } from './pages/dashboard/DashboardPage'
 import { LandingPage } from './pages/LandingPage'
 
@@ -16,6 +17,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/trouver" element={<BrowsePage />} />
 
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />
