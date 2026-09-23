@@ -140,7 +140,7 @@ export function RegisterPage() {
             >
               <span
                 className={`inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-sm)] ${
-                  active ? 'bg-primary text-white' : 'bg-border-light text-text-secondary'
+                  active ? 'bg-primary text-primary-contrast' : 'bg-border-light text-text-secondary'
                 }`}
               >
                 <opt.icon className="h-4.5 w-4.5" aria-hidden />

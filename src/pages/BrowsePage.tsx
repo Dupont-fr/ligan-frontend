@@ -65,7 +65,9 @@ export function BrowsePage() {
                   className="h-11 w-full bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted"
                 />
               </div>
-              <Button type="submit">Rechercher</Button>
+              <Button type="submit" className="w-full sm:w-auto">
+                Rechercher
+              </Button>
             </form>
 
             <div className="mt-4 flex flex-wrap gap-2">
@@ -76,7 +78,7 @@ export function BrowsePage() {
                   onClick={() => toggleCategory(cat.label)}
                   className={`inline-flex items-center gap-1.5 rounded-[var(--radius-full)] border px-3 py-1.5 text-xs font-medium transition-colors ${
                     category === cat.label
-                      ? 'border-primary bg-primary text-white'
+                      ? 'border-primary bg-primary text-primary-contrast'
                       : 'border-border bg-surface text-text-secondary hover:border-primary hover:text-primary'
                   }`}
                 >

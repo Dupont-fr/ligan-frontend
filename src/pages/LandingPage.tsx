@@ -52,8 +52,8 @@ export function LandingPage() {
               <span className="h-1.5 w-1.5 rounded-full bg-secondary" aria-hidden />
               La plateforme locale de confiance
             </span>
-            <h1 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold tracking-tight text-text-primary sm:text-5xl">
-              Trouvez le bon pro, <span className="text-primary">près de chez vous</span>
+            <h1 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl md:text-5xl">
+              Trouvez le bon pro, <span className="text-brand-red">près de chez vous</span>
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-base text-text-secondary sm:text-lg">
               Mécaniciens, plombiers, coiffeurs, cours particuliers… LIGAN+ relie les clients aux
@@ -72,7 +72,7 @@ export function LandingPage() {
                   className="h-12 w-full bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted"
                 />
               </div>
-              <Button type="submit" size="lg">
+              <Button type="submit" size="lg" className="w-full sm:w-auto">
                 Rechercher
               </Button>
             </form>
@@ -102,7 +102,7 @@ export function LandingPage() {
                 Explorez par catégorie
               </h2>
               <p className="mt-1 text-sm text-text-secondary">
-                Des dizaines de métiers, un seul canal : le <span className="font-semibold text-primary">+</span>
+                Des dizaines de métiers, un seul canal : le <span className="font-semibold text-brand-red">+</span>
               </p>
             </div>
             <Link to="/trouver" className="hidden items-center gap-1 text-sm font-medium text-primary hover:underline sm:inline-flex">
@@ -117,7 +117,7 @@ export function LandingPage() {
                 to={`/trouver?categorie=${encodeURIComponent(cat.label)}`}
                 className="group flex flex-col items-center gap-2 rounded-[var(--radius-md)] border border-border bg-surface px-3 py-5 text-center transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-[var(--shadow-sm)]"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-light text-primary transition-colors group-hover:bg-primary group-hover:text-white">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-light text-primary transition-colors group-hover:bg-primary group-hover:text-primary-contrast">
                   <cat.icon className="h-5 w-5" aria-hidden />
                 </span>
                 <span className="text-xs font-medium leading-snug text-text-secondary group-hover:text-text-primary">
@@ -141,7 +141,7 @@ export function LandingPage() {
             <div className="mt-10 grid gap-8 sm:grid-cols-3">
               {steps.map((step, i) => (
                 <div key={step.title} className="relative text-center">
-                  <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-white">
+                  <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-contrast">
                     {i + 1}
                   </span>
                   <div className="mt-4 flex justify-center">
@@ -175,24 +175,24 @@ export function LandingPage() {
         {/* CTA Pros — inspiré Angi for professionals */}
         <section className="mx-auto w-full max-w-6xl px-4 pb-16">
           <div className="overflow-hidden rounded-[var(--radius-lg)] bg-gradient-to-r from-primary to-primary-hover px-6 py-10 text-center sm:px-12">
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/15">
-              <UserRound className="h-6 w-6 text-white" aria-hidden />
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary-contrast/15">
+              <UserRound className="h-6 w-6 text-primary-contrast" aria-hidden />
             </span>
-            <h2 className="mt-4 text-2xl font-bold text-white sm:text-3xl">
+            <h2 className="mt-4 text-2xl font-bold text-primary-contrast sm:text-3xl">
               Vous êtes professionnel&nbsp;?
             </h2>
-            <p className="mx-auto mt-2 max-w-xl text-sm text-white/85 sm:text-base">
+            <p className="mx-auto mt-2 max-w-xl text-sm text-primary-contrast/85 sm:text-base">
               Créez votre compte pro, publiez vos activités, voyez celles des autres pros et
               sollicitez leurs services quand vous en avez besoin.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               <Link to="/register?role=PROFESSIONAL">
-                <Button size="lg" variant="outline" className="border-white/40 bg-white text-primary hover:bg-white/90">
+                <Button size="lg" variant="invert">
                   Créer un compte pro
                 </Button>
               </Link>
               <Link to="/trouver">
-                <Button size="lg" variant="ghost" className="text-white hover:bg-white/10 hover:text-white">
+                <Button size="lg" variant="invert-ghost">
                   Parcourir les pros
                 </Button>
               </Link>

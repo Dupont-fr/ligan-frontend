@@ -126,7 +126,7 @@ export function DashboardPage() {
             <ThemeToggle />
             <Button variant="outline" size="sm" onClick={handleLogout}>
               <LogOut className="h-4 w-4" aria-hidden />
-              Déconnexion
+              <span className="hidden sm:inline">Déconnexion</span>
             </Button>
           </div>
         </header>
@@ -138,7 +138,7 @@ export function DashboardPage() {
               type="button"
               onClick={() => setSection(item.id)}
               className={`whitespace-nowrap rounded-[var(--radius-sm)] px-3 py-1.5 text-xs font-medium ${
-                section === item.id ? 'bg-primary text-white' : 'text-text-secondary'
+                section === item.id ? 'bg-primary text-primary-contrast' : 'text-text-secondary'
               }`}
             >
               {item.label}
