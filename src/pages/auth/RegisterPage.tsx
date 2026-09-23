@@ -118,7 +118,7 @@ export function RegisterPage() {
       <div className="space-y-1">
         <h1 className="text-2xl font-bold text-text-primary">Créer un compte</h1>
         <p className="text-sm text-text-secondary">
-          Rejoignez Ligan+ : cherchez un pro ou proposez vos services.
+          Rejoignez LIGAN+ : cherchez un pro ou proposez vos services.
         </p>
       </div>
 

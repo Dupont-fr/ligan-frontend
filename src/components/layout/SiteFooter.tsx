@@ -39,6 +39,9 @@ export function SiteFooter() {
             Le canal <span className="font-semibold text-primary">+</span> qui relie les clients aux
             professionnels locaux : artisans, services à domicile, bien-être et plus encore.
           </p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+            Trouvez les professionnels près de vous.
+          </p>
         </div>
 
         {columns.map((col) => (
@@ -62,7 +65,7 @@ export function SiteFooter() {
 
       <div className="border-t border-border">
         <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-3 px-4 py-4 text-xs text-text-muted sm:flex-row">
-          <span>© 2026 Ligan+ — Tous droits réservés.</span>
+          <span>© 2026 LIGAN+ — Tous droits réservés.</span>
           <div className="flex flex-wrap items-center justify-center gap-3">
             {CATEGORIES.slice(0, 5).map((cat) => (
               <Link

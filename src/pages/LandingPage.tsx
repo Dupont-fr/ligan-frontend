@@ -56,7 +56,7 @@ export function LandingPage() {
               Trouvez le bon pro, <span className="text-primary">près de chez vous</span>
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-base text-text-secondary sm:text-lg">
-              Mécaniciens, plombiers, coiffeurs, cours particuliers… Ligan+ relie les clients aux
+              Mécaniciens, plombiers, coiffeurs, cours particuliers… LIGAN+ relie les clients aux
               professionnels locaux, simplement et gratuitement.
             </p>
 

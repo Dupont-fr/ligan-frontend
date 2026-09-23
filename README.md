@@ -1,6 +1,6 @@
-# Ligan+ — Frontend
+# LIGAN+ — Frontend
 
-Application web de **Ligan+** (découverte de professionnels locaux). Site **statique**
+Application web de **LIGAN+** (découverte de professionnels locaux). Site **statique**
 React + TypeScript + Vite + Tailwind CSS. Le backend est un dépôt séparé (`ligan-backend`).
 
 > Déployé indépendamment du backend sur **GitHub Pages** (voir ci-dessous).
@@ -31,7 +31,7 @@ npm run preview    # prévisualiser le build
 # depuis le dossier frontend/
 git init -b main
 git add .
-git commit -m "feat: initialiser le frontend Ligan+"
+git commit -m "feat: initialiser le frontend LIGAN+"
 git branch -M main
 git remote add origin https://github.com/VOTRE-COMPTE/ligan-frontend.git
 git push -u origin main
