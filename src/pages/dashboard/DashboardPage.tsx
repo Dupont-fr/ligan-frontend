@@ -5,13 +5,14 @@ import {
   LayoutGrid,
   LogOut,
   Plus,
+  Search,
   Settings,
   Trash2,
   UserRound,
   X,
 } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ActivityCard } from '../../components/activities/ActivityCard'
 import { Logo } from '../../components/layout/Logo'
 import { ThemeToggle } from '../../components/shared/ThemeToggle'
@@ -32,6 +33,7 @@ import {
   listMySolicitations,
   updateSolicitation,
 } from '../../services/solicitations'
+import { deleteAccount, updateMe } from '../../services/auth'
 import type { Solicitation } from '../../services/solicitations'
 
 const roleLabels: Record<string, string> = {
@@ -111,6 +113,15 @@ export function DashboardPage() {
               </li>
             ))}
           </ul>
+          <div className="mt-4 border-t border-border pt-3">
+            <Link
+              to="/trouver"
+              className="flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2.5 text-sm font-medium text-secondary transition-colors hover:bg-background"
+            >
+              <Search className="h-4 w-4 shrink-0" aria-hidden />
+              Trouver &amp; solliciter un pro
+            </Link>
+          </div>
         </nav>
       </aside>
 
@@ -152,6 +163,7 @@ export function DashboardPage() {
               activities={feedQuery.data?.activities ?? []}
               isLoading={feedQuery.isLoading}
               currentUserId={user?.id}
+              isPro={isPro}
               onManage={() => setSection('activities')}
             />
           ) : null}
@@ -184,11 +196,13 @@ function FeedSection({
   activities,
   isLoading,
   currentUserId,
+  isPro,
   onManage,
 }: {
   activities: { id: string }[] & Parameters<typeof ActivityCard>[0]['activity'][]
   isLoading: boolean
   currentUserId?: string
+  isPro: boolean
   onManage: () => void
 }) {
   const typed = activities as Parameters<typeof ActivityCard>[0]['activity'][]
@@ -203,9 +217,19 @@ function FeedSection({
             envoyer une demande.
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={onManage}>
-          Gérer mes activités
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Link to="/trouver">
+            <Button variant="outline" size="sm">
+              <Search className="h-4 w-4" aria-hidden />
+              Trouver un pro
+            </Button>
+          </Link>
+          {isPro ? (
+            <Button variant="outline" size="sm" onClick={onManage}>
+              Gérer mes activités
+            </Button>
+          ) : null}
+        </div>
       </div>
 
       {isLoading ? (
@@ -533,13 +557,66 @@ function SolicitationsSection({
 }
 
 function SettingsSection() {
-  const { user } = useAuth()
+  const { user, refreshUser, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const nationalPhone = (value?: string) =>
+    value?.startsWith('+237') ? value.slice(4).trim() : (value ?? '')
+
+  const [firstName, setFirstName] = useState(user?.firstName ?? '')
+  const [lastName, setLastName] = useState(user?.lastName ?? '')
+  const [phone, setPhone] = useState(nationalPhone(user?.phone))
+  const [saving, setSaving] = useState(false)
+  const [saveMsg, setSaveMsg] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
+
+  const [showDelete, setShowDelete] = useState(false)
+  const [deletePassword, setDeletePassword] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSaving(true)
+    setSaveMsg(null)
+    setSaveError(null)
+    try {
+      await updateMe({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        phone: phone.trim() ? `+237${phone.replace(/\D/g, '')}` : '',
+      })
+      await refreshUser()
+      setSaveMsg('Profil mis à jour.')
+    } catch (err) {
+      setSaveError(err instanceof ApiError ? err.message : 'Une erreur est survenue')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDelete = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setDeleting(true)
+    setDeleteError(null)
+    try {
+      await deleteAccount(deletePassword)
+      await logout()
+      navigate('/', { replace: true })
+    } catch (err) {
+      setDeleteError(err instanceof ApiError ? err.message : 'Une erreur est survenue')
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   return (
     <div>
       <div>
         <h1 className="text-2xl font-bold text-text-primary">Paramètres</h1>
-        <p className="text-sm text-text-secondary">Les informations de votre compte.</p>
+        <p className="text-sm text-text-secondary">
+          Modifiez les informations de votre compte ou supprimez-le définitivement.
+        </p>
       </div>
 
       <Card className="mt-6 max-w-lg p-6">
@@ -568,12 +645,6 @@ function SettingsSection() {
               </Badge>
             </dd>
           </div>
-          {user?.phone ? (
-            <div className="flex items-center justify-between border-b border-border pb-3">
-              <dt className="text-text-secondary">Téléphone</dt>
-              <dd className="font-medium text-text-primary">{user.phone}</dd>
-            </div>
-          ) : null}
           <div className="flex items-center justify-between">
             <dt className="text-text-secondary">Membre depuis</dt>
             <dd className="font-medium text-text-primary">
@@ -581,6 +652,115 @@ function SettingsSection() {
             </dd>
           </div>
         </dl>
+      </Card>
+
+      <Card className="mt-6 max-w-lg p-6">
+        <h2 className="text-base font-semibold text-text-primary">Modifier mon profil</h2>
+
+        <form onSubmit={handleSave} className="mt-4 space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="me-firstname" className="mb-1 block text-sm font-medium text-text-primary">
+                Prénom
+              </label>
+              <input
+                id="me-firstname"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+                minLength={2}
+                maxLength={60}
+                className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-sm text-text-primary outline-none focus:border-primary"
+              />
+            </div>
+            <div>
+              <label htmlFor="me-lastname" className="mb-1 block text-sm font-medium text-text-primary">
+                Nom
+              </label>
+              <input
+                id="me-lastname"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+                minLength={2}
+                maxLength={60}
+                className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-sm text-text-primary outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="me-phone" className="mb-1 block text-sm font-medium text-text-primary">
+              Téléphone
+            </label>
+            <div className="relative">
+              <span
+                className="pointer-events-none absolute inset-y-0 left-0 flex select-none items-center border-r border-border bg-surface px-3 text-sm font-medium text-text-secondary"
+                aria-hidden
+              >
+                +237
+              </span>
+              <input
+                id="me-phone"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel-national"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="6 90 00 00 00"
+                className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background pl-[4.4rem] pr-3 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
+              />
+            </div>
+          </div>
+
+          {saveMsg ? <Alert variant="success">{saveMsg}</Alert> : null}
+          {saveError ? <Alert variant="error">{saveError}</Alert> : null}
+
+          <Button type="submit" loading={saving}>
+            Enregistrer
+          </Button>
+        </form>
+      </Card>
+
+      <Card className="mt-6 max-w-lg border-error/40 p-6">
+        <h2 className="text-base font-semibold text-error">Supprimer mon compte</h2>
+        <p className="mt-1 text-sm text-text-secondary">
+          La suppression est définitive : vos activités et sollicitations seront supprimées
+          avec votre compte.
+        </p>
+
+        {showDelete ? (
+          <form onSubmit={handleDelete} className="mt-4 space-y-3">
+            <div>
+              <label htmlFor="delete-password" className="mb-1 block text-sm font-medium text-text-primary">
+                Confirmez avec votre mot de passe
+              </label>
+              <input
+                id="delete-password"
+                type="password"
+                autoComplete="current-password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                required
+                className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-sm text-text-primary outline-none focus:border-error"
+              />
+            </div>
+            {deleteError ? <Alert variant="error">{deleteError}</Alert> : null}
+            <div className="flex gap-2">
+              <Button type="submit" variant="danger" loading={deleting} disabled={!deletePassword}>
+                Supprimer définitivement
+              </Button>
+              <Button type="button" variant="ghost" onClick={() => { setShowDelete(false); setDeletePassword(''); setDeleteError(null) }}>
+                Annuler
+              </Button>
+            </div>
+          </form>
+        ) : (
+          <Button variant="danger" className="mt-4" onClick={() => setShowDelete(true)}>
+            <Trash2 className="h-4 w-4" aria-hidden />
+            Supprimer mon compte
+          </Button>
+        )}
       </Card>
     </div>
   )

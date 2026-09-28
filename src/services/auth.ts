@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from '../lib/api'
+import { apiDelete, apiGet, apiPatch, apiPost } from '../lib/api'
 
 export type UserRole = 'CUSTOMER' | 'PROFESSIONAL' | 'ADMIN'
 
@@ -59,6 +59,20 @@ export function refreshUser(): Promise<AuthUserResponse> {
 
 export function me(): Promise<AuthUserResponse> {
   return apiGet<AuthUserResponse>('/api/auth/me')
+}
+
+export interface UpdateMeInput {
+  firstName?: string
+  lastName?: string
+  phone?: string
+}
+
+export function updateMe(input: UpdateMeInput): Promise<AuthUserResponse> {
+  return apiPatch<AuthUserResponse>('/api/auth/me', input)
+}
+
+export function deleteAccount(password: string): Promise<MessageResponse> {
+  return apiDelete<MessageResponse>('/api/auth/me', { password })
 }
 
 export function forgotPassword(email: string): Promise<MessageResponse> {

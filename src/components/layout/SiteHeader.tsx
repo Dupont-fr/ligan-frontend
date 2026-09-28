@@ -5,12 +5,13 @@ import { ThemeToggle } from '../shared/ThemeToggle'
 import { Button } from '../ui/Button'
 import { useAuth } from '../../features/auth/AuthContext'
 import { useCategories } from '../../hooks/useCategories'
+import type { UserRole } from '../../services/auth'
 import { Logo } from './Logo'
 
-const navLinks = [
+const navLinks: { label: string; to: string; hideFor?: UserRole[] }[] = [
   { label: 'Trouver un pro', to: '/trouver' },
   { label: 'Comment ça marche', to: '/#how' },
-  { label: 'Devenir pro', to: '/register?role=PROFESSIONAL' },
+  { label: 'Devenir pro', to: '/register?role=PROFESSIONAL', hideFor: ['PROFESSIONAL', 'ADMIN'] },
 ]
 
 export function SiteHeader() {
@@ -65,15 +66,17 @@ export function SiteHeader() {
                 </Link>
               </div>
             </div>
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                to={link.to}
-                className="text-sm font-medium text-text-secondary transition-colors hover:text-primary"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks
+              .filter((link) => !link.hideFor?.includes(user?.role ?? 'CUSTOMER'))
+              .map((link) => (
+                <Link
+                  key={link.label}
+                  to={link.to}
+                  className="text-sm font-medium text-text-secondary transition-colors hover:text-primary"
+                >
+                  {link.label}
+                </Link>
+              ))}
             {user?.role === 'ADMIN' ? (
               <Link
                 to="/admin/categories"
@@ -128,17 +131,19 @@ export function SiteHeader() {
             aria-label="Navigation mobile"
           >
             <ul className="space-y-1">
-              {navLinks.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    to={link.to}
-                    onClick={closeMenu}
-                    className="block rounded-[var(--radius-sm)] px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-background hover:text-text-primary"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+              {navLinks
+                .filter((link) => !link.hideFor?.includes(user?.role ?? 'CUSTOMER'))
+                .map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      to={link.to}
+                      onClick={closeMenu}
+                      className="block rounded-[var(--radius-sm)] px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-background hover:text-text-primary"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
               {user?.role === 'ADMIN' ? (
                 <li>
                   <Link

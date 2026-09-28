@@ -1,5 +1,3 @@
-import { Check, X } from 'lucide-react'
-
 const PASSWORD_RULES = [
   {
     label: 'Au moins 8 caractères',
@@ -24,29 +22,22 @@ interface PasswordChecklistProps {
   className?: string
 }
 
+/* N'affiche que les règles encore à satisfaire :
+   une règle respectée disparaît de la liste. */
 export function PasswordChecklist({ password, className = '' }: PasswordChecklistProps) {
   if (!password) return null
 
-  const allValid = PASSWORD_RULES.every((r) => r.test(password))
-  if (allValid) return null
+  const remaining = PASSWORD_RULES.filter((rule) => !rule.test(password))
+  if (remaining.length === 0) return null
 
   return (
     <ul className={`mt-2 space-y-1 ${className}`}>
-      {PASSWORD_RULES.map((rule) => {
-        const valid = rule.test(password)
-        return (
-          <li key={rule.label} className="flex items-center gap-2 text-sm">
-            {valid ? (
-              <Check className="h-4 w-4 shrink-0 text-green-600" aria-hidden />
-            ) : (
-              <X className="h-4 w-4 shrink-0 text-text-muted" aria-hidden />
-            )}
-            <span className={valid ? 'text-text-secondary line-through' : 'text-text-secondary'}>
-              {rule.label}
-            </span>
-          </li>
-        )
-      })}
+      {remaining.map((rule) => (
+        <li key={rule.label} className="flex items-center gap-2 text-sm text-text-secondary">
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-warning" aria-hidden />
+          {rule.label}
+        </li>
+      ))}
     </ul>
   )
 }

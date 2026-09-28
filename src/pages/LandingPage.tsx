@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { SiteFooter } from '../components/layout/SiteFooter'
 import { SiteHeader } from '../components/layout/SiteHeader'
 import { Button } from '../components/ui/Button'
+import { useAuth } from '../features/auth/AuthContext'
 import { useCategories } from '../hooks/useCategories'
 
 const steps = [
@@ -46,6 +47,7 @@ export function LandingPage() {
   const [query, setQuery] = useState('')
   const navigate = useNavigate()
   const categories = useCategories()
+  const { user } = useAuth()
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -220,16 +222,33 @@ export function LandingPage() {
               autres pros et sollicitez-les quand vous en avez besoin.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <Link to="/register?role=PROFESSIONAL">
-                <Button size="lg" variant="invert">
-                  Créer un compte pro
-                </Button>
-              </Link>
-              <Link to="/trouver">
-                <Button size="lg" variant="invert-ghost">
-                  Parcourir les pros
-                </Button>
-              </Link>
+              {user?.role === 'PROFESSIONAL' ? (
+                <>
+                  <Link to="/dashboard">
+                    <Button size="lg" variant="invert">
+                      Accéder à mon espace
+                    </Button>
+                  </Link>
+                  <Link to="/trouver">
+                    <Button size="lg" variant="invert-ghost">
+                      Trouver &amp; solliciter un pro
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/register?role=PROFESSIONAL">
+                    <Button size="lg" variant="invert">
+                      Créer un compte pro
+                    </Button>
+                  </Link>
+                  <Link to="/trouver">
+                    <Button size="lg" variant="invert-ghost">
+                      Parcourir les pros
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </section>

@@ -23,7 +23,7 @@ const schema = z
     phone: z
       .string()
       .trim()
-      .regex(/^\+?[0-9\s().-]{8,20}$/, 'Numéro de téléphone invalide')
+      .regex(/^[0-9\s().-]{8,15}$/, 'Numéro de téléphone invalide (8 chiffres minimum)')
       .optional()
       .or(z.literal('')),
     password: z
@@ -103,7 +103,7 @@ export function RegisterPage() {
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
-        phone: values.phone || undefined,
+        phone: values.phone ? `+237${values.phone.replace(/\D/g, '')}` : undefined,
         password: values.password,
         role: values.role,
       })
@@ -196,14 +196,24 @@ export function RegisterPage() {
           error={errors.phone?.message}
           hint="Optionnel — pour être contacté par les professionnels."
         >
-          <Input
-            id="phone"
-            type="tel"
-            autoComplete="tel"
-            placeholder="+237 6 90 00 00 00"
-            error={Boolean(errors.phone)}
-            {...register('phone')}
-          />
+          <div className="relative">
+            <span
+              className="pointer-events-none absolute inset-y-0 left-0 flex select-none items-center border-r border-border bg-surface px-3 text-sm font-medium text-text-secondary"
+              aria-hidden
+            >
+              +237
+            </span>
+            <Input
+              id="phone"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel-national"
+              placeholder="6 90 00 00 00"
+              error={Boolean(errors.phone)}
+              className="pl-[4.4rem]"
+              {...register('phone')}
+            />
+          </div>
         </FormField>
 
         <FormField label="Mot de passe" htmlFor="password" error={errors.password?.message}>
