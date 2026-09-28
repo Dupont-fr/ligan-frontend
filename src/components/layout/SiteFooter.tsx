@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { CATEGORIES } from '../../lib/categories'
+import { useCategories } from '../../hooks/useCategories'
 import { Logo } from './Logo'
 
 const columns = [
@@ -30,6 +30,7 @@ const columns = [
 ]
 
 export function SiteFooter() {
+  const categories = useCategories()
   return (
     <footer className="border-t border-border bg-surface">
       <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-4">
@@ -67,7 +68,7 @@ export function SiteFooter() {
         <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-3 px-4 py-4 text-xs text-text-muted sm:flex-row">
           <span>© 2026 LIGAN+ — Tous droits réservés.</span>
           <div className="flex flex-wrap items-center justify-center gap-3">
-            {CATEGORIES.slice(0, 5).map((cat) => (
+            {categories.slice(0, 5).map((cat) => (
               <Link
                 key={cat.slug}
                 to={`/trouver?categorie=${encodeURIComponent(cat.label)}`}

@@ -6,7 +6,7 @@ import { ActivityCard } from '../components/activities/ActivityCard'
 import { SiteFooter } from '../components/layout/SiteFooter'
 import { SiteHeader } from '../components/layout/SiteHeader'
 import { Button } from '../components/ui/Button'
-import { CATEGORIES } from '../lib/categories'
+import { useCategories } from '../hooks/useCategories'
 import { listActivities } from '../services/activities'
 
 export function BrowsePage() {
@@ -16,6 +16,7 @@ export function BrowsePage() {
 
   const [query, setQuery] = useState(initialQ)
   const [category, setCategory] = useState(initialCategory)
+  const categories = useCategories()
 
   const { data, isLoading } = useQuery({
     queryKey: ['activities', initialQ, initialCategory],
@@ -72,7 +73,7 @@ export function BrowsePage() {
             </form>
 
             <div className="mt-4 flex flex-wrap gap-2">
-              {CATEGORIES.map((cat) => (
+              {categories.map((cat) => (
                 <button
                   key={cat.slug}
                   type="button"

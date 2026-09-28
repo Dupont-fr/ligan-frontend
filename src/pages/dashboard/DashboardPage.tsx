@@ -21,7 +21,7 @@ import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { useAuth } from '../../features/auth/AuthContext'
 import { ApiError } from '../../lib/api'
-import { CATEGORIES } from '../../lib/categories'
+import { useCategories } from '../../hooks/useCategories'
 import {
   createActivity,
   deleteActivity,
@@ -243,7 +243,8 @@ function MyActivitiesSection({
 }) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [category, setCategory] = useState(CATEGORIES[0].label)
+  const categories = useCategories()
+  const [category, setCategory] = useState(categories[0].label)
   const [price, setPrice] = useState('')
   const [location, setLocation] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -338,7 +339,7 @@ function MyActivitiesSection({
                 onChange={(e) => setCategory(e.target.value)}
                 className="w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 py-2 text-sm text-text-primary outline-none focus:border-primary"
               >
-                {CATEGORIES.map((cat) => (
+                {categories.map((cat) => (
                   <option key={cat.slug} value={cat.label}>
                     {cat.label}
                   </option>

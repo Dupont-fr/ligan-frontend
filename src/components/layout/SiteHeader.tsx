@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { ThemeToggle } from '../shared/ThemeToggle'
 import { Button } from '../ui/Button'
 import { useAuth } from '../../features/auth/AuthContext'
-import { CATEGORIES } from '../../lib/categories'
+import { useCategories } from '../../hooks/useCategories'
 import { Logo } from './Logo'
 
 const navLinks = [
@@ -15,6 +15,7 @@ const navLinks = [
 
 export function SiteHeader() {
   const { user, status } = useAuth()
+  const categories = useCategories()
   const [menuOpen, setMenuOpen] = useState(false)
 
   const closeMenu = () => setMenuOpen(false)
@@ -44,7 +45,7 @@ export function SiteHeader() {
               </button>
               <div className="invisible absolute left-0 top-full z-30 w-64 -translate-y-1 overflow-hidden rounded-[var(--radius-md)] border border-border bg-surface opacity-0 shadow-[var(--shadow-md)] transition-[opacity,transform,visibility] duration-150 ease-out group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
                 <ul className="max-h-[70vh] overflow-y-auto py-1">
-                  {CATEGORIES.map((cat) => (
+                  {categories.map((cat) => (
                     <li key={cat.slug}>
                       <Link
                         to={`/trouver?categorie=${encodeURIComponent(cat.label)}`}
@@ -73,6 +74,14 @@ export function SiteHeader() {
                 {link.label}
               </Link>
             ))}
+            {user?.role === 'ADMIN' ? (
+              <Link
+                to="/admin/categories"
+                className="text-sm font-medium text-secondary transition-colors hover:underline"
+              >
+                Gérer les catégories
+              </Link>
+            ) : null}
           </nav>
 
           <div className="flex items-center gap-2">
@@ -130,6 +139,17 @@ export function SiteHeader() {
                   </Link>
                 </li>
               ))}
+              {user?.role === 'ADMIN' ? (
+                <li>
+                  <Link
+                    to="/admin/categories"
+                    onClick={closeMenu}
+                    className="block rounded-[var(--radius-sm)] px-3 py-2.5 text-sm font-medium text-secondary transition-colors hover:bg-background"
+                  >
+                    Gérer les catégories
+                  </Link>
+                </li>
+              ) : null}
             </ul>
             <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
               {status === 'authenticated' && user ? (

@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { SiteFooter } from '../components/layout/SiteFooter'
 import { SiteHeader } from '../components/layout/SiteHeader'
 import { Button } from '../components/ui/Button'
-import { CATEGORIES } from '../lib/categories'
+import { useCategories } from '../hooks/useCategories'
 
 const steps = [
   {
@@ -45,6 +45,7 @@ const trustPoints = [
 export function LandingPage() {
   const [query, setQuery] = useState('')
   const navigate = useNavigate()
+  const categories = useCategories()
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -144,7 +145,7 @@ export function LandingPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
-            {CATEGORIES.map((cat) => (
+            {categories.map((cat) => (
               <Link
                 key={cat.slug}
                 to={`/trouver?categorie=${encodeURIComponent(cat.label)}`}
