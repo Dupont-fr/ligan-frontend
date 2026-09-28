@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './features/auth/AuthContext'
 import { ProtectedRoute } from './features/auth/ProtectedRoute'
 import { AdminCategoriesPage } from './pages/admin/AdminCategoriesPage'
+import { AdminUsersPage } from './pages/admin/AdminUsersPage'
 import { AuthLayout } from './pages/auth/AuthLayout'
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage'
 import { LoginPage } from './pages/auth/LoginPage'
@@ -33,7 +34,9 @@ function App() {
           </Route>
 
           <Route element={<ProtectedRoute requireRole={['ADMIN']} />}>
+            <Route path="/admin" element={<Navigate to="/admin/categories" replace />} />
             <Route path="/admin/categories" element={<AdminCategoriesPage />} />
+            <Route path="/admin/users" element={<AdminUsersPage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -82,7 +82,7 @@ export function SiteHeader() {
                 to="/admin/categories"
                 className="text-sm font-medium text-secondary transition-colors hover:underline"
               >
-                Gérer les catégories
+                Espace admin
               </Link>
             ) : null}
           </nav>
@@ -151,7 +151,7 @@ export function SiteHeader() {
                     onClick={closeMenu}
                     className="block rounded-[var(--radius-sm)] px-3 py-2.5 text-sm font-medium text-secondary transition-colors hover:bg-background"
                   >
-                    Gérer les catégories
+                    Espace admin
                   </Link>
                 </li>
               ) : null}

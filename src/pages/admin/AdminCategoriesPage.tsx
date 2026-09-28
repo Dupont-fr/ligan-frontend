@@ -16,6 +16,7 @@ import {
   type Category,
   type CategoryInput,
 } from '../../services/categories'
+import { AdminTabs } from './AdminTabs'
 
 interface FormState {
   name: string
@@ -132,6 +133,8 @@ export function AdminCategoriesPage() {
               Nouvelle catégorie
             </Button>
           </div>
+
+          <AdminTabs />
 
           {formOpen ? (
             <form
