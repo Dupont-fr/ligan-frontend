@@ -132,10 +132,10 @@ export function RegisterPage() {
               role="radio"
               aria-checked={active}
               onClick={() => setValue('role', opt.value, { shouldValidate: true })}
-              className={`rounded-[var(--radius-md)] border p-4 text-left transition-all ${
+              className={`rounded-[var(--radius-md)] border p-4 text-left transition-all duration-200 ease-out ${
                 active
                   ? 'border-primary bg-primary-light shadow-[var(--shadow-sm)]'
-                  : 'border-border bg-surface hover:border-text-muted'
+                  : 'border-border bg-surface hover:-translate-y-0.5 hover:border-primary hover:shadow-[var(--shadow-md)]'
               }`}
             >
               <span

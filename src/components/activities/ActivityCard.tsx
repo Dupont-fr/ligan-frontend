@@ -51,14 +51,16 @@ export function ActivityCard({ activity, currentUserId }: ActivityCardProps) {
   }
 
   return (
-    <div className="flex flex-col rounded-[var(--radius-md)] border border-border bg-surface p-5 transition-shadow hover:shadow-[var(--shadow-md)]">
+    <div className="flex flex-col rounded-[var(--radius-md)] border border-border bg-surface p-5 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <Badge variant="secondary">{activity.category}</Badge>
           <h3 className="mt-2 truncate text-base font-semibold text-text-primary">{activity.title}</h3>
         </div>
         {activity.price ? (
-          <span className="shrink-0 text-sm font-bold text-primary">{activity.price}</span>
+          <span className="shrink-0 rounded-[var(--radius-sm)] bg-secondary-light px-2 py-0.5 text-sm font-bold text-secondary">
+            {activity.price}
+          </span>
         ) : null}
       </div>
 

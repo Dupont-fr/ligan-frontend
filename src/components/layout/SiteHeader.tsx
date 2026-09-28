@@ -1,9 +1,10 @@
-import { Menu, Search, X } from 'lucide-react'
+import { ChevronDown, Menu, Search, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ThemeToggle } from '../shared/ThemeToggle'
 import { Button } from '../ui/Button'
 import { useAuth } from '../../features/auth/AuthContext'
+import { CATEGORIES } from '../../lib/categories'
 import { Logo } from './Logo'
 
 const navLinks = [
@@ -20,7 +21,7 @@ export function SiteHeader() {
 
   return (
     <>
-      <div className="bg-brand-red text-white">
+      <div className="bg-primary text-primary-contrast">
         <div className="mx-auto flex h-8 w-full max-w-6xl items-center justify-center px-4">
           <span className="truncate text-xs font-medium">
             Consultez les professionnels de votre quartier — gratuit et sans compte
@@ -32,6 +33,37 @@ export function SiteHeader() {
           <Logo />
 
           <nav className="hidden items-center gap-6 lg:flex" aria-label="Navigation principale">
+            <div className="group relative">
+              <button
+                type="button"
+                className="flex items-center gap-1.5 text-sm font-medium text-text-secondary transition-colors hover:text-primary"
+              >
+                <Menu className="h-4 w-4" aria-hidden />
+                Catégories
+                <ChevronDown className="h-3.5 w-3.5 transition-transform group-hover:rotate-180" aria-hidden />
+              </button>
+              <div className="invisible absolute left-0 top-full z-30 w-64 -translate-y-1 overflow-hidden rounded-[var(--radius-md)] border border-border bg-surface opacity-0 shadow-[var(--shadow-md)] transition-[opacity,transform,visibility] duration-150 ease-out group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
+                <ul className="max-h-[70vh] overflow-y-auto py-1">
+                  {CATEGORIES.map((cat) => (
+                    <li key={cat.slug}>
+                      <Link
+                        to={`/trouver?categorie=${encodeURIComponent(cat.label)}`}
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-secondary transition-colors hover:bg-primary-light hover:text-primary"
+                      >
+                        <cat.icon className="h-4 w-4 shrink-0" aria-hidden />
+                        {cat.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  to="/trouver"
+                  className="block border-t border-border px-4 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary-light"
+                >
+                  Voir toutes les activités →
+                </Link>
+              </div>
+            </div>
             {navLinks.map((link) => (
               <Link
                 key={link.label}

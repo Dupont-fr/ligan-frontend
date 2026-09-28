@@ -8,34 +8,36 @@
    Les utilitaires générés utilisent var(--color-*) afin que
    le thème sombre (.dark) bascule automatiquement. */
 @theme {
-  --color-primary: #0f0f10;
-  --color-primary-hover: #e50914;
-  --color-primary-light: #f4f4f5;
+  --font-sans: 'Ubuntu', ui-sans-serif, -apple-system, 'Segoe UI', Helvetica Neue, Arial, sans-serif;
+
+  --color-primary: #f68b1e;
+  --color-primary-hover: #d56e0e;
+  --color-primary-light: #fdf0e1;
   --color-primary-contrast: #ffffff;
 
   --color-brand-red: #e50914;
 
-  --color-secondary: #e50914;
-  --color-secondary-light: #ffe8eb;
+  --color-secondary: #be1d3e;
+  --color-secondary-light: #fbe9ed;
 
-  --color-background: #f7f7f8;
+  --color-background: #f1f1f2;
   --color-surface: #ffffff;
 
-  --color-text-primary: #18181b;
-  --color-text-secondary: #52525b;
-  --color-text-muted: #a1a1aa;
+  --color-text-primary: #313133;
+  --color-text-secondary: #75757a;
+  --color-text-muted: #a3a3a6;
 
-  --color-success: #16a34a;
-  --color-success-light: #f0fdf4;
-  --color-error: #dc2626;
-  --color-error-light: #fef2f2;
-  --color-warning: #f59e0b;
-  --color-warning-light: #fffbeb;
-  --color-info: #0ea5e9;
-  --color-info-light: #f0f9ff;
+  --color-success: #009063;
+  --color-success-light: #e1f6ec;
+  --color-error: #be1d3e;
+  --color-error-light: #fbe9ed;
+  --color-warning: #d97706;
+  --color-warning-light: #fef7e0;
+  --color-info: #286fe3;
+  --color-info-light: #e9f1fd;
 
-  --color-border: #e4e4e7;
-  --color-border-light: #f1f1f2;
+  --color-border: #d4d4d6;
+  --color-border-light: #e8e8e8;
 }
 
 @layer base {
@@ -44,5 +46,44 @@
   }
   body {
     @apply font-sans antialiased;
+  }
+}
+
+/* Bouton avec voile qui remonte au survol (style Jumia).
+   Couche unlayered : ajoutée après Tailwind, elle définit
+   elle-même la transition pour couvrir background-color + position. */
+.btn-fill {
+  background-image: linear-gradient(to top, var(--btn-fill) 50%, transparent 50%);
+  background-size: 100% 200%;
+  background-position: 0 -100%;
+  transition-property: background-position, background-color;
+  transition-duration: 200ms;
+  transition-timing-function: ease-out;
+}
+.btn-fill:hover:not(:disabled),
+.btn-fill:focus-visible {
+  background-position: 0 100%;
+}
+
+/* Bandeau défilant (ticker promo type marketplace) */
+@keyframes marquee-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-x 24s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
   }
 }

@@ -65,7 +65,7 @@ export function LandingPage() {
               Gratuit et sans compte pour chercher
             </span>
             <h1 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl md:text-5xl">
-              Trouvez le bon pro, <span className="text-brand-red">près de chez vous</span>
+              Trouvez le bon pro, <span className="text-secondary">près de chez vous</span>
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-base text-text-secondary sm:text-lg">
               Mécaniciens, plombiers, coiffeurs, professeurs particuliers… Comparez les activités
@@ -107,6 +107,26 @@ export function LandingPage() {
           </div>
         </section>
 
+        {/* Bandeau défilant — ticker promo type marketplace */}
+        <div className="overflow-hidden border-y border-border bg-secondary py-2 text-white">
+          <div className="marquee-track" aria-hidden>
+            {[0, 1].map((copy) => (
+              <div key={copy} className="flex shrink-0 items-center gap-10 pr-10 text-xs font-medium uppercase tracking-wide">
+                <span>Recherche 100 % gratuite</span>
+                <span>•</span>
+                <span>Sans compte pour consulter</span>
+                <span>•</span>
+                <span>Contact direct avec le pro</span>
+                <span>•</span>
+                <span>Des dizaines de métiers réunis</span>
+                <span>•</span>
+                <span>Des pros près de chez vous</span>
+                <span>•</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Catégories — inspiré Jumia */}
         <section className="mx-auto w-full max-w-6xl px-4 py-12" aria-labelledby="categories-title">
           <div className="mb-6 flex items-end justify-between">
@@ -128,7 +148,7 @@ export function LandingPage() {
               <Link
                 key={cat.slug}
                 to={`/trouver?categorie=${encodeURIComponent(cat.label)}`}
-                className="group flex flex-col items-center gap-2 rounded-[var(--radius-md)] border border-border bg-surface px-3 py-5 text-center transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-[var(--shadow-sm)]"
+                className="group flex flex-col items-center gap-2 rounded-[var(--radius-md)] border border-border bg-surface px-3 py-5 text-center transition-all duration-200 ease-out hover:-translate-y-1 hover:border-primary hover:shadow-[var(--shadow-md)]"
               >
                 <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-light text-primary transition-colors group-hover:bg-primary group-hover:text-primary-contrast">
                   <cat.icon className="h-5 w-5" aria-hidden />
