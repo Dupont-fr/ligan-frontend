@@ -37,7 +37,7 @@ export function ActivityCard({ activity, currentUserId }: ActivityCardProps) {
     setSending(true)
     try {
       await createSolicitation({ toProfessionalId: proId, activityId: activity.id, message })
-      setFeedback({ type: 'success', text: 'Sollicitation envoyée ! Le professionnel y répondra dans son espace.' })
+      setFeedback({ type: 'success', text: 'Demande envoyée. Le professionnel vous répondra depuis son espace.' })
       setMessage('')
       setShowForm(false)
     } catch (err) {
@@ -98,7 +98,7 @@ export function ActivityCard({ activity, currentUserId }: ActivityCardProps) {
             maxLength={1000}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Bonjour, je souhaite solliciter vos services…"
+            placeholder="Bonjour, je suis intéressé(e) par vos services…"
             className="w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 py-2 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
           />
           <div className="flex gap-2">

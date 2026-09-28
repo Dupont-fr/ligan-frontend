@@ -72,10 +72,10 @@ export function VerifyEmailPage() {
   return (
     <Card className="p-6 sm:p-8">
       <div className="space-y-1">
-        <h1 className="text-2xl font-bold text-text-primary">Vérifie ton adresse email</h1>
+        <h1 className="text-2xl font-bold text-text-primary">Vérifiez votre adresse email</h1>
         <p className="text-sm text-text-secondary">
-          Un code à 6 chiffres a été envoyé à <strong>{initialEmail}</strong>. Saisis-le ci-dessous
-          pour activer ton compte.
+          Un code à 6 chiffres a été envoyé à <strong>{initialEmail}</strong>. Saisissez-le
+          ci-dessous pour activer votre compte.
         </p>
       </div>
 

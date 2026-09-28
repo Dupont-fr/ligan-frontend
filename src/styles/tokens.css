@@ -1,6 +1,6 @@
 /* ==========================================================================
    LIGAN+ — Design tokens
-   Thème clair (par défaut) et thème sombre (.dark / [data-theme="dark"])
+   Thèmes : clair (:root, par défaut), sombre (.dark), confort (.comfort).
    Source unique des valeurs : ne jamais coder une couleur en dur ailleurs.
    Palette de marque : noir / blanc / rouge (#e50914).
    ========================================================================== */
@@ -85,4 +85,42 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.5);
+}
+
+.confort {
+  /* Couleurs de marque (rouge conservé, base chaude) */
+  --color-primary: #29221c;
+  --color-primary-hover: #e50914;
+  --color-primary-light: #f1e7d6;
+  --color-primary-contrast: #fdfaf4;
+
+  --color-secondary: #e50914;
+  --color-secondary-light: #ffe8eb;
+
+  /* Fond — papier crème */
+  --color-background: #f7f1e7;
+  --color-surface: #fdfaf4;
+
+  /* Texte — brun anthracite */
+  --color-text-primary: #2b241d;
+  --color-text-secondary: #6b5f54;
+  --color-text-muted: #a89a8b;
+
+  /* États sémantiques */
+  --color-success: #16a34a;
+  --color-success-light: #eefaf2;
+  --color-error: #dc2626;
+  --color-error-light: #fdeeee;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fdf3e3;
+  --color-info: #0ea5e9;
+  --color-info-light: #ecf7fd;
+
+  /* Bordures et ombres — chaudes */
+  --color-border: #e6dcc9;
+  --color-border-light: #efe7d8;
+
+  --shadow-sm: 0 1px 2px rgba(43, 36, 29, 0.06);
+  --shadow-md: 0 4px 12px rgba(43, 36, 29, 0.08);
+  --shadow-lg: 0 12px 24px rgba(43, 36, 29, 0.1);
 }

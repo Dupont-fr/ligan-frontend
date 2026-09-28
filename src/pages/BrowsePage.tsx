@@ -50,7 +50,8 @@ export function BrowsePage() {
           <div className="mx-auto w-full max-w-6xl px-4 py-8">
             <h1 className="text-2xl font-bold text-text-primary">Trouver un professionnel</h1>
             <p className="mt-1 text-sm text-text-secondary">
-              Consultez librement les activités publiées — aucun compte nécessaire.
+              Parcourez les activités publiées par les professionnels : la consultation est libre
+              et sans compte.
             </p>
 
             <form onSubmit={handleSearch} className="mt-5 flex max-w-xl flex-col gap-2 sm:flex-row">
@@ -101,7 +102,8 @@ export function BrowsePage() {
             <div className="rounded-[var(--radius-md)] border border-border bg-surface p-10 text-center">
               <p className="font-medium text-text-primary">Aucune activité trouvée</p>
               <p className="mt-1 text-sm text-text-secondary">
-                Essayez une autre recherche ou revenez un peu plus tard — les pros publient chaque jour.
+                Essayez une autre recherche ou revenez plus tard : les professionnels publient
+                régulièrement.
               </p>
             </div>
           ) : (

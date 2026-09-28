@@ -47,13 +47,13 @@ const roleOptions = [
     value: 'CUSTOMER' as const,
     icon: Search,
     title: 'Je cherche un professionnel',
-    text: 'Trouvez et sollicitez des pros locaux.',
+    text: 'Cherchez des pros près de chez vous et contactez-les.',
   },
   {
     value: 'PROFESSIONAL' as const,
     icon: BriefcaseBusiness,
     title: 'Je suis professionnel',
-    text: 'Publiez vos activités et recevez des demandes.',
+    text: 'Publiez vos services et recevez des demandes.',
   },
 ]
 
@@ -118,7 +118,7 @@ export function RegisterPage() {
       <div className="space-y-1">
         <h1 className="text-2xl font-bold text-text-primary">Créer un compte</h1>
         <p className="text-sm text-text-secondary">
-          Rejoignez LIGAN+ : cherchez un pro ou proposez vos services.
+          Créez votre compte pour contacter des professionnels ou publier vos propres services.
         </p>
       </div>
 

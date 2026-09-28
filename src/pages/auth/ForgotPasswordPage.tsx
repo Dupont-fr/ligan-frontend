@@ -45,8 +45,8 @@ export function ForgotPasswordPage() {
       <div className="space-y-1">
         <h1 className="text-2xl font-bold text-text-primary">Mot de passe oublié</h1>
         <p className="text-sm text-text-secondary">
-          Entrez votre adresse email : nous vous enverrons un code pour choisir un nouveau mot de
-          passe.
+          Indiquez votre adresse email : nous vous enverrons un code pour définir un nouveau mot
+          de passe.
         </p>
       </div>
 

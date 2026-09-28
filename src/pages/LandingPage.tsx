@@ -10,24 +10,36 @@ const steps = [
   {
     icon: Search,
     title: 'Recherchez',
-    text: 'Dites-nous ce dont vous avez besoin : métier, catégorie ou mot-clé.',
+    text: 'Indiquez le métier ou le service recherché : une catégorie ou un mot-clé suffit.',
   },
   {
     icon: MessagesSquare,
     title: 'Comparez',
-    text: 'Parcourez les activités publiées par les pros locaux : tarifs, zone, description.',
+    text: "Consultez les activités publiées : tarif, zone d'intervention et description.",
   },
   {
     icon: CheckCircle2,
-    title: 'Sollicitez',
-    text: 'Envoyez un message en 1 clic et obtenez une réponse directe du professionnel.',
+    title: 'Contactez',
+    text: 'Envoyez un message au professionnel et recevez sa réponse directement.',
   },
 ]
 
 const trustPoints = [
-  { icon: ShieldCheck, title: 'Pros vérifiés', text: 'Chaque compte est validé par email.' },
-  { icon: Star, title: 'Activités à jour', text: 'Les pros publient et gèrent leurs services.' },
-  { icon: Clock, title: 'Réponses rapides', text: 'Contact direct, sans intermédiaire.' },
+  {
+    icon: ShieldCheck,
+    title: 'Professionnels vérifiés',
+    text: 'Chaque compte est confirmé par la validation de son adresse email.',
+  },
+  {
+    icon: Star,
+    title: 'Activités à jour',
+    text: 'Les professionnels publient et mettent à jour eux-mêmes leurs services.',
+  },
+  {
+    icon: Clock,
+    title: 'Réponses rapides',
+    text: 'Vous échangez directement avec le professionnel, sans intermédiaire.',
+  },
 ]
 
 export function LandingPage() {
@@ -50,14 +62,15 @@ export function LandingPage() {
           <div className="mx-auto w-full max-w-6xl px-4 py-14 text-center sm:py-20">
             <span className="inline-flex items-center gap-1.5 rounded-[var(--radius-full)] border border-primary/30 bg-surface px-3 py-1 text-xs font-medium text-primary">
               <span className="h-1.5 w-1.5 rounded-full bg-secondary" aria-hidden />
-              La plateforme locale de confiance
+              Gratuit et sans compte pour chercher
             </span>
             <h1 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl md:text-5xl">
               Trouvez le bon pro, <span className="text-brand-red">près de chez vous</span>
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-base text-text-secondary sm:text-lg">
-              Mécaniciens, plombiers, coiffeurs, cours particuliers… LIGAN+ relie les clients aux
-              professionnels locaux, simplement et gratuitement.
+              Mécaniciens, plombiers, coiffeurs, professeurs particuliers… Comparez les activités
+              publiées par les professionnels de votre région et contactez-les en direct, sans
+              intermédiaire.
             </p>
 
             <form onSubmit={handleSearch} className="mx-auto mt-8 flex max-w-xl flex-col gap-2 sm:flex-row">
@@ -80,7 +93,7 @@ export function LandingPage() {
             <div className="mx-auto mt-6 flex max-w-xl flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-text-secondary">
               <span className="inline-flex items-center gap-1.5">
                 <CheckCircle2 className="h-4 w-4 text-success" aria-hidden />
-                Gratuit pour chercher
+                Recherche 100 % gratuite
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <CheckCircle2 className="h-4 w-4 text-success" aria-hidden />
@@ -88,7 +101,7 @@ export function LandingPage() {
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <CheckCircle2 className="h-4 w-4 text-success" aria-hidden />
-                Contact direct
+                Contact direct avec le pro
               </span>
             </div>
           </div>
@@ -102,7 +115,7 @@ export function LandingPage() {
                 Explorez par catégorie
               </h2>
               <p className="mt-1 text-sm text-text-secondary">
-                Des dizaines de métiers, un seul canal : le <span className="font-semibold text-brand-red">+</span>
+                Des dizaines de métiers réunis au même endroit.
               </p>
             </div>
             <Link to="/trouver" className="hidden items-center gap-1 text-sm font-medium text-primary hover:underline sm:inline-flex">
@@ -135,7 +148,7 @@ export function LandingPage() {
               <h2 id="how-title" className="text-xl font-bold text-text-primary sm:text-2xl">
                 Comment ça marche&nbsp;?
               </h2>
-              <p className="mt-2 text-sm text-text-secondary">Trois étapes, zéro friction.</p>
+              <p className="mt-2 text-sm text-text-secondary">De la recherche au contact, en trois étapes.</p>
             </div>
 
             <div className="mt-10 grid gap-8 sm:grid-cols-3">
@@ -182,8 +195,8 @@ export function LandingPage() {
               Vous êtes professionnel&nbsp;?
             </h2>
             <p className="mx-auto mt-2 max-w-xl text-sm text-primary-contrast/85 sm:text-base">
-              Créez votre compte pro, publiez vos activités, voyez celles des autres pros et
-              sollicitez leurs services quand vous en avez besoin.
+              Créez votre compte professionnel, publiez vos services, découvrez les activités des
+              autres pros et sollicitez-les quand vous en avez besoin.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               <Link to="/register?role=PROFESSIONAL">

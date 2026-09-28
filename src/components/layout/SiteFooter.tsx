@@ -36,8 +36,8 @@ export function SiteFooter() {
         <div className="space-y-3">
           <Logo />
           <p className="max-w-xs text-sm text-text-secondary">
-            Le canal <span className="font-semibold text-primary">+</span> qui relie les clients aux
-            professionnels locaux : artisans, services à domicile, bien-être et plus encore.
+            La plateforme qui met en relation les clients et les professionnels locaux :
+            artisans, services à domicile, bien-être et plus encore.
           </p>
           <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">
             Trouvez les professionnels près de vous.

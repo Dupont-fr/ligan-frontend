@@ -199,7 +199,8 @@ function FeedSection({
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Fil d’activité</h1>
           <p className="text-sm text-text-secondary">
-            Les dernières activités publiées par les professionnels — sollicitez-les en 1 clic.
+            Les dernières activités publiées par les professionnels. Ouvrez une fiche pour leur
+            envoyer une demande.
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={onManage}>
@@ -215,9 +216,9 @@ function FeedSection({
         </div>
       ) : typed.length === 0 ? (
         <Card className="mt-6 p-10 text-center">
-          <p className="font-medium text-text-primary">Aucune activité pour le moment</p>
+          <p className="font-medium text-text-primary">Aucune activité publiée pour le moment</p>
           <p className="mt-1 text-sm text-text-secondary">
-            Soyez le premier à publier une activité ou revenez bientôt.
+            Revenez bientôt : les professionnels publient de nouvelles activités régulièrement.
           </p>
         </Card>
       ) : (
@@ -283,7 +284,7 @@ function MyActivitiesSection({
       <div>
         <h1 className="text-2xl font-bold text-text-primary">Mes activités</h1>
         <p className="text-sm text-text-secondary">
-          Publiez vos services : ils apparaîtront dans le fil de tous les utilisateurs.
+          Décrivez vos services : ils apparaîtront dans le fil de tous les utilisateurs.
         </p>
       </div>
 
@@ -465,7 +466,7 @@ function SolicitationsSection({
       <div>
         <h1 className="text-2xl font-bold text-text-primary">Mes sollicitations</h1>
         <p className="text-sm text-text-secondary">
-          Les demandes que vous avez envoyées et celles reçues de autres utilisateurs.
+          Les demandes que vous avez envoyées et celles reçues des autres utilisateurs.
         </p>
       </div>
 

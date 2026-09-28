@@ -58,7 +58,9 @@ export function LoginPage() {
     <Card className="p-6 sm:p-8">
       <div className="space-y-1">
         <h1 className="text-2xl font-bold text-text-primary">Connexion</h1>
-        <p className="text-sm text-text-secondary">Accédez à votre espace LIGAN+.</p>
+        <p className="text-sm text-text-secondary">
+          Connectez-vous pour retrouver votre espace, le fil d'activité et vos demandes.
+        </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-6 space-y-4">

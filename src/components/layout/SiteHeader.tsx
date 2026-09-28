@@ -23,7 +23,7 @@ export function SiteHeader() {
       <div className="bg-brand-red text-white">
         <div className="mx-auto flex h-8 w-full max-w-6xl items-center justify-center px-4">
           <span className="truncate text-xs font-medium">
-            Le + de confiance pour trouver des pros qualifiés près de chez vous
+            Consultez les professionnels de votre quartier — gratuit et sans compte
           </span>
         </div>
       </div>
