@@ -3,6 +3,7 @@ import {
   Activity as ActivityIcon,
   Check,
   LayoutGrid,
+  Pencil,
   Plus,
   Search,
   Settings,
@@ -14,6 +15,7 @@ import {
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ActivityCard } from '../../components/activities/ActivityCard'
+import { ActivityWizard } from '../../components/activities/ActivityWizard'
 import { WorkspaceShell, type ShellGroup } from '../../components/layout/WorkspaceShell'
 import { Alert } from '../../components/ui/Alert'
 import { Badge } from '../../components/ui/Badge'
@@ -21,12 +23,11 @@ import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { useAuth } from '../../features/auth/AuthContext'
 import { ApiError } from '../../lib/api'
-import { useCategories } from '../../hooks/useCategories'
 import {
-  createActivity,
   deleteActivity,
   listActivities,
   listMyActivities,
+  type Activity,
 } from '../../services/activities'
 import {
   listMySolicitations,
@@ -209,41 +210,17 @@ function MyActivitiesSection({
   isLoading,
   onChanged,
 }: {
-  activities: Parameters<typeof ActivityCard>[0]['activity'][]
+  activities: Activity[]
   isLoading: boolean
   onChanged: () => void
 }) {
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const categories = useCategories()
-  const [category, setCategory] = useState(categories[0].label)
-  const [price, setPrice] = useState('')
-  const [location, setLocation] = useState('')
+  const [wizard, setWizard] = useState<{ editing: Activity | null } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
-  const [submitting, setSubmitting] = useState(false)
-
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setSuccessMsg(null)
-    setSubmitting(true)
-    try {
-      await createActivity({ title, description, category, price: price || undefined, location: location || undefined })
-      setSuccessMsg('Activité publiée !')
-      setTitle('')
-      setDescription('')
-      setPrice('')
-      setLocation('')
-      onChanged()
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Une erreur est survenue')
-    } finally {
-      setSubmitting(false)
-    }
-  }
 
   const handleDelete = async (id: string) => {
+    setError(null)
+    setSuccessMsg(null)
     try {
       await deleteActivity(id)
       onChanged()
@@ -254,117 +231,42 @@ function MyActivitiesSection({
 
   return (
     <div>
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight text-text-primary">Mes activités</h1>
-        <p className="mt-1 text-sm text-text-secondary">
-          Décrivez vos services : ils apparaîtront dans le fil de tous les utilisateurs.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight text-text-primary">Mes activités</h1>
+          <p className="mt-1 text-sm text-text-secondary">
+            Complétez votre fiche en quelques étapes : informations, services, horaires, photos.
+          </p>
+        </div>
+        <Button size="sm" onClick={() => setWizard({ editing: null })}>
+          <Plus className="h-4 w-4" aria-hidden />
+          Publier une activité
+        </Button>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <Card className="p-5">
-          <p className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-            <Plus className="h-3.5 w-3.5 text-primary" aria-hidden />
-            Publier une activité
-          </p>
-          {error ? <Alert variant="error" className="mb-4">{error}</Alert> : null}
-          {successMsg ? <Alert variant="success" className="mb-4">{successMsg}</Alert> : null}
-          <form onSubmit={handleCreate} className="space-y-3">
-            <div>
-              <label htmlFor="act-title" className="mb-1 block text-sm font-medium text-text-primary">
-                Titre
-              </label>
-              <input
-                id="act-title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-                minLength={3}
-                maxLength={120}
-                placeholder="Ex : Réparation de fuite d’eau"
-                className="w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 py-2 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
-              />
-            </div>
-            <div>
-              <label htmlFor="act-desc" className="mb-1 block text-sm font-medium text-text-primary">
-                Description
-              </label>
-              <textarea
-                id="act-desc"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                required
-                minLength={10}
-                maxLength={2000}
-                rows={4}
-                placeholder="Décrivez votre service, votre expérience, votre zone d’intervention…"
-                className="w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 py-2 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
-              />
-            </div>
-            <div>
-              <label htmlFor="act-cat" className="mb-1 block text-sm font-medium text-text-primary">
-                Catégorie
-              </label>
-              <select
-                id="act-cat"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 py-2 text-sm text-text-primary outline-none focus:border-primary"
-              >
-                {categories.map((cat) => (
-                  <option key={cat.slug} value={cat.label}>
-                    {cat.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <label htmlFor="act-price" className="mb-1 block text-sm font-medium text-text-primary">
-                  Tarif (optionnel)
-                </label>
-                <input
-                  id="act-price"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  maxLength={60}
-                  placeholder="Ex : 5 000 FCFA / intervention"
-                  className="w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 py-2 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
-                />
-              </div>
-              <div>
-                <label htmlFor="act-loc" className="mb-1 block text-sm font-medium text-text-primary">
-                  Zone (optionnel)
-                </label>
-                <input
-                  id="act-loc"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  maxLength={120}
-                  placeholder="Ex : Douala, Akwa"
-                  className="w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 py-2 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
-                />
-              </div>
-            </div>
-            <Button type="submit" loading={submitting} className="w-full">
-              Publier
-            </Button>
-          </form>
-        </Card>
+      {error ? <Alert variant="error" className="mt-4">{error}</Alert> : null}
+      {successMsg ? <Alert variant="success" className="mt-4">{successMsg}</Alert> : null}
 
-        <div>
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-            Mes publications · {activities.length}
-          </p>
-          {isLoading ? (
+      <div className="mt-6">
+        <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+          Mes publications · {activities.length}
+        </p>
+        {isLoading ? (
             <div className="space-y-3">
               {[0, 1].map((i) => (
                 <div key={i} className="h-24 animate-pulse rounded-[var(--radius-md)] border border-border bg-surface" />
               ))}
             </div>
           ) : activities.length === 0 ? (
-            <Card className="p-6 text-center text-sm text-text-secondary">
-              Vous n’avez encore publié aucune activité.
+            <Card className="p-10 text-center">
+              <p className="font-medium text-text-primary">Aucune activité publiée</p>
+              <p className="mt-1 text-sm text-text-secondary">
+                Publiez votre première activité : elle apparaîtra dans le fil et la recherche.
+              </p>
+              <Button className="mt-4" size="sm" onClick={() => setWizard({ editing: null })}>
+                <Plus className="h-4 w-4" aria-hidden />
+                Publier une activité
+              </Button>
             </Card>
           ) : (
             <div className="divide-y divide-border overflow-hidden rounded-[var(--radius-md)] border border-border bg-surface">
@@ -379,22 +281,47 @@ function MyActivitiesSection({
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <Badge variant="secondary">{activity.category}</Badge>
                       {activity.price ? <Badge>{activity.price}</Badge> : null}
+                      {activity.photos.length > 0 ? (
+                        <Badge variant="success">{activity.photos.length} photo(s)</Badge>
+                      ) : null}
                     </div>
                   </div>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleDelete(activity.id)}
-                    aria-label={`Supprimer ${activity.title}`}
-                  >
-                    <Trash2 className="h-4 w-4" aria-hidden />
-                  </Button>
+                  <div className="flex shrink-0 gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setWizard({ editing: activity })}
+                      aria-label={`Modifier ${activity.title}`}
+                    >
+                      <Pencil className="h-4 w-4" aria-hidden />
+                      Modifier
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDelete(activity.id)}
+                      aria-label={`Supprimer ${activity.title}`}
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
           )}
-        </div>
       </div>
+
+      {wizard ? (
+        <ActivityWizard
+          initial={wizard.editing ?? undefined}
+          onClose={() => setWizard(null)}
+          onSaved={() => {
+            setWizard(null)
+            setSuccessMsg(wizard.editing ? 'Activité mise à jour.' : 'Activité publiée !')
+            onChanged()
+          }}
+        />
+      ) : null}
     </div>
   )
 }
