@@ -39,6 +39,8 @@ export interface Activity {
   openingHours: OpeningHour[]
   address: ActivityAddress
   photos: string[]
+  latitude?: number
+  longitude?: number
   professional?: { id: string; firstName: string; lastName: string }
   createdAt: string
 }
@@ -54,6 +56,8 @@ export interface ActivityInput {
   contacts: { phone: string; whatsapp?: string; email?: string }
   openingHours: OpeningHour[]
   address: { city: string; district?: string; street?: string }
+  latitude?: number
+  longitude?: number
   photos: string[]
 }
 
@@ -93,5 +97,37 @@ export interface BusinessProfessional {
 export function getBusiness(slug: string): Promise<{ activity: Activity; professional: BusinessProfessional }> {
   return apiGet<{ activity: Activity; professional: BusinessProfessional }>(
     `/api/businesses/${encodeURIComponent(slug)}`,
+  )
+}
+
+/** Recherche géolocalisée /api/businesses/search (Sprint 5). */
+export interface BusinessSearchParams {
+  q?: string
+  category?: string
+  city?: string
+  latitude?: number
+  longitude?: number
+  radius?: number
+  limit?: number
+}
+
+export interface BusinessSearchItem extends Activity {
+  distance?: number
+}
+
+export function searchBusinesses(
+  params: BusinessSearchParams = {},
+): Promise<{ items: BusinessSearchItem[]; count: number; geo: boolean }> {
+  const query = new URLSearchParams()
+  if (params.q) query.set('q', params.q)
+  if (params.category) query.set('category', params.category)
+  if (params.city) query.set('city', params.city)
+  if (typeof params.latitude === 'number') query.set('latitude', String(params.latitude))
+  if (typeof params.longitude === 'number') query.set('longitude', String(params.longitude))
+  if (typeof params.radius === 'number') query.set('radius', String(params.radius))
+  if (typeof params.limit === 'number') query.set('limit', String(params.limit))
+  const qs = query.toString()
+  return apiGet<{ items: BusinessSearchItem[]; count: number; geo: boolean }>(
+    `/api/businesses/search${qs ? `?${qs}` : ''}`,
   )
 }

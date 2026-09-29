@@ -1,4 +1,4 @@
-import { X, Check, ChevronLeft, ChevronRight, Plus, Trash2, ImagePlus, Loader2 } from 'lucide-react'
+import { X, Check, ChevronLeft, ChevronRight, LocateFixed, Plus, Trash2, ImagePlus, Loader2 } from 'lucide-react'
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
 import { useAuth } from '../../features/auth/AuthContext'
 import { useCategories } from '../../hooks/useCategories'
@@ -61,6 +61,8 @@ interface FormState {
   contacts: { phone: string; whatsapp: string; email: string }
   hours: OpeningHour[]
   address: { city: string; district: string; street: string }
+  latitude: number | null
+  longitude: number | null
 }
 
 function emptyForm(category: string, phone: string): FormState {
@@ -74,6 +76,8 @@ function emptyForm(category: string, phone: string): FormState {
     contacts: { phone, whatsapp: '', email: '' },
     hours: defaultHours(),
     address: { city: '', district: '', street: '' },
+    latitude: null,
+    longitude: null,
   }
 }
 
@@ -102,6 +106,8 @@ function fromActivity(activity: Activity): FormState {
       district: activity.address.district ?? '',
       street: activity.address.street ?? '',
     },
+    latitude: activity.latitude ?? null,
+    longitude: activity.longitude ?? null,
   }
 }
 
@@ -126,6 +132,8 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [geoBusy, setGeoBusy] = useState(false)
+  const [geoError, setGeoError] = useState<string | null>(null)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -136,6 +144,26 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
   }, [onClose])
 
   const patch = (partial: Partial<FormState>) => setForm((f) => ({ ...f, ...partial }))
+
+  const locate = () => {
+    if (!('geolocation' in navigator)) {
+      setGeoError('La géolocalisation n’est pas disponible sur cet appareil.')
+      return
+    }
+    setGeoBusy(true)
+    setGeoError(null)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        patch({ latitude: pos.coords.latitude, longitude: pos.coords.longitude })
+        setGeoBusy(false)
+      },
+      () => {
+        setGeoError('Position introuvable — autorisez l’accès à votre position puis réessayez.')
+        setGeoBusy(false)
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+    )
+  }
 
   const validateStep = (index: number): string | null => {
     switch (index) {
@@ -244,6 +272,9 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
       ...(form.address.district.trim() ? { district: form.address.district.trim() } : {}),
       ...(form.address.street.trim() ? { street: form.address.street.trim() } : {}),
     },
+    ...(form.latitude !== null && form.longitude !== null
+      ? { latitude: form.latitude, longitude: form.longitude }
+      : {}),
     photos,
   })
 
@@ -653,6 +684,47 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
                     className={inputClass}
                   />
                 </div>
+              </div>
+
+              <div className="mt-4 rounded-[var(--radius-sm)] border border-dashed border-border bg-surface p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-text-primary">Position exacte (optionnel)</p>
+                    <p className="text-xs text-text-muted">
+                      Utilisée pour vous trouver dans les résultats « près de moi ».
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {form.latitude !== null && form.longitude !== null ? (
+                      <span className="inline-flex items-center gap-2 text-xs tabular-nums text-text-secondary">
+                        <span className="rounded-[var(--radius-sm)] bg-success-light px-2 py-1 font-medium text-success">
+                          {form.latitude.toFixed(4)}, {form.longitude.toFixed(4)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => patch({ latitude: null, longitude: null })}
+                          className="text-text-muted underline-offset-2 hover:text-text-primary hover:underline"
+                        >
+                          Effacer
+                        </button>
+                      </span>
+                    ) : null}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={locate}
+                      disabled={geoBusy}
+                    >
+                      {geoBusy ? (
+                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                      ) : (
+                        <LocateFixed className="h-4 w-4" aria-hidden />
+                      )}
+                      {geoBusy ? 'Localisation…' : form.latitude !== null ? 'Actualiser' : 'Me localiser'}
+                    </Button>
+                  </div>
+                </div>
+                {geoError ? <p className="mt-2 text-xs text-secondary">{geoError}</p> : null}
               </div>
             </div>
           ) : null}
