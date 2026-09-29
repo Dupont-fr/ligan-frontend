@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { Activity, ArrowRight, FolderTree, Send, Users } from 'lucide-react'
+import { Activity, ArrowUpRight, FolderTree, Send, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { Card } from '../../components/ui/Card'
 import { getStats } from '../../services/admin'
 
 export function AdminDashboardPage() {
@@ -12,7 +11,7 @@ export function AdminDashboardPage() {
 
   const stats = data?.stats
 
-  const cards = stats
+  const tiles = stats
     ? [
         {
           to: '/admin/users',
@@ -29,14 +28,14 @@ export function AdminDashboardPage() {
           detail: `${stats.categories.active} visibles publiquement`,
         },
         {
-          to: '/',
+          to: '/trouver',
           icon: Activity,
           label: 'Activités publiées',
           value: stats.activities.total,
           detail: 'Offres des professionnels',
         },
         {
-          to: '/',
+          to: '/dashboard',
           icon: Send,
           label: 'Sollicitations',
           value: stats.solicitations.total,
@@ -45,19 +44,30 @@ export function AdminDashboardPage() {
       ]
     : []
 
+  const links = [
+    { to: '/admin/users', label: 'Gérer les utilisateurs', detail: 'Créer un compte, changer un rôle, vérifier un email' },
+    { to: '/admin/categories', label: 'Gérer les catégories', detail: 'Ajouter un métier, réordonner, masquer' },
+    { to: '/trouver', label: 'Voir le site en tant que visiteur', detail: 'Contrôler le parcours de découverte' },
+  ]
+
   return (
     <div>
-      <div>
-        <h1 className="text-2xl font-bold text-text-primary">Tableau de bord</h1>
-        <p className="mt-1 text-sm text-text-secondary">
-          Vue d’ensemble de la plateforme LIGAN+ et accès rapide aux outils d’administration.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight text-text-primary">Tableau de bord</h1>
+          <p className="mt-1 text-sm text-text-secondary">
+            Vue d’ensemble de la plateforme LIGAN+ en temps réel.
+          </p>
+        </div>
+        <span className="text-xs text-text-muted">
+          {stats ? `${stats.users.total} comptes · ${stats.activities.total} activités` : 'Chargement…'}
+        </span>
       </div>
 
       {isLoading ? (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <div className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-md)] border border-border bg-border md:grid-cols-4">
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-32 animate-pulse rounded-[var(--radius-md)] bg-surface" />
+            <div key={i} className="h-28 animate-pulse bg-surface" />
           ))}
         </div>
       ) : isError || !stats ? (
@@ -65,43 +75,46 @@ export function AdminDashboardPage() {
           Impossible de charger les statistiques. Réessayez plus tard.
         </p>
       ) : (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          {cards.map(({ to, icon: Icon, label, value, detail }) => (
-            <Link key={label} to={to} className="group">
-              <Card className="h-full transition-shadow group-hover:shadow-[var(--shadow-md)]">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="flex items-center gap-2 text-sm font-medium text-text-secondary">
-                      <Icon className="h-4 w-4" aria-hidden />
-                      {label}
-                    </p>
-                    <p className="mt-2 text-3xl font-bold text-text-primary">{value}</p>
-                    <p className="mt-1 truncate text-xs text-text-muted">{detail}</p>
-                  </div>
-                  <ArrowRight
-                    className="h-4 w-4 shrink-0 text-text-muted transition-transform group-hover:translate-x-1 group-hover:text-primary"
-                    aria-hidden
-                  />
-                </div>
-              </Card>
+        <div className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-md)] border border-border bg-border md:grid-cols-4">
+          {tiles.map(({ to, icon: Icon, label, value, detail }) => (
+            <Link key={label} to={to} className="group bg-surface p-4 transition-colors hover:bg-background/60">
+              <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-text-muted">
+                <Icon className="h-3.5 w-3.5" aria-hidden />
+                {label}
+                <ArrowUpRight
+                  className="ml-auto h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-hidden
+                />
+              </p>
+              <p className="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-text-primary">
+                {value}
+              </p>
+              <p className="mt-1 text-xs text-text-muted">{detail}</p>
             </Link>
           ))}
         </div>
       )}
 
-      <div className="mt-8">
-        <h2 className="text-base font-semibold text-text-primary">Accès rapide</h2>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Link to="/admin/users" className="text-sm font-medium text-primary hover:underline">
-            Gérer les utilisateurs →
+      <h2 className="mt-8 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+        Raccourcis
+      </h2>
+      <div className="mt-2 divide-y divide-border overflow-hidden rounded-[var(--radius-md)] border border-border bg-surface">
+        {links.map(({ to, label, detail }) => (
+          <Link
+            key={to}
+            to={to}
+            className="group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-background/60"
+          >
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-text-primary">{label}</p>
+              <p className="truncate text-xs text-text-muted">{detail}</p>
+            </div>
+            <ArrowUpRight
+              className="h-4 w-4 shrink-0 text-text-muted transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary"
+              aria-hidden
+            />
           </Link>
-          <Link to="/admin/categories" className="text-sm font-medium text-primary hover:underline">
-            Gérer les catégories →
-          </Link>
-          <Link to="/trouver" className="text-sm font-medium text-primary hover:underline">
-            Voir le site en tant que visiteur →
-          </Link>
-        </div>
+        ))}
       </div>
     </div>
   )

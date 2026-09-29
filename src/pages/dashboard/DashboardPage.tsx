@@ -3,7 +3,6 @@ import {
   Activity as ActivityIcon,
   Check,
   LayoutGrid,
-  LogOut,
   Plus,
   Search,
   Settings,
@@ -15,8 +14,7 @@ import {
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ActivityCard } from '../../components/activities/ActivityCard'
-import { Logo } from '../../components/layout/Logo'
-import { ThemeToggle } from '../../components/shared/ThemeToggle'
+import { WorkspaceShell, type ShellGroup } from '../../components/layout/WorkspaceShell'
 import { Alert } from '../../components/ui/Alert'
 import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
@@ -52,8 +50,7 @@ const statusLabels: Record<Solicitation['status'], { label: string; variant: 'in
 type Section = 'feed' | 'activities' | 'solicitations' | 'settings'
 
 export function DashboardPage() {
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
+  const { user } = useAuth()
   const queryClient = useQueryClient()
   const isPro = user?.role === 'PROFESSIONAL'
   const [section, setSection] = useState<Section>('feed')
@@ -84,129 +81,62 @@ export function DashboardPage() {
     enabled: section === 'solicitations',
   })
 
-  const handleLogout = async () => {
-    await logout()
-    navigate('/login', { replace: true })
-  }
+  const shellGroups: ShellGroup[] = [
+    {
+      items: visibleNav.map((item) => ({
+        label: item.label,
+        icon: item.icon,
+        active: section === item.id,
+        onClick: () => setSection(item.id),
+      })),
+    },
+    {
+      label: 'Explorer',
+      items: [
+        { label: 'Trouver un pro', icon: Search, to: '/trouver' },
+        ...(user?.role === 'ADMIN'
+          ? [{ label: 'Administration', icon: ShieldCheck, to: '/admin' }]
+          : []),
+      ],
+    },
+  ]
+
+  const currentCrumb = visibleNav.find((item) => item.id === section)?.label ?? ''
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <aside className="hidden w-64 shrink-0 border-r border-border bg-surface md:block">
-        <div className="flex h-16 items-center border-b border-border px-4">
-          <Logo />
-        </div>
-        <nav className="p-3" aria-label="Navigation du tableau de bord">
-          <ul className="space-y-1">
-            {visibleNav.map((item) => (
-              <li key={item.id}>
-                <button
-                  type="button"
-                  onClick={() => setSection(item.id)}
-                  className={`flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3 py-2.5 text-sm transition-colors ${
-                    section === item.id
-                      ? 'bg-primary-light font-medium text-primary'
-                      : 'text-text-secondary hover:bg-background hover:text-text-primary'
-                  }`}
-                >
-                  <item.icon className="h-4 w-4 shrink-0" aria-hidden />
-                  {item.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-4 border-t border-border pt-3">
-            <Link
-              to="/trouver"
-              className="flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2.5 text-sm font-medium text-secondary transition-colors hover:bg-background"
-            >
-              <Search className="h-4 w-4 shrink-0" aria-hidden />
-              Trouver &amp; solliciter un pro
-            </Link>
-            {user?.role === 'ADMIN' ? (
-              <Link
-                to="/admin"
-                className="mt-1 flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2.5 text-sm font-medium text-secondary transition-colors hover:bg-background"
-              >
-                <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
-                Administration
-              </Link>
-            ) : null}
-          </div>
-        </nav>
-      </aside>
+    <WorkspaceShell
+      groups={shellGroups}
+      breadcrumb={['Espace ' + roleLabels[user?.role ?? 'CUSTOMER'], currentCrumb]}
+    >
+      {section === 'feed' ? (
+        <FeedSection
+          activities={feedQuery.data?.activities ?? []}
+          isLoading={feedQuery.isLoading}
+          currentUserId={user?.id}
+          isPro={isPro}
+          onManage={() => setSection('activities')}
+        />
+      ) : null}
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-3 border-b border-border bg-background/90 px-4 backdrop-blur">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-text-primary">
-              Bonjour, {user?.firstName} {user?.lastName}
-            </p>
-            <p className="text-xs text-text-muted">Espace {roleLabels[user?.role ?? 'CUSTOMER']}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              <LogOut className="h-4 w-4" aria-hidden />
-              <span className="hidden sm:inline">Déconnexion</span>
-            </Button>
-          </div>
-        </header>
+      {section === 'activities' && isPro ? (
+        <MyActivitiesSection
+          activities={myActivitiesQuery.data?.activities ?? []}
+          isLoading={myActivitiesQuery.isLoading}
+          onChanged={() => queryClient.invalidateQueries({ queryKey: ['activities'] })}
+        />
+      ) : null}
 
-        <nav className="flex gap-1 overflow-x-auto border-b border-border bg-surface px-3 py-2 md:hidden" aria-label="Sections">
-          {visibleNav.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setSection(item.id)}
-              className={`whitespace-nowrap rounded-[var(--radius-sm)] px-3 py-1.5 text-xs font-medium ${
-                section === item.id ? 'bg-primary text-primary-contrast' : 'text-text-secondary'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-          {user?.role === 'ADMIN' ? (
-            <Link
-              to="/admin"
-              className="whitespace-nowrap rounded-[var(--radius-sm)] bg-secondary-light px-3 py-1.5 text-xs font-medium text-secondary"
-            >
-              Administration
-            </Link>
-          ) : null}
-        </nav>
+      {section === 'solicitations' ? (
+        <SolicitationsSection
+          received={solicitationsQuery.data?.received ?? []}
+          sent={solicitationsQuery.data?.sent ?? []}
+          isLoading={solicitationsQuery.isLoading}
+          onChanged={() => queryClient.invalidateQueries({ queryKey: ['solicitations'] })}
+        />
+      ) : null}
 
-        <main className="flex-1 px-4 py-8 md:px-8">
-          {section === 'feed' ? (
-            <FeedSection
-              activities={feedQuery.data?.activities ?? []}
-              isLoading={feedQuery.isLoading}
-              currentUserId={user?.id}
-              isPro={isPro}
-              onManage={() => setSection('activities')}
-            />
-          ) : null}
-
-          {section === 'activities' && isPro ? (
-            <MyActivitiesSection
-              activities={myActivitiesQuery.data?.activities ?? []}
-              isLoading={myActivitiesQuery.isLoading}
-              onChanged={() => queryClient.invalidateQueries({ queryKey: ['activities'] })}
-            />
-          ) : null}
-
-          {section === 'solicitations' ? (
-            <SolicitationsSection
-              received={solicitationsQuery.data?.received ?? []}
-              sent={solicitationsQuery.data?.sent ?? []}
-              isLoading={solicitationsQuery.isLoading}
-              onChanged={() => queryClient.invalidateQueries({ queryKey: ['solicitations'] })}
-            />
-          ) : null}
-
-          {section === 'settings' ? <SettingsSection /> : null}
-        </main>
-      </div>
-    </div>
+      {section === 'settings' ? <SettingsSection /> : null}
+    </WorkspaceShell>
   )
 }
 
@@ -229,8 +159,8 @@ function FeedSection({
     <div>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Fil d’activité</h1>
-          <p className="text-sm text-text-secondary">
+          <h1 className="text-xl font-semibold tracking-tight text-text-primary">Fil d’activité</h1>
+          <p className="mt-1 text-sm text-text-secondary">
             Les dernières activités publiées par les professionnels. Ouvrez une fiche pour leur
             envoyer une demande.
           </p>
@@ -325,16 +255,16 @@ function MyActivitiesSection({
   return (
     <div>
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">Mes activités</h1>
-        <p className="text-sm text-text-secondary">
+        <h1 className="text-xl font-semibold tracking-tight text-text-primary">Mes activités</h1>
+        <p className="mt-1 text-sm text-text-secondary">
           Décrivez vos services : ils apparaîtront dans le fil de tous les utilisateurs.
         </p>
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card className="p-5">
-          <p className="mb-4 flex items-center gap-2 text-sm font-semibold text-text-primary">
-            <Plus className="h-4 w-4 text-primary" aria-hidden />
+          <p className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+            <Plus className="h-3.5 w-3.5 text-primary" aria-hidden />
             Publier une activité
           </p>
           {error ? <Alert variant="error" className="mb-4">{error}</Alert> : null}
@@ -423,8 +353,8 @@ function MyActivitiesSection({
         </Card>
 
         <div>
-          <p className="mb-3 text-sm font-semibold text-text-primary">
-            Mes publications ({activities.length})
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+            Mes publications · {activities.length}
           </p>
           {isLoading ? (
             <div className="space-y-3">
@@ -437,14 +367,14 @@ function MyActivitiesSection({
               Vous n’avez encore publié aucune activité.
             </Card>
           ) : (
-            <ul className="space-y-3">
+            <div className="divide-y divide-border overflow-hidden rounded-[var(--radius-md)] border border-border bg-surface">
               {activities.map((activity) => (
-                <li
+                <div
                   key={activity.id}
-                  className="flex items-start justify-between gap-3 rounded-[var(--radius-md)] border border-border bg-surface p-4"
+                  className="flex items-start justify-between gap-3 p-4 transition-colors hover:bg-background/60"
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-text-primary">{activity.title}</p>
+                    <p className="truncate text-sm font-medium text-text-primary">{activity.title}</p>
                     <p className="mt-0.5 line-clamp-2 text-xs text-text-secondary">{activity.description}</p>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <Badge variant="secondary">{activity.category}</Badge>
@@ -459,9 +389,9 @@ function MyActivitiesSection({
                   >
                     <Trash2 className="h-4 w-4" aria-hidden />
                   </Button>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
       </div>
@@ -507,8 +437,8 @@ function SolicitationsSection({
   return (
     <div>
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">Mes sollicitations</h1>
-        <p className="text-sm text-text-secondary">
+        <h1 className="text-xl font-semibold tracking-tight text-text-primary">Mes sollicitations</h1>
+        <p className="mt-1 text-sm text-text-secondary">
           Les demandes que vous avez envoyées et celles reçues des autres utilisateurs.
         </p>
       </div>
@@ -517,15 +447,17 @@ function SolicitationsSection({
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <div>
-          <p className="mb-3 text-sm font-semibold text-text-primary">Reçues ({received.length})</p>
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+            Reçues · {received.length}
+          </p>
           {received.length === 0 ? (
             <Card className="p-6 text-center text-sm text-text-secondary">
               Aucune sollicitation reçue pour le moment.
             </Card>
           ) : (
-            <ul className="space-y-3">
+            <div className="divide-y divide-border overflow-hidden rounded-[var(--radius-md)] border border-border bg-surface">
               {received.map((sol) => (
-                <li key={sol.id} className="rounded-[var(--radius-md)] border border-border bg-surface p-4">
+                <div key={sol.id} className="p-4 transition-colors hover:bg-background/60">
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-sm font-medium text-text-primary">De : {name(sol.from)}</p>
                     <Badge variant={statusLabels[sol.status].variant}>{statusLabels[sol.status].label}</Badge>
@@ -543,30 +475,32 @@ function SolicitationsSection({
                       </Button>
                     </div>
                   ) : null}
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
 
         <div>
-          <p className="mb-3 text-sm font-semibold text-text-primary">Envoyées ({sent.length})</p>
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+            Envoyées · {sent.length}
+          </p>
           {sent.length === 0 ? (
             <Card className="p-6 text-center text-sm text-text-secondary">
               Vous n’avez encore envoyé aucune sollicitation.
             </Card>
           ) : (
-            <ul className="space-y-3">
+            <div className="divide-y divide-border overflow-hidden rounded-[var(--radius-md)] border border-border bg-surface">
               {sent.map((sol) => (
-                <li key={sol.id} className="rounded-[var(--radius-md)] border border-border bg-surface p-4">
+                <div key={sol.id} className="p-4 transition-colors hover:bg-background/60">
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-sm font-medium text-text-primary">Vers : {name(sol.to)}</p>
                     <Badge variant={statusLabels[sol.status].variant}>{statusLabels[sol.status].label}</Badge>
                   </div>
                   <p className="mt-2 text-sm text-text-secondary">{sol.message}</p>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
       </div>
@@ -631,8 +565,8 @@ function SettingsSection() {
   return (
     <div>
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">Paramètres</h1>
-        <p className="text-sm text-text-secondary">
+        <h1 className="text-xl font-semibold tracking-tight text-text-primary">Paramètres</h1>
+        <p className="mt-1 text-sm text-text-secondary">
           Modifiez les informations de votre compte ou supprimez-le définitivement.
         </p>
       </div>

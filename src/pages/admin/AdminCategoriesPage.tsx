@@ -115,7 +115,7 @@ export function AdminCategoriesPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Catégories</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-text-primary">Catégories</h1>
           <p className="mt-1 text-sm text-text-secondary">
             Gérez les métiers proposés sur la plateforme. Une catégorie renommée reste
             synchronisée avec les activités existantes.
