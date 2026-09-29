@@ -1,8 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Pencil, Plus, Trash2, X } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
-import { SiteFooter } from '../../components/layout/SiteFooter'
-import { SiteHeader } from '../../components/layout/SiteHeader'
 import { Alert } from '../../components/ui/Alert'
 import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
@@ -16,7 +14,6 @@ import {
   type Category,
   type CategoryInput,
 } from '../../services/categories'
-import { AdminTabs } from './AdminTabs'
 
 interface FormState {
   name: string
@@ -115,28 +112,22 @@ export function AdminCategoriesPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
+    <div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-text-primary">Catégories</h1>
+          <p className="mt-1 text-sm text-text-secondary">
+            Gérez les métiers proposés sur la plateforme. Une catégorie renommée reste
+            synchronisée avec les activités existantes.
+          </p>
+        </div>
+        <Button onClick={openCreate}>
+          <Plus className="h-4 w-4" aria-hidden />
+          Nouvelle catégorie
+        </Button>
+      </div>
 
-      <main className="flex-1">
-        <div className="mx-auto w-full max-w-4xl px-4 py-8">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h1 className="text-2xl font-bold text-text-primary">Catégories</h1>
-              <p className="mt-1 text-sm text-text-secondary">
-                Gérez les métiers proposés sur la plateforme. Une catégorie renommée reste
-                synchronisée avec les activités existantes.
-              </p>
-            </div>
-            <Button onClick={openCreate}>
-              <Plus className="h-4 w-4" aria-hidden />
-              Nouvelle catégorie
-            </Button>
-          </div>
-
-          <AdminTabs />
-
-          {formOpen ? (
+      {formOpen ? (
             <form
               onSubmit={handleSubmit}
               className="mt-6 rounded-[var(--radius-md)] border border-border bg-surface p-5"
@@ -321,10 +312,6 @@ export function AdminCategoriesPage() {
               </ul>
             )}
           </div>
-        </div>
-      </main>
-
-      <SiteFooter />
     </div>
   )
 }

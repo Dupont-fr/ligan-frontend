@@ -7,6 +7,7 @@ import {
   Plus,
   Search,
   Settings,
+  ShieldCheck,
   Trash2,
   UserRound,
   X,
@@ -121,6 +122,15 @@ export function DashboardPage() {
               <Search className="h-4 w-4 shrink-0" aria-hidden />
               Trouver &amp; solliciter un pro
             </Link>
+            {user?.role === 'ADMIN' ? (
+              <Link
+                to="/admin"
+                className="mt-1 flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2.5 text-sm font-medium text-secondary transition-colors hover:bg-background"
+              >
+                <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
+                Administration
+              </Link>
+            ) : null}
           </div>
         </nav>
       </aside>
@@ -155,6 +165,14 @@ export function DashboardPage() {
               {item.label}
             </button>
           ))}
+          {user?.role === 'ADMIN' ? (
+            <Link
+              to="/admin"
+              className="whitespace-nowrap rounded-[var(--radius-sm)] bg-secondary-light px-3 py-1.5 text-xs font-medium text-secondary"
+            >
+              Administration
+            </Link>
+          ) : null}
         </nav>
 
         <main className="flex-1 px-4 py-8 md:px-8">

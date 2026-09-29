@@ -79,7 +79,7 @@ export function SiteHeader() {
               ))}
             {user?.role === 'ADMIN' ? (
               <Link
-                to="/admin/categories"
+                to="/admin"
                 className="text-sm font-medium text-secondary transition-colors hover:underline"
               >
                 Espace admin
@@ -147,7 +147,7 @@ export function SiteHeader() {
               {user?.role === 'ADMIN' ? (
                 <li>
                   <Link
-                    to="/admin/categories"
+                    to="/admin"
                     onClick={closeMenu}
                     className="block rounded-[var(--radius-sm)] px-3 py-2.5 text-sm font-medium text-secondary transition-colors hover:bg-background"
                   >
