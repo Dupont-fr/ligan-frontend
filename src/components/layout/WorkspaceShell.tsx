@@ -81,9 +81,7 @@ export function WorkspaceShell({ groups, breadcrumb, actions, children }: Worksp
     <div className="flex min-h-screen bg-background">
       <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-surface md:flex">
         <div className="flex h-14 items-center border-b border-border px-4">
-          <Link to="/" aria-label="Accueil LIGAN+">
-            <Logo />
-          </Link>
+          <Logo />
         </div>
 
         <nav className="flex-1 overflow-y-auto p-3" aria-label="Navigation">
