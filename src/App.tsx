@@ -14,6 +14,7 @@ import { VerifyEmailPage } from './pages/auth/VerifyEmailPage'
 import { BrowsePage } from './pages/BrowsePage'
 import { DashboardPage } from './pages/dashboard/DashboardPage'
 import { LandingPage } from './pages/LandingPage'
+import { BusinessPage } from './pages/BusinessPage'
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/trouver" element={<BrowsePage />} />
+          <Route path="/business/:slug" element={<BusinessPage />} />
 
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />

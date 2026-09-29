@@ -1,13 +1,8 @@
-import { MapPin, Send, Tag, UserRound } from 'lucide-react'
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../../features/auth/AuthContext'
-import { ApiError } from '../../lib/api'
+import { MapPin, Tag, UserRound } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import type { Activity } from '../../services/activities'
-import { createSolicitation } from '../../services/solicitations'
-import { Alert } from '../ui/Alert'
 import { Badge } from '../ui/Badge'
-import { Button } from '../ui/Button'
+import { SolicitForm } from './SolicitForm'
 
 interface ActivityCardProps {
   activity: Activity
@@ -15,47 +10,28 @@ interface ActivityCardProps {
 }
 
 export function ActivityCard({ activity, currentUserId }: ActivityCardProps) {
-  const { status } = useAuth()
-  const navigate = useNavigate()
-  const [showForm, setShowForm] = useState(false)
-  const [message, setMessage] = useState('')
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-  const [sending, setSending] = useState(false)
-
   const pro = activity.professional
   const proName = pro && (pro.firstName || pro.lastName) ? `${pro.firstName} ${pro.lastName}`.trim() : 'Professionnel'
   const proId = pro?.id
   const isMine = Boolean(currentUserId && proId === currentUserId)
-
-  const handleSolicit = async () => {
-    setFeedback(null)
-    if (status !== 'authenticated') {
-      navigate('/login', { state: { from: '/trouver' } })
-      return
-    }
-    if (!proId) return
-    setSending(true)
-    try {
-      await createSolicitation({ toProfessionalId: proId, activityId: activity.id, message })
-      setFeedback({ type: 'success', text: 'Demande envoyée. Le professionnel vous répondra depuis son espace.' })
-      setMessage('')
-      setShowForm(false)
-    } catch (err) {
-      setFeedback({
-        type: 'error',
-        text: err instanceof ApiError ? err.message : "Une erreur est survenue lors de l'envoi",
-      })
-    } finally {
-      setSending(false)
-    }
-  }
 
   return (
     <div className="flex flex-col rounded-[var(--radius-md)] border border-border bg-surface p-5 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <Badge variant="secondary">{activity.category}</Badge>
-          <h3 className="mt-2 truncate text-base font-semibold text-text-primary">{activity.title}</h3>
+          <h3 className="mt-2 truncate text-base font-semibold text-text-primary">
+            {activity.slug ? (
+              <Link
+                to={`/business/${activity.slug}`}
+                className="transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              >
+                {activity.title}
+              </Link>
+            ) : (
+              activity.title
+            )}
+          </h3>
         </div>
         {activity.price ? (
           <span className="shrink-0 rounded-[var(--radius-sm)] bg-secondary-light px-2 py-0.5 text-sm font-bold text-secondary">
@@ -85,44 +61,24 @@ export function ActivityCard({ activity, currentUserId }: ActivityCardProps) {
         ) : null}
       </div>
 
-      {feedback ? <Alert variant={feedback.type === 'success' ? 'success' : 'error'} className="mt-3">{feedback.text}</Alert> : null}
+      <div className="mt-4 flex items-center justify-between gap-2">
+        {activity.slug ? (
+          <Link
+            to={`/business/${activity.slug}`}
+            className="text-xs font-medium text-text-muted transition-colors hover:text-primary"
+          >
+            Voir la fiche →
+          </Link>
+        ) : (
+          <span />
+        )}
 
-      {isMine ? (
-        <p className="mt-4 text-xs font-medium text-text-muted">Votre activité</p>
-      ) : showForm ? (
-        <div className="mt-4 space-y-2">
-          <label htmlFor={`solicit-${activity.id}`} className="text-sm font-medium text-text-primary">
-            Votre message
-          </label>
-          <textarea
-            id={`solicit-${activity.id}`}
-            rows={3}
-            maxLength={1000}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Bonjour, je suis intéressé(e) par vos services…"
-            className="w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 py-2 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
-          />
-          <div className="flex gap-2">
-            <Button size="sm" onClick={handleSolicit} loading={sending} disabled={message.trim().length < 10}>
-              <Send className="h-4 w-4" aria-hidden />
-              Envoyer
-            </Button>
-            <Button size="sm" variant="ghost" onClick={() => setShowForm(false)}>
-              Annuler
-            </Button>
-          </div>
-          {message.trim().length > 0 && message.trim().length < 10 ? (
-            <p className="text-xs text-text-muted">10 caractères minimum.</p>
-          ) : null}
-        </div>
-      ) : (
-        <div className="mt-4">
-          <Button size="sm" variant="outline" onClick={() => setShowForm(true)}>
-            Solliciter ce pro
-          </Button>
-        </div>
-      )}
+        {isMine ? (
+          <p className="text-xs font-medium text-text-muted">Votre activité</p>
+        ) : proId ? (
+          <SolicitForm activityId={activity.id} toProfessionalId={proId} />
+        ) : null}
+      </div>
     </div>
   )
 }

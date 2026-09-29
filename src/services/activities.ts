@@ -28,6 +28,7 @@ export interface ActivityAddress {
 
 export interface Activity {
   id: string
+  slug?: string
   title: string
   description: string
   category: string
@@ -78,4 +79,19 @@ export function updateActivity(id: string, input: ActivityInput): Promise<{ acti
 
 export function deleteActivity(id: string): Promise<{ message: string }> {
   return apiDelete<{ message: string }>(`/api/activities/${id}`)
+}
+
+export interface BusinessProfessional {
+  id: string
+  firstName: string
+  lastName: string
+  isVerified: boolean
+  memberSince: string | null
+}
+
+/** Fiche publique /business/:slug (Sprint 4). */
+export function getBusiness(slug: string): Promise<{ activity: Activity; professional: BusinessProfessional }> {
+  return apiGet<{ activity: Activity; professional: BusinessProfessional }>(
+    `/api/businesses/${encodeURIComponent(slug)}`,
+  )
 }
