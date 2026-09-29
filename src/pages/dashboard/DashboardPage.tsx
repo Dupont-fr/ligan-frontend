@@ -217,12 +217,14 @@ function MyActivitiesSection({
   const [wizard, setWizard] = useState<{ editing: Activity | null } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
 
   const handleDelete = async (id: string) => {
     setError(null)
     setSuccessMsg(null)
     try {
       await deleteActivity(id)
+      setConfirmDeleteId(null)
       onChanged()
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Une erreur est survenue')
@@ -286,24 +288,45 @@ function MyActivitiesSection({
                       ) : null}
                     </div>
                   </div>
-                  <div className="flex shrink-0 gap-2">
+                  <div className="flex shrink-0 items-center gap-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setWizard({ editing: activity })}
+                      onClick={() => {
+                        setConfirmDeleteId(null)
+                        setWizard({ editing: activity })
+                      }}
                       aria-label={`Modifier ${activity.title}`}
                     >
                       <Pencil className="h-4 w-4" aria-hidden />
                       Modifier
                     </Button>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => handleDelete(activity.id)}
-                      aria-label={`Supprimer ${activity.title}`}
-                    >
-                      <Trash2 className="h-4 w-4" aria-hidden />
-                    </Button>
+                    {confirmDeleteId === activity.id ? (
+                      <span className="flex items-center gap-2 rounded-[var(--radius-sm)] bg-secondary-light px-2 py-1">
+                        <span className="text-xs font-medium text-secondary">Supprimer ?</span>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => handleDelete(activity.id)}
+                          aria-label={`Confirmer la suppression de ${activity.title}`}
+                        >
+                          Confirmer
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => setConfirmDeleteId(null)}>
+                          Annuler
+                        </Button>
+                      </span>
+                    ) : (
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => setConfirmDeleteId(activity.id)}
+                        aria-label={`Supprimer ${activity.title}`}
+                      >
+                        <Trash2 className="h-4 w-4" aria-hidden />
+                        Supprimer
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
