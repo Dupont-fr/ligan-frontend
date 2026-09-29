@@ -44,6 +44,46 @@ function waHref(phone: string): string {
   return `https://wa.me/${digits.startsWith('237') ? digits : `237${digits}`}`
 }
 
+interface HourSlot {
+  day: string
+  open: string
+  close: string
+  closed: boolean
+}
+
+function toMinutes(time: string): number {
+  const [h, m] = time.split(':').map(Number)
+  return (h || 0) * 60 + (m || 0)
+}
+
+/** Vrai si l'établissement est ouvert à l'instant (plages passant minuit gérées). */
+function isOpenNow(hours: HourSlot[]): boolean {
+  const now = new Date()
+  const today = WEEKDAY_BY_GETDAY[now.getDay()]
+  const slot = hours.find((h) => h.day === today)
+  if (!slot || slot.closed) return false
+  const minutes = now.getHours() * 60 + now.getMinutes()
+  const open = toMinutes(slot.open)
+  const close = toMinutes(slot.close)
+  if (close <= open) return minutes >= open || minutes < close
+  return minutes >= open && minutes < close
+}
+
+/** Badge « Ouvert / Fermé » calculé sur les horaires d'aujourd'hui. */
+function StatusBadge({ hours }: { hours: HourSlot[] }) {
+  if (hours.length === 0) return null
+  const open = isOpenNow(hours)
+  return (
+    <Badge variant={open ? 'success' : 'error'}>
+      <span
+        aria-hidden
+        className={`inline-block h-1.5 w-1.5 rounded-full ${open ? 'bg-white' : 'bg-white/80'}`}
+      />
+      {open ? 'Ouvert' : 'Fermé'}
+    </Badge>
+  )
+}
+
 /** Galerie photos — remontée à 0 au changement de fiche via `key={slug}`. */
 function PhotoGallery({ photos, title }: { photos: string[]; title: string }) {
   const [index, setIndex] = useState(0)
@@ -160,6 +200,7 @@ export function BusinessPage() {
                         <MapPin className="inline h-3 w-3" aria-hidden /> {activity.address.city}
                       </Badge>
                     ) : null}
+                    <StatusBadge hours={activity.openingHours} />
                   </div>
                   <h1 className="mt-2 text-2xl font-semibold tracking-tight text-text-primary">
                     {activity.title}
@@ -228,9 +269,12 @@ export function BusinessPage() {
             {/* Horaires */}
             {activity.openingHours.length > 0 ? (
               <Card className="p-5">
-                <h2 className="flex items-center gap-2 text-base font-semibold text-text-primary">
-                  <Clock className="h-4 w-4 text-text-muted" aria-hidden />
-                  Horaires d’ouverture
+                <h2 className="flex items-center justify-between gap-2 text-base font-semibold text-text-primary">
+                  <span className="inline-flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-text-muted" aria-hidden />
+                    Horaires d’ouverture
+                  </span>
+                  <StatusBadge hours={activity.openingHours} />
                 </h2>
                 <div className="mt-3 divide-y divide-border overflow-hidden rounded-[var(--radius-sm)] border border-border">
                   {DAY_ORDER.map((day) => {
@@ -296,7 +340,26 @@ export function BusinessPage() {
           {/* Colonne contact */}
           <aside className="space-y-4">
             <Card className="p-5">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">Contact</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">Contact</p>
+                <StatusBadge hours={activity.openingHours} />
+              </div>
+              {(() => {
+                const todayHour = activity.openingHours.find((h) => h.day === todayKey)
+                if (!todayHour) return null
+                return (
+                  <p className="mt-1 text-xs text-text-muted">
+                    Aujourd’hui :{' '}
+                    {todayHour.closed ? (
+                      <span className="font-medium text-text-secondary">fermé</span>
+                    ) : (
+                      <span className="font-medium tabular-nums text-text-secondary">
+                        {todayHour.open} – {todayHour.close}
+                      </span>
+                    )}
+                  </p>
+                )
+              })()}
 
               <div className="mt-3 space-y-2">
                 {activity.contacts.phone ? (
