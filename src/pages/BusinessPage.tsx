@@ -10,7 +10,7 @@ import {
   Phone,
   UserRound,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { SolicitForm } from '../components/activities/SolicitForm'
 import { SiteFooter } from '../components/layout/SiteFooter'
@@ -21,6 +21,7 @@ import { buttonClass } from '../components/ui/buttonClass'
 import { Card } from '../components/ui/Card'
 import { useAuth } from '../features/auth/AuthContext'
 import { getBusiness } from '../services/activities'
+import { trackEvent, visitorSessionId } from '../services/analytics'
 
 const DAY_LABELS: Record<string, string> = {
   MON: 'Lundi',
@@ -143,6 +144,26 @@ export function BusinessPage() {
   const activity = data?.activity
   const professional = data?.professional
   const todayKey = WEEKDAY_BY_GETDAY[new Date().getDay()]
+  const activityId = activity?.id
+
+  // Vue du profil : une fois par activité et par jour (Sprint 10)
+  useEffect(() => {
+    if (!activityId) return
+    const today = new Date().toISOString().slice(0, 10)
+    const key = `ligan-pv-${activityId}-${today}`
+    try {
+      if (sessionStorage.getItem(key)) return
+      sessionStorage.setItem(key, '1')
+    } catch {
+      /* stockage indisponible : on envoie quand même */
+    }
+    trackEvent({ activityId, type: 'PROFILE_VIEW', sessionId: visitorSessionId() }).catch(() => {})
+  }, [activityId])
+
+  const trackClick = (type: 'PHONE_CLICK' | 'WHATSAPP_CLICK' | 'DIRECTION_CLICK') => {
+    if (!activityId) return
+    trackEvent({ activityId, type, sessionId: visitorSessionId() }).catch(() => {})
+  }
 
   const content = (
     <div className="mx-auto w-full max-w-6xl px-4 py-6">
@@ -326,6 +347,7 @@ export function BusinessPage() {
                       .filter(Boolean)
                       .join(' '),
                   )}`}
+                  onClick={() => trackClick('DIRECTION_CLICK')}
                   target="_blank"
                   rel="noreferrer"
                   className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary-hover"
@@ -363,7 +385,11 @@ export function BusinessPage() {
 
               <div className="mt-3 space-y-2">
                 {activity.contacts.phone ? (
-                  <a href={telHref(activity.contacts.phone)} className={`${buttonClass('primary', 'md')} w-full`}>
+                  <a
+                    href={telHref(activity.contacts.phone)}
+                    onClick={() => trackClick('PHONE_CLICK')}
+                    className={`${buttonClass('primary', 'md')} w-full`}
+                  >
                     <Phone className="h-4 w-4" aria-hidden />
                     Appeler
                   </a>
@@ -371,6 +397,7 @@ export function BusinessPage() {
                 {activity.contacts.whatsapp ? (
                   <a
                     href={waHref(activity.contacts.whatsapp)}
+                    onClick={() => trackClick('WHATSAPP_CLICK')}
                     target="_blank"
                     rel="noreferrer"
                     className={`${buttonClass('secondary', 'md')} w-full`}

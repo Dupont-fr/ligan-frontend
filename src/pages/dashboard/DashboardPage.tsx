@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Activity as ActivityIcon,
+  BarChart3,
   Check,
   LayoutGrid,
   Pencil,
@@ -35,6 +36,7 @@ import {
 } from '../../services/solicitations'
 import { deleteAccount, updateMe } from '../../services/auth'
 import type { Solicitation } from '../../services/solicitations'
+import { StatsSection } from './StatsSection'
 
 const roleLabels: Record<string, string> = {
   CUSTOMER: 'Client',
@@ -48,7 +50,7 @@ const statusLabels: Record<Solicitation['status'], { label: string; variant: 'in
   DECLINED: { label: 'Refusée', variant: 'error' },
 }
 
-type Section = 'feed' | 'activities' | 'solicitations' | 'settings'
+type Section = 'feed' | 'activities' | 'stats' | 'solicitations' | 'settings'
 
 export function DashboardPage() {
   const { user } = useAuth()
@@ -59,6 +61,7 @@ export function DashboardPage() {
   const navItems: { id: Section; label: string; icon: typeof LayoutGrid; proOnly?: boolean }[] = [
     { id: 'feed', label: 'Fil d’activité', icon: LayoutGrid },
     { id: 'activities', label: 'Mes activités', icon: ActivityIcon, proOnly: true },
+    { id: 'stats', label: 'Statistiques', icon: BarChart3, proOnly: true },
     { id: 'solicitations', label: 'Mes sollicitations', icon: UserRound },
     { id: 'settings', label: 'Paramètres', icon: Settings },
   ]
@@ -135,6 +138,8 @@ export function DashboardPage() {
           onChanged={() => queryClient.invalidateQueries({ queryKey: ['solicitations'] })}
         />
       ) : null}
+
+      {section === 'stats' && isPro ? <StatsSection /> : null}
 
       {section === 'settings' ? <SettingsSection /> : null}
     </WorkspaceShell>
