@@ -35,7 +35,7 @@ export function ActivityCard({ activity, currentUserId, distance }: ActivityCard
           </h3>
         </div>
         {activity.price ? (
-          <span className="shrink-0 rounded-[var(--radius-sm)] bg-secondary-light px-2 py-0.5 text-sm font-bold text-secondary">
+          <span className="max-w-[55%] shrink-0 truncate rounded-[var(--radius-sm)] bg-secondary-light px-2 py-0.5 text-right text-sm font-bold text-secondary">
             {activity.price}
           </span>
         ) : null}
@@ -68,7 +68,7 @@ export function ActivityCard({ activity, currentUserId, distance }: ActivityCard
         ) : null}
       </div>
 
-      <div className="mt-4 flex items-center justify-between gap-2">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
         {activity.slug ? (
           <Link
             to={`/business/${activity.slug}`}

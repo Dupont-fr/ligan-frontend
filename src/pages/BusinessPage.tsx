@@ -227,7 +227,7 @@ export function BusinessPage() {
                   </p>
                 </div>
                 {activity.price ? (
-                  <span className="shrink-0 rounded-[var(--radius-sm)] bg-secondary-light px-3 py-1.5 text-base font-bold text-secondary">
+                  <span className="max-w-full shrink-0 truncate rounded-[var(--radius-sm)] bg-secondary-light px-3 py-1.5 text-base font-bold text-secondary">
                     {activity.price}
                   </span>
                 ) : (

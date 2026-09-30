@@ -53,7 +53,7 @@ export function SolicitForm({ activityId, toProfessionalId, variant = 'card', on
       {feedback ? <Alert variant={feedback.type}>{feedback.text}</Alert> : null}
 
       {open ? (
-        <div className="space-y-2">
+        <div className={full ? 'space-y-2' : 'w-full space-y-2'}>
           <label htmlFor={`solicit-${activityId}`} className="text-sm font-medium text-text-primary">
             Votre message
           </label>
