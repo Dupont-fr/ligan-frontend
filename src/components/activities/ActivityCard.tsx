@@ -18,10 +18,10 @@ export function ActivityCard({ activity, currentUserId, distance }: ActivityCard
 
   return (
     <div className="flex flex-col rounded-[var(--radius-md)] border border-border bg-surface p-5 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
         <div className="min-w-0">
           <Badge variant="secondary">{activity.category}</Badge>
-          <h3 className="mt-2 truncate text-base font-semibold text-text-primary">
+          <h3 className="mt-2 line-clamp-2 text-base font-semibold text-text-primary">
             {activity.slug ? (
               <Link
                 to={`/business/${activity.slug}`}
@@ -35,7 +35,7 @@ export function ActivityCard({ activity, currentUserId, distance }: ActivityCard
           </h3>
         </div>
         {activity.price ? (
-          <span className="max-w-[55%] shrink-0 truncate rounded-[var(--radius-sm)] bg-secondary-light px-2 py-0.5 text-right text-sm font-bold text-secondary">
+          <span className="max-w-full shrink-0 truncate rounded-[var(--radius-sm)] bg-secondary-light px-2 py-0.5 text-right text-sm font-bold text-secondary">
             {activity.price}
           </span>
         ) : null}
