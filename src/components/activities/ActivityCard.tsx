@@ -1,4 +1,4 @@
-import { MapPin, Tag, UserRound } from 'lucide-react'
+import { MapPin, Navigation, Tag, UserRound } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { Activity } from '../../services/activities'
 import { Badge } from '../ui/Badge'
@@ -7,9 +7,10 @@ import { SolicitForm } from './SolicitForm'
 interface ActivityCardProps {
   activity: Activity
   currentUserId?: string
+  distance?: number
 }
 
-export function ActivityCard({ activity, currentUserId }: ActivityCardProps) {
+export function ActivityCard({ activity, currentUserId, distance }: ActivityCardProps) {
   const pro = activity.professional
   const proName = pro && (pro.firstName || pro.lastName) ? `${pro.firstName} ${pro.lastName}`.trim() : 'Professionnel'
   const proId = pro?.id
@@ -47,6 +48,12 @@ export function ActivityCard({ activity, currentUserId }: ActivityCardProps) {
           <UserRound className="h-3.5 w-3.5" aria-hidden />
           {proName}
         </span>
+        {typeof distance === 'number' ? (
+          <span className="inline-flex items-center gap-1 font-medium text-primary">
+            <Navigation className="h-3.5 w-3.5" aria-hidden />
+            {distance < 1000 ? `${distance} m` : `${(distance / 1000).toFixed(1)} km`}
+          </span>
+        ) : null}
         {activity.location ? (
           <span className="inline-flex items-center gap-1">
             <MapPin className="h-3.5 w-3.5" aria-hidden />

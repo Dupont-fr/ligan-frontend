@@ -100,7 +100,9 @@ export function getBusiness(slug: string): Promise<{ activity: Activity; profess
   )
 }
 
-/** Recherche géolocalisée /api/businesses/search (Sprint 5). */
+/** Recherche géolocalisée + filtres/tri — /api/businesses/search (Sprints 5–6). */
+export type BusinessSort = 'recent' | 'distance' | 'name'
+
 export interface BusinessSearchParams {
   q?: string
   category?: string
@@ -108,16 +110,29 @@ export interface BusinessSearchParams {
   latitude?: number
   longitude?: number
   radius?: number
+  sort?: BusinessSort
+  openNow?: boolean
+  hasPhotos?: boolean
+  verified?: boolean
   limit?: number
+  page?: number
 }
 
 export interface BusinessSearchItem extends Activity {
   distance?: number
 }
 
-export function searchBusinesses(
-  params: BusinessSearchParams = {},
-): Promise<{ items: BusinessSearchItem[]; count: number; geo: boolean }> {
+export interface BusinessSearchResult {
+  items: BusinessSearchItem[]
+  count: number
+  total: number
+  page: number
+  pages: number
+  geo: boolean
+  sort: BusinessSort
+}
+
+export function searchBusinesses(params: BusinessSearchParams = {}): Promise<BusinessSearchResult> {
   const query = new URLSearchParams()
   if (params.q) query.set('q', params.q)
   if (params.category) query.set('category', params.category)
@@ -125,9 +140,12 @@ export function searchBusinesses(
   if (typeof params.latitude === 'number') query.set('latitude', String(params.latitude))
   if (typeof params.longitude === 'number') query.set('longitude', String(params.longitude))
   if (typeof params.radius === 'number') query.set('radius', String(params.radius))
+  if (params.sort) query.set('sort', params.sort)
+  if (params.openNow !== undefined) query.set('openNow', String(params.openNow))
+  if (params.hasPhotos !== undefined) query.set('hasPhotos', String(params.hasPhotos))
+  if (params.verified !== undefined) query.set('verified', String(params.verified))
   if (typeof params.limit === 'number') query.set('limit', String(params.limit))
+  if (typeof params.page === 'number') query.set('page', String(params.page))
   const qs = query.toString()
-  return apiGet<{ items: BusinessSearchItem[]; count: number; geo: boolean }>(
-    `/api/businesses/search${qs ? `?${qs}` : ''}`,
-  )
+  return apiGet<BusinessSearchResult>(`/api/businesses/search${qs ? `?${qs}` : ''}`)
 }
