@@ -283,10 +283,14 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
       setError('Attendez la fin de l’envoi des photos.')
       return
     }
-    const problem = validateStep(step)
-    if (problem) {
-      setError(problem)
-      return
+    // Validation complète : la première étape invalide reçoit le focus.
+    for (let i = 0; i < STEPS.length; i += 1) {
+      const problem = validateStep(i)
+      if (problem) {
+        setError(problem)
+        setStep(i)
+        return
+      }
     }
     setError(null)
     setSaving(true)
@@ -344,7 +348,7 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
               <li key={label}>
                 <button
                   type="button"
-                  disabled={i > step}
+                  disabled={i > step && !editing}
                   onClick={() => setStep(i)}
                   className={`flex items-center gap-1.5 whitespace-nowrap rounded-[var(--radius-sm)] border px-2.5 py-1.5 text-xs font-medium transition-colors ${
                     active

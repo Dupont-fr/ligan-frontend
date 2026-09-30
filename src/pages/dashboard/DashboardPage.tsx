@@ -231,6 +231,9 @@ function MyActivitiesSection({
     }
   }
 
+  const withPhotos = activities.filter((a) => a.photos.length > 0).length
+  const withGeo = activities.filter((a) => typeof a.latitude === 'number').length
+
   return (
     <div>
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -248,6 +251,29 @@ function MyActivitiesSection({
 
       {error ? <Alert variant="error" className="mt-4">{error}</Alert> : null}
       {successMsg ? <Alert variant="success" className="mt-4">{successMsg}</Alert> : null}
+
+      {!isLoading && activities.length > 0 ? (
+        <div className="mt-6 grid grid-cols-3 gap-3">
+          <div className="rounded-[var(--radius-md)] border border-border bg-surface p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">Publiées</p>
+            <p className="mt-1 text-xl font-bold text-text-primary">{activities.length}</p>
+          </div>
+          <div className="rounded-[var(--radius-md)] border border-border bg-surface p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">Avec photos</p>
+            <p className="mt-1 text-xl font-bold text-text-primary">
+              {withPhotos}
+              <span className="text-sm font-medium text-text-muted">/{activities.length}</span>
+            </p>
+          </div>
+          <div className="rounded-[var(--radius-md)] border border-border bg-surface p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">Position GPS</p>
+            <p className="mt-1 text-xl font-bold text-text-primary">
+              {withGeo}
+              <span className="text-sm font-medium text-text-muted">/{activities.length}</span>
+            </p>
+          </div>
+        </div>
+      ) : null}
 
       <div className="mt-6">
         <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
@@ -272,23 +298,41 @@ function MyActivitiesSection({
             </Card>
           ) : (
             <div className="divide-y divide-border overflow-hidden rounded-[var(--radius-md)] border border-border bg-surface">
-              {activities.map((activity) => (
-                <div
-                  key={activity.id}
-                  className="flex items-start justify-between gap-3 p-4 transition-colors hover:bg-background/60"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-text-primary">{activity.title}</p>
-                    <p className="mt-0.5 line-clamp-2 text-xs text-text-secondary">{activity.description}</p>
-                    <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <Badge variant="secondary">{activity.category}</Badge>
-                      {activity.price ? <Badge>{activity.price}</Badge> : null}
-                      {activity.photos.length > 0 ? (
-                        <Badge variant="success">{activity.photos.length} photo(s)</Badge>
+              {activities.map((activity) => {
+                const openDays = activity.openingHours.filter((h) => !h.closed).length
+                const hasGeo = typeof activity.latitude === 'number'
+                return (
+                  <div
+                    key={activity.id}
+                    className="flex flex-col gap-3 p-4 transition-colors hover:bg-background/60 sm:flex-row sm:items-start sm:justify-between"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-text-primary">{activity.title}</p>
+                      <p className="mt-0.5 line-clamp-2 text-xs text-text-secondary">{activity.description}</p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <Badge variant="secondary">{activity.category}</Badge>
+                        {activity.price ? <Badge>{activity.price}</Badge> : null}
+                        <Badge variant={activity.services.length > 0 ? 'success' : 'error'}>
+                          {activity.services.length} service(s)
+                        </Badge>
+                        <Badge variant={openDays > 0 ? 'success' : 'error'}>{openDays} jour(s)</Badge>
+                        <Badge variant={activity.photos.length > 0 ? 'success' : 'warning'}>
+                          {activity.photos.length} photo(s)
+                        </Badge>
+                        <Badge variant={hasGeo ? 'success' : 'info'}>
+                          {hasGeo ? 'GPS ✓' : 'GPS manquant'}
+                        </Badge>
+                      </div>
+                      {activity.slug ? (
+                        <Link
+                          to={`/business/${activity.slug}`}
+                          className="mt-2 inline-block text-xs font-medium text-primary hover:underline"
+                        >
+                          Voir la fiche →
+                        </Link>
                       ) : null}
                     </div>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2">
+                    <div className="flex shrink-0 flex-wrap items-center gap-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -327,9 +371,10 @@ function MyActivitiesSection({
                         Supprimer
                       </Button>
                     )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
       </div>
