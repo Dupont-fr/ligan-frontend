@@ -454,7 +454,7 @@ function SolicitationsSection({
               {received.map((sol) => (
                 <div key={sol.id} className="p-4 transition-colors hover:bg-background/60">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-medium text-text-primary">De : {name(sol.from)}</p>
+                    <p className="min-w-0 truncate text-sm font-medium text-text-primary">De : {name(sol.from)}</p>
                     <Badge variant={statusLabels[sol.status].variant}>{statusLabels[sol.status].label}</Badge>
                   </div>
                   <p className="mt-2 text-sm text-text-secondary">{sol.message}</p>
@@ -489,7 +489,7 @@ function SolicitationsSection({
               {sent.map((sol) => (
                 <div key={sol.id} className="p-4 transition-colors hover:bg-background/60">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-medium text-text-primary">Vers : {name(sol.to)}</p>
+                    <p className="min-w-0 truncate text-sm font-medium text-text-primary">Vers : {name(sol.to)}</p>
                     <Badge variant={statusLabels[sol.status].variant}>{statusLabels[sol.status].label}</Badge>
                   </div>
                   <p className="mt-2 text-sm text-text-secondary">{sol.message}</p>
@@ -617,7 +617,7 @@ function SettingsSection() {
                 required
                 minLength={2}
                 maxLength={60}
-                className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-sm text-text-primary outline-none focus:border-primary"
+                className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-base text-text-primary outline-none focus:border-primary"
               />
             </div>
             <div>
@@ -631,7 +631,7 @@ function SettingsSection() {
                 required
                 minLength={2}
                 maxLength={60}
-                className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-sm text-text-primary outline-none focus:border-primary"
+                className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-base text-text-primary outline-none focus:border-primary"
               />
             </div>
           </div>
@@ -655,7 +655,7 @@ function SettingsSection() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="6 90 00 00 00"
-                className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background pl-[4.4rem] pr-3 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
+                className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background pl-[4.4rem] pr-3 text-base text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
               />
             </div>
           </div>
@@ -689,7 +689,7 @@ function SettingsSection() {
                 value={deletePassword}
                 onChange={(e) => setDeletePassword(e.target.value)}
                 required
-                className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-sm text-text-primary outline-none focus:border-error"
+                className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-base text-text-primary outline-none focus:border-error"
               />
             </div>
             {deleteError ? <Alert variant="error">{deleteError}</Alert> : null}

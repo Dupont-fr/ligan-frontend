@@ -78,7 +78,7 @@ export function WorkspaceShell({ groups, breadcrumb, actions, children }: Worksp
   const flatItems = groups.flatMap((group) => group.items)
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-dvh bg-background">
       <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-surface md:flex">
         <div className="flex h-14 items-center border-b border-border px-4">
           <Logo />
@@ -164,7 +164,7 @@ export function WorkspaceShell({ groups, breadcrumb, actions, children }: Worksp
                 {item.label}
               </>
             )
-            const classes = `flex items-center gap-1.5 whitespace-nowrap rounded-[var(--radius-sm)] border px-2.5 py-1.5 text-xs font-medium transition-colors ${
+            const classes = `flex items-center gap-1.5 whitespace-nowrap rounded-[var(--radius-sm)] border px-3 py-2.5 text-sm font-medium transition-colors ${
               item.active
                 ? 'border-border bg-background text-text-primary'
                 : 'border-transparent text-text-secondary'

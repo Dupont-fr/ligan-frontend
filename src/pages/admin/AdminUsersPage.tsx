@@ -122,7 +122,7 @@ export function AdminUsersPage() {
   }
 
   const inputClass =
-    'h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary'
+    'h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-base text-text-primary outline-none placeholder:text-text-muted focus:border-primary'
 
   return (
     <div>
@@ -377,7 +377,7 @@ function UserRow({
       </div>
 
       {pending ? (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-text-secondary">
             Supprimer « {user.firstName} {user.lastName} » et ses données ?
           </span>
@@ -400,7 +400,7 @@ function UserRow({
             disabled={updating}
             onChange={(e) => onUpdate({ role: e.target.value as UserRole })}
             aria-label={`Rôle de ${user.firstName} ${user.lastName}`}
-            className="h-8 rounded-[var(--radius-sm)] border border-border bg-background px-2 text-xs text-text-primary outline-none focus:border-primary"
+            className="h-9 rounded-[var(--radius-sm)] border border-border bg-background px-2 text-sm text-text-primary outline-none focus:border-primary"
           >
             <option value="CUSTOMER">Client</option>
             <option value="PROFESSIONAL">Professionnel</option>
@@ -411,7 +411,7 @@ function UserRow({
             type="button"
             disabled={updating}
             onClick={() => onUpdate({ isVerified: !user.isVerified })}
-            className={`inline-flex h-8 items-center gap-1 rounded-[var(--radius-sm)] px-2 text-xs font-medium transition-colors ${
+            className={`inline-flex h-9 items-center gap-1 rounded-[var(--radius-sm)] px-2.5 text-xs font-medium transition-colors ${
               user.isVerified
                 ? 'bg-success-light text-success hover:bg-success-light/70'
                 : 'bg-warning-light text-warning hover:bg-warning-light/70'
@@ -425,7 +425,7 @@ function UserRow({
           <button
             type="button"
             onClick={onAskDelete}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] text-text-secondary transition-colors hover:bg-error-light hover:text-error"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-sm)] text-text-secondary transition-colors hover:bg-error-light hover:text-error"
             aria-label={`Supprimer le compte de ${user.firstName} ${user.lastName}`}
           >
             <Trash2 className="h-4 w-4" aria-hidden />

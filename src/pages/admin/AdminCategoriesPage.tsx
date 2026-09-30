@@ -172,7 +172,7 @@ export function AdminCategoriesPage() {
                     minLength={2}
                     maxLength={60}
                     placeholder="Ex : Menuiserie"
-                    className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
+                    className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-base text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
                   />
                 </div>
                 <div>
@@ -186,7 +186,7 @@ export function AdminCategoriesPage() {
                     required
                     pattern="[a-z0-9]+(-[a-z0-9]+)*"
                     placeholder="menuiserie"
-                    className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
+                    className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-base text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
                   />
                 </div>
                 <div>
@@ -197,7 +197,7 @@ export function AdminCategoriesPage() {
                     id="cat-parent"
                     value={form.parentId}
                     onChange={(e) => setForm((f) => ({ ...f, parentId: e.target.value }))}
-                    className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-sm text-text-primary outline-none focus:border-primary"
+                    className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-base text-text-primary outline-none focus:border-primary"
                   >
                     <option value="">— Aucune (racine) —</option>
                     {roots
@@ -221,7 +221,7 @@ export function AdminCategoriesPage() {
                     value={form.order}
                     onChange={(e) => setForm((f) => ({ ...f, order: e.target.value }))}
                     placeholder="0"
-                    className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
+                    className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-base text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
                   />
                 </div>
               </div>
@@ -352,7 +352,7 @@ function CategoryRow({
       </div>
 
       {pending ? (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-text-secondary">Supprimer « {category.name} » ?</span>
           <Button
             size="sm"
@@ -371,7 +371,7 @@ function CategoryRow({
           <button
             type="button"
             onClick={() => onEdit(category)}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] text-text-secondary transition-colors hover:bg-primary-light hover:text-primary"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-sm)] text-text-secondary transition-colors hover:bg-primary-light hover:text-primary"
             aria-label={`Modifier ${category.name}`}
           >
             <Pencil className="h-4 w-4" aria-hidden />
@@ -379,7 +379,7 @@ function CategoryRow({
           <button
             type="button"
             onClick={() => onAskDelete(category.id)}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] text-text-secondary transition-colors hover:bg-error-light hover:text-error"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-sm)] text-text-secondary transition-colors hover:bg-error-light hover:text-error"
             aria-label={`Supprimer ${category.name}`}
           >
             <Trash2 className="h-4 w-4" aria-hidden />
