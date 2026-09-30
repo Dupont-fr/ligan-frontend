@@ -385,7 +385,11 @@ function MyActivitiesSection({
           onClose={() => setWizard(null)}
           onSaved={() => {
             setWizard(null)
-            setSuccessMsg(wizard.editing ? 'Activité mise à jour.' : 'Activité publiée !')
+            setSuccessMsg(
+              wizard.editing
+                ? 'Activité mise à jour.'
+                : 'Activité envoyée ! Elle sera visible publiquement après validation.',
+            )
             onChanged()
           }}
         />

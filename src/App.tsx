@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './features/auth/AuthContext'
 import { ProtectedRoute } from './features/auth/ProtectedRoute'
+import { AdminActivitiesPage } from './pages/admin/AdminActivitiesPage'
 import { AdminCategoriesPage } from './pages/admin/AdminCategoriesPage'
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
 import { AdminLayout } from './pages/admin/AdminLayout'
@@ -43,6 +44,7 @@ function App() {
             <Route element={<AdminLayout />}>
               <Route path="/admin" element={<AdminDashboardPage />} />
               <Route path="/admin/users" element={<AdminUsersPage />} />
+              <Route path="/admin/activities" element={<AdminActivitiesPage />} />
               <Route path="/admin/categories" element={<AdminCategoriesPage />} />
             </Route>
           </Route>

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { CheckCircle2, Plus, ShieldCheck, Trash2, UserPlus, X } from 'lucide-react'
+import { Ban, CheckCircle2, Plus, ShieldCheck, Trash2, UserPlus, X } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { Alert } from '../../components/ui/Alert'
 import { Badge, type BadgeVariant } from '../../components/ui/Badge'
@@ -10,6 +10,7 @@ import {
   createUser,
   listUsers,
   removeUser,
+  suspendUser,
   updateUser,
   type AdminUser,
   type AdminUserInput,
@@ -62,6 +63,8 @@ export function AdminUsersPage() {
   const [formError, setFormError] = useState<string | null>(null)
   const [rowError, setRowError] = useState<string | null>(null)
   const [pendingDelete, setPendingDelete] = useState<string | null>(null)
+  const [pendingSuspend, setPendingSuspend] = useState<string | null>(null)
+  const [suspendReason, setSuspendReason] = useState('')
 
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
@@ -102,6 +105,21 @@ export function AdminUsersPage() {
     onError: (err) => {
       setRowError(err instanceof ApiError ? err.message : 'Erreur lors de la suppression')
       setPendingDelete(null)
+    },
+  })
+
+  const suspendMutation = useMutation({
+    mutationFn: ({ id, suspended, reason }: { id: string; suspended: boolean; reason?: string }) =>
+      suspendUser(id, { suspended, ...(reason ? { reason } : {}) }),
+    onSuccess: () => {
+      invalidate()
+      setPendingSuspend(null)
+      setSuspendReason('')
+      setRowError(null)
+    },
+    onError: (err) => {
+      setRowError(err instanceof ApiError ? err.message : 'Erreur lors de la mise à jour')
+      setPendingSuspend(null)
     },
   })
 
@@ -319,10 +337,24 @@ export function AdminUsersPage() {
                 updating={updateMutation.isPending}
                 pending={pendingDelete === u.id}
                 deleting={deleteMutation.isPending && pendingDelete === u.id}
+                suspendPending={pendingSuspend === u.id}
+                suspending={suspendMutation.isPending && pendingSuspend === u.id}
+                suspendReason={suspendReason}
+                onSuspendReasonChange={setSuspendReason}
                 onUpdate={(input) => updateMutation.mutate({ id: u.id, input })}
                 onAskDelete={() => setPendingDelete(u.id)}
                 onCancelDelete={() => setPendingDelete(null)}
                 onConfirmDelete={() => deleteMutation.mutate(u.id)}
+                onAskSuspend={() => {
+                  setRowError(null)
+                  setSuspendReason('')
+                  setPendingSuspend(u.id)
+                }}
+                onCancelSuspend={() => setPendingSuspend(null)}
+                onConfirmSuspend={() =>
+                  suspendMutation.mutate({ id: u.id, suspended: true, reason: suspendReason.trim() })
+                }
+                onReactivate={() => suspendMutation.mutate({ id: u.id, suspended: false })}
               />
             ))}
           </ul>
@@ -338,10 +370,18 @@ interface UserRowProps {
   updating: boolean
   pending: boolean
   deleting: boolean
+  suspendPending: boolean
+  suspending: boolean
+  suspendReason: string
+  onSuspendReasonChange: (v: string) => void
   onUpdate: (input: AdminUserUpdate) => void
   onAskDelete: () => void
   onCancelDelete: () => void
   onConfirmDelete: () => void
+  onAskSuspend: () => void
+  onCancelSuspend: () => void
+  onConfirmSuspend: () => void
+  onReactivate: () => void
 }
 
 function UserRow({
@@ -350,11 +390,51 @@ function UserRow({
   updating,
   pending,
   deleting,
+  suspendPending,
+  suspending,
+  suspendReason,
+  onSuspendReasonChange,
   onUpdate,
   onAskDelete,
   onCancelDelete,
   onConfirmDelete,
+  onAskSuspend,
+  onCancelSuspend,
+  onConfirmSuspend,
+  onReactivate,
 }: UserRowProps) {
+  if (suspendPending) {
+    return (
+      <li className="flex flex-wrap items-end gap-2 border-b border-border px-4 py-3 last:border-b-0">
+        <div className="min-w-0 flex-1 sm:max-w-md">
+          <label
+            htmlFor={`suspend-reason-${user.id}`}
+            className="mb-1 block text-xs font-medium text-text-primary"
+          >
+            Suspendre {user.firstName} {user.lastName} — motif (3 caractères min.)
+          </label>
+          <input
+            id={`suspend-reason-${user.id}`}
+            value={suspendReason}
+            onChange={(e) => onSuspendReasonChange(e.target.value)}
+            required
+            minLength={3}
+            maxLength={500}
+            autoFocus
+            placeholder="Ex : comportement abusif…"
+            className="h-9 w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 text-base text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
+          />
+        </div>
+        <Button size="sm" variant="danger" loading={suspendReason.trim().length >= 3 && suspending} onClick={onConfirmSuspend}>
+          Confirmer
+        </Button>
+        <Button size="sm" variant="ghost" onClick={onCancelSuspend}>
+          Annuler
+        </Button>
+      </li>
+    )
+  }
+
   return (
     <li className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-3 last:border-b-0 transition-colors hover:bg-background/60">
       <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-full)] bg-primary-light text-primary">
@@ -368,12 +448,20 @@ function UserRow({
           </span>
           <Badge variant={roleBadges[user.role]}>{roleLabels[user.role]}</Badge>
           {!user.isVerified ? <Badge variant="warning">Non vérifié</Badge> : null}
+          {user.suspended ? (
+            <Badge variant="error" title={user.suspendedReason}>
+              Suspendu
+            </Badge>
+          ) : null}
           {isSelf ? <Badge variant="info">Vous</Badge> : null}
         </div>
         <p className="mt-0.5 truncate text-xs text-text-muted">
           {user.email}
           {user.phone ? ` · ${user.phone}` : ''} · inscrit le {dateFmt.format(new Date(user.createdAt))}
         </p>
+        {user.suspended && user.suspendedReason ? (
+          <p className="mt-0.5 truncate text-xs text-text-secondary">Motif : {user.suspendedReason}</p>
+        ) : null}
       </div>
 
       {pending ? (
@@ -421,6 +509,30 @@ function UserRow({
             <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
             {user.isVerified ? 'Vérifié' : 'Non vérifié'}
           </button>
+
+          {user.suspended ? (
+            <button
+              type="button"
+              disabled={updating}
+              onClick={onReactivate}
+              className="inline-flex h-9 items-center gap-1 rounded-[var(--radius-sm)] px-2.5 text-xs font-medium text-text-secondary transition-colors hover:bg-success-light hover:text-success"
+              title={user.suspendedReason ? `Motif : ${user.suspendedReason}` : 'Réactiver le compte'}
+            >
+              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
+              Réactiver
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={updating}
+              onClick={onAskSuspend}
+              className="inline-flex h-9 items-center gap-1 rounded-[var(--radius-sm)] px-2.5 text-xs font-medium text-text-secondary transition-colors hover:bg-error-light hover:text-error"
+              aria-label={`Suspendre le compte de ${user.firstName} ${user.lastName}`}
+            >
+              <Ban className="h-3.5 w-3.5" aria-hidden />
+              Suspendre
+            </button>
+          )}
 
           <button
             type="button"

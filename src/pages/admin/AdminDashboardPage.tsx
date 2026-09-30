@@ -18,7 +18,7 @@ export function AdminDashboardPage() {
           icon: Users,
           label: 'Utilisateurs',
           value: stats.users.total,
-          detail: `${stats.users.customers} clients · ${stats.users.professionals} pros · ${stats.users.admins} admins`,
+          detail: `${stats.users.customers} clients · ${stats.users.professionals} pros · ${stats.users.admins} admins${stats.users.suspended ? ` · ${stats.users.suspended} suspendus` : ''}`,
         },
         {
           to: '/admin/categories',
@@ -28,11 +28,11 @@ export function AdminDashboardPage() {
           detail: `${stats.categories.active} visibles publiquement`,
         },
         {
-          to: '/trouver',
+          to: '/admin/activities',
           icon: Activity,
-          label: 'Activités publiées',
+          label: 'Activités',
           value: stats.activities.total,
-          detail: 'Offres des professionnels',
+          detail: `${stats.activities.approved} validées · ${stats.activities.pending} en attente${stats.activities.rejected ? ` · ${stats.activities.rejected} refusées` : ''}${stats.activities.suspended ? ` · ${stats.activities.suspended} suspendues` : ''}`,
         },
         {
           to: '/dashboard',
@@ -45,7 +45,8 @@ export function AdminDashboardPage() {
     : []
 
   const links = [
-    { to: '/admin/users', label: 'Gérer les utilisateurs', detail: 'Créer un compte, changer un rôle, vérifier un email' },
+    { to: '/admin/activities', label: 'Valider les activités en attente', detail: 'Approuver, refuser ou suspendre une annonce' },
+    { to: '/admin/users', label: 'Gérer les utilisateurs', detail: 'Créer un compte, changer un rôle, suspendre' },
     { to: '/admin/categories', label: 'Gérer les catégories', detail: 'Ajouter un métier, réordonner, masquer' },
     { to: '/trouver', label: 'Voir le site en tant que visiteur', detail: 'Contrôler le parcours de découverte' },
   ]

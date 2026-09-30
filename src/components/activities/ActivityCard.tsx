@@ -20,7 +20,18 @@ export function ActivityCard({ activity, currentUserId, distance }: ActivityCard
     <div className="flex flex-col rounded-[var(--radius-md)] border border-border bg-surface p-5 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]">
       <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
         <div className="min-w-0">
-          <Badge variant="secondary">{activity.category}</Badge>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Badge variant="secondary">{activity.category}</Badge>
+            {activity.status && activity.status !== 'APPROVED' ? (
+              <Badge variant={activity.status === 'PENDING' ? 'warning' : activity.status === 'REJECTED' ? 'error' : 'neutral'}>
+                {activity.status === 'PENDING'
+                  ? 'En attente de validation'
+                  : activity.status === 'REJECTED'
+                    ? 'Refusée'
+                    : 'Suspendue'}
+              </Badge>
+            ) : null}
+          </div>
           <h3 className="mt-2 line-clamp-2 text-base font-semibold text-text-primary">
             {activity.slug ? (
               <Link
@@ -42,6 +53,10 @@ export function ActivityCard({ activity, currentUserId, distance }: ActivityCard
       </div>
 
       <p className="mt-2 line-clamp-3 text-sm text-text-secondary">{activity.description}</p>
+
+      {activity.moderationReason && activity.status && activity.status !== 'APPROVED' ? (
+        <p className="mt-2 text-xs text-error">Motif de la modération : {activity.moderationReason}</p>
+      ) : null}
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-text-muted">
         <span className="inline-flex items-center gap-1">

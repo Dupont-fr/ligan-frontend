@@ -41,6 +41,8 @@ export interface Activity {
   photos: string[]
   latitude?: number
   longitude?: number
+  status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED'
+  moderationReason?: string
   professional?: { id: string; firstName: string; lastName: string }
   createdAt: string
 }

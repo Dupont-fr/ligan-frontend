@@ -1,10 +1,11 @@
-import { FolderTree, Gauge, Home, LayoutGrid, Users } from 'lucide-react'
+import { ClipboardCheck, FolderTree, Gauge, Home, LayoutGrid, Users } from 'lucide-react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { WorkspaceShell } from '../../components/layout/WorkspaceShell'
 
 const navItems = [
   { to: '/admin', label: 'Tableau de bord', icon: Gauge, end: true, crumb: 'Aperçu' },
   { to: '/admin/users', label: 'Utilisateurs', icon: Users, end: false, crumb: 'Utilisateurs' },
+  { to: '/admin/activities', label: 'Activités', icon: ClipboardCheck, end: false, crumb: 'Activités' },
   { to: '/admin/categories', label: 'Catégories', icon: FolderTree, end: false, crumb: 'Catégories' },
 ]
 
