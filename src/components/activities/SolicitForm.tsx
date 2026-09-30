@@ -64,7 +64,7 @@ export function SolicitForm({ activityId, toProfessionalId, variant = 'card', on
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Bonjour, je suis intéressé(e) par vos services…"
-            className="w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 py-2 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
+            className="w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 py-2 text-base text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
           />
           <div className="flex gap-2">
             <Button size="sm" onClick={submit} loading={sending} disabled={message.trim().length < 10}>

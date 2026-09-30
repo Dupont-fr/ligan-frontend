@@ -444,7 +444,7 @@ export function BusinessPage() {
   )
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="has-bottom-nav flex min-h-dvh flex-col">
       <SiteHeader />
       <main className="flex-1 bg-background">{content}</main>
       <SiteFooter />

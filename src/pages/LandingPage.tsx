@@ -56,7 +56,7 @@ export function LandingPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="has-bottom-nav flex min-h-dvh flex-col">
       <SiteHeader />
 
       <main className="flex-1">
@@ -85,7 +85,7 @@ export function LandingPage() {
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Que recherchez-vous ? (ex : mécanicien)"
                   aria-label="Rechercher un professionnel"
-                  className="h-12 w-full bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted"
+                  className="h-12 w-full bg-transparent text-base text-text-primary outline-none placeholder:text-text-muted"
                 />
               </div>
               <Button type="submit" size="lg" className="w-full sm:w-auto">
@@ -141,7 +141,7 @@ export function LandingPage() {
                 Des dizaines de métiers réunis au même endroit.
               </p>
             </div>
-            <Link to="/trouver" className="hidden items-center gap-1 text-sm font-medium text-primary hover:underline sm:inline-flex">
+            <Link to="/categories" className="hidden items-center gap-1 text-sm font-medium text-primary hover:underline sm:inline-flex">
               Tout voir <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           </div>

@@ -12,6 +12,7 @@ import { RegisterPage } from './pages/auth/RegisterPage'
 import { ResetPasswordPage } from './pages/auth/ResetPasswordPage'
 import { VerifyEmailPage } from './pages/auth/VerifyEmailPage'
 import { BrowsePage } from './pages/BrowsePage'
+import { CategoriesPage } from './pages/CategoriesPage'
 import { DashboardPage } from './pages/dashboard/DashboardPage'
 import { LandingPage } from './pages/LandingPage'
 import { BusinessPage } from './pages/BusinessPage'
@@ -23,6 +24,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/trouver" element={<BrowsePage />} />
+          <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/business/:slug" element={<BusinessPage />} />
 
           <Route element={<AuthLayout />}>

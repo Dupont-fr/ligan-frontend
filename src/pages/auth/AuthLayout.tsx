@@ -5,7 +5,7 @@ import { ThemeToggle } from '../../components/shared/ThemeToggle'
 
 export function AuthLayout() {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-10 border-b border-border bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between px-4">
           <Logo />

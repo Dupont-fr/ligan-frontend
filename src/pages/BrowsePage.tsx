@@ -134,7 +134,7 @@ export function BrowsePage() {
     }`
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="has-bottom-nav flex min-h-dvh flex-col">
       <SiteHeader />
 
       <main className="flex-1">
@@ -154,7 +154,7 @@ export function BrowsePage() {
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Métier, service, mot-clé…"
                   aria-label="Rechercher"
-                  className="h-11 w-full bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted"
+                  className="h-11 w-full bg-transparent text-base text-text-primary outline-none placeholder:text-text-muted"
                 />
               </div>
               <Button type="submit" className="w-full sm:w-auto">

@@ -336,7 +336,7 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
           </button>
         </div>
 
-        <ol className="flex gap-1.5 overflow-x-auto border-b border-border bg-background/50 px-5 py-3">
+        <ol className="hidden gap-1.5 overflow-x-auto border-b border-border bg-background/50 px-5 py-3 sm:flex">
           {STEPS.map((label, i) => {
             const done = i < step
             const active = i === step
@@ -367,6 +367,9 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
             )
           })}
         </ol>
+        <p className="border-b border-border bg-background/50 px-5 py-3 text-sm font-medium text-text-secondary sm:hidden">
+          Étape {step + 1}/{STEPS.length} : <span className="text-text-primary">{STEPS[step]}</span>
+        </p>
 
         <div className="px-5 py-5">
           {error ? (

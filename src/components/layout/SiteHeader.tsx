@@ -6,6 +6,7 @@ import { Button } from '../ui/Button'
 import { useAuth } from '../../features/auth/AuthContext'
 import { useCategories } from '../../hooks/useCategories'
 import type { UserRole } from '../../services/auth'
+import { BottomNav } from './BottomNav'
 import { Logo } from './Logo'
 
 const navLinks: { label: string; to: string; hideFor?: UserRole[] }[] = [
@@ -115,7 +116,7 @@ export function SiteHeader() {
             )}
             <button
               type="button"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-sm)] text-text-secondary transition-colors hover:bg-background hover:text-text-primary lg:hidden"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-[var(--radius-sm)] text-text-secondary transition-colors hover:bg-background hover:text-text-primary lg:hidden"
               aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
               aria-expanded={menuOpen}
               onClick={() => setMenuOpen((open) => !open)}
@@ -179,6 +180,7 @@ export function SiteHeader() {
           </nav>
         ) : null}
       </header>
+      <BottomNav />
     </>
   )
 }

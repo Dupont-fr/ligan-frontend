@@ -87,3 +87,18 @@
     animation: none;
   }
 }
+
+/* Barre de navigation basse (mobile) - safe-area iOS */
+.bottom-nav {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@media (max-width: 1023px) {
+  .has-bottom-nav {
+    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* Ancres sous le header sticky */
+[id] {
+  scroll-margin-top: 5rem;
+}
