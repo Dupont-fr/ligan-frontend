@@ -26,6 +26,14 @@ export interface AnalyticsStats {
   byActivity: ActivityStats[]
 }
 
+export interface AdminActivityStat extends ActivityStats {
+  professional: { firstName: string; lastName: string } | null
+}
+
+export interface PlatformOverview extends Omit<AnalyticsStats, 'byActivity'> {
+  byActivity: AdminActivityStat[]
+}
+
 export function trackEvent(input: TrackEventInput): Promise<{ tracked: boolean }> {
   return apiPost<{ tracked: boolean }>('/api/analytics/events', input)
 }
@@ -46,4 +54,8 @@ export function visitorSessionId(): string | undefined {
 
 export function getMyStats(period: StatsPeriod): Promise<AnalyticsStats> {
   return apiGet<AnalyticsStats>(`/api/analytics/stats?period=${period}`)
+}
+
+export function getPlatformOverview(period: StatsPeriod): Promise<PlatformOverview> {
+  return apiGet<PlatformOverview>(`/api/analytics/overview?period=${period}`)
 }
