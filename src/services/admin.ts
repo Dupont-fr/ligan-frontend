@@ -43,6 +43,7 @@ export interface AdminStats {
   }
   categories: { total: number; active: number }
   solicitations: { total: number; pending: number; accepted: number; declined: number }
+  reviews: { total: number; pending: number; approved: number; rejected: number }
 }
 
 export type ActivityStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED'
@@ -113,4 +114,49 @@ export function setActivityStatus(
   input: { status: Exclude<ActivityStatus, 'PENDING'>; reason?: string },
 ): Promise<{ activity: AdminActivity }> {
   return apiPatch<{ activity: AdminActivity }>(`/api/admin/activities/${id}/status`, input)
+}
+
+export type ReviewStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
+
+export interface AdminReview {
+  id: string
+  rating: number
+  comment: string
+  status: ReviewStatus
+  moderationReason?: string
+  createdAt: string
+  reviewer: { id: string; firstName: string; lastName: string; email?: string }
+  activity?: { id: string; title: string; slug?: string }
+}
+
+export interface AdminReviewsPage {
+  reviews: AdminReview[]
+  total: number
+  page: number
+  pages: number
+}
+
+export function listAdminReviews(params: {
+  status?: ReviewStatus
+  q?: string
+  page?: number
+  limit?: number
+}): Promise<AdminReviewsPage> {
+  const query = new URLSearchParams()
+  if (params.status) query.set('status', params.status)
+  if (params.q) query.set('q', params.q)
+  if (params.page) query.set('page', String(params.page))
+  if (params.limit) query.set('limit', String(params.limit))
+  const qs = query.toString()
+  return apiGet<AdminReviewsPage>(`/api/admin/reviews${qs ? `?${qs}` : ''}`)
+}
+
+export function setReviewStatus(
+  id: string,
+  input: { status: 'APPROVED' | 'REJECTED'; reason?: string },
+): Promise<{ review: { id: string; status: ReviewStatus } }> {
+  return apiPatch<{ review: { id: string; status: ReviewStatus } }>(
+    `/api/admin/reviews/${id}/status`,
+    input,
+  )
 }

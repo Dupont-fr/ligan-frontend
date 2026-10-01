@@ -46,6 +46,7 @@ export function AdminDashboardPage() {
 
   const links = [
     { to: '/admin/activities', label: 'Valider les activités en attente', detail: 'Approuver, refuser ou suspendre une annonce' },
+    { to: '/admin/reviews', label: 'Modérer les avis', detail: 'Approuver ou rejeter les avis des utilisateurs' },
     { to: '/admin/analytics', label: 'Voir les statistiques de la plateforme', detail: 'Vues, appels, WhatsApp et itinéraires sur les fiches' },
     { to: '/admin/users', label: 'Gérer les utilisateurs', detail: 'Créer un compte, changer un rôle, suspendre' },
     { to: '/admin/categories', label: 'Gérer les catégories', detail: 'Ajouter un métier, réordonner, masquer' },

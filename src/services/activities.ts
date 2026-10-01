@@ -1,4 +1,5 @@
 import { apiDelete, apiGet, apiPatch, apiPost } from '../lib/api'
+import type { PublicReview } from './reviews'
 
 export type OpeningDay = 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN'
 
@@ -95,11 +96,26 @@ export interface BusinessProfessional {
   memberSince: string | null
 }
 
-/** Fiche publique /business/:slug (Sprint 4). */
-export function getBusiness(slug: string): Promise<{ activity: Activity; professional: BusinessProfessional }> {
-  return apiGet<{ activity: Activity; professional: BusinessProfessional }>(
-    `/api/businesses/${encodeURIComponent(slug)}`,
-  )
+export interface BusinessRating {
+  average: number
+  count: number
+}
+
+/** Fiche publique /business/:slug (Sprint 4) — note moyenne + avis publics (Sprint 11). */
+export function getBusiness(
+  slug: string,
+): Promise<{
+  activity: Activity
+  professional: BusinessProfessional
+  rating: BusinessRating
+  reviews: PublicReview[]
+}> {
+  return apiGet<{
+    activity: Activity
+    professional: BusinessProfessional
+    rating: BusinessRating
+    reviews: PublicReview[]
+  }>(`/api/businesses/${encodeURIComponent(slug)}`)
 }
 
 /** Recherche géolocalisée + filtres/tri — /api/businesses/search (Sprints 5–6). */

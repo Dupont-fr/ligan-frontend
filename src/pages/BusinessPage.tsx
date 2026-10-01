@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   BadgeCheck,
   Building2,
@@ -13,12 +13,14 @@ import {
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { SolicitForm } from '../components/activities/SolicitForm'
+import { ReviewsSection } from '../components/activities/ReviewsSection'
 import { SiteFooter } from '../components/layout/SiteFooter'
 import { SiteHeader } from '../components/layout/SiteHeader'
 import { Alert } from '../components/ui/Alert'
 import { Badge } from '../components/ui/Badge'
 import { buttonClass } from '../components/ui/buttonClass'
 import { Card } from '../components/ui/Card'
+import { StarRating } from '../components/ui/StarRating'
 import { useAuth } from '../features/auth/AuthContext'
 import { getBusiness } from '../services/activities'
 import { trackEvent, visitorSessionId } from '../services/analytics'
@@ -143,8 +145,14 @@ export function BusinessPage() {
 
   const activity = data?.activity
   const professional = data?.professional
+  const rating = data?.rating ?? { average: 0, count: 0 }
+  const reviews = data?.reviews ?? []
   const todayKey = WEEKDAY_BY_GETDAY[new Date().getDay()]
   const activityId = activity?.id
+  const queryClient = useQueryClient()
+  const onReviewsChanged = () => {
+    void queryClient.invalidateQueries({ queryKey: ['business', slug] })
+  }
 
   // Vue du profil : une fois par activité et par jour (Sprint 10)
   useEffect(() => {
@@ -226,6 +234,20 @@ export function BusinessPage() {
                   <h1 className="mt-2 text-2xl font-semibold tracking-tight text-text-primary">
                     {activity.title}
                   </h1>
+                  {rating.count > 0 ? (
+                    <a
+                      href="#avis"
+                      className="mt-2 inline-flex max-w-full flex-wrap items-center gap-2 transition-opacity hover:opacity-80"
+                    >
+                      <StarRating value={rating.average} size="sm" />
+                      <span className="text-sm font-bold tabular-nums text-text-primary">
+                        {rating.average}
+                      </span>
+                      <span className="text-xs text-text-muted">
+                        {rating.count} avis
+                      </span>
+                    </a>
+                  ) : null}
                   <p className="mt-2 flex flex-wrap items-center gap-2 text-sm text-text-secondary">
                     <span className="inline-flex items-center gap-1.5">
                       <UserRound className="h-4 w-4 text-text-muted" aria-hidden />
@@ -357,6 +379,17 @@ export function BusinessPage() {
                 </a>
               </Card>
             ) : null}
+
+            {/* Avis (Sprint 11) */}
+            <div id="avis">
+              <ReviewsSection
+                activityId={activity.id}
+                rating={rating}
+                reviews={reviews}
+                isOwner={Boolean(professional && user?.id === professional.id)}
+                onChanged={onReviewsChanged}
+              />
+            </div>
           </div>
 
           {/* Colonne contact */}

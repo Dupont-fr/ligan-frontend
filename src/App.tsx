@@ -6,6 +6,7 @@ import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage'
 import { AdminCategoriesPage } from './pages/admin/AdminCategoriesPage'
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
 import { AdminLayout } from './pages/admin/AdminLayout'
+import { AdminReviewsPage } from './pages/admin/AdminReviewsPage'
 import { AdminUsersPage } from './pages/admin/AdminUsersPage'
 import { AuthLayout } from './pages/auth/AuthLayout'
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage'
@@ -47,6 +48,7 @@ function App() {
               <Route path="/admin/users" element={<AdminUsersPage />} />
               <Route path="/admin/activities" element={<AdminActivitiesPage />} />
               <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
+              <Route path="/admin/reviews" element={<AdminReviewsPage />} />
               <Route path="/admin/categories" element={<AdminCategoriesPage />} />
             </Route>
           </Route>
