@@ -6,6 +6,7 @@ import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage'
 import { AdminCategoriesPage } from './pages/admin/AdminCategoriesPage'
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
 import { AdminLayout } from './pages/admin/AdminLayout'
+import { AdminPlansPage } from './pages/admin/AdminPlansPage'
 import { AdminReviewsPage } from './pages/admin/AdminReviewsPage'
 import { AdminUsersPage } from './pages/admin/AdminUsersPage'
 import { AuthLayout } from './pages/auth/AuthLayout'
@@ -18,6 +19,7 @@ import { BrowsePage } from './pages/BrowsePage'
 import { CategoriesPage } from './pages/CategoriesPage'
 import { DashboardPage } from './pages/dashboard/DashboardPage'
 import { LandingPage } from './pages/LandingPage'
+import { PricingPage } from './pages/PricingPage'
 import { BusinessPage } from './pages/BusinessPage'
 
 function App() {
@@ -28,6 +30,7 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/trouver" element={<BrowsePage />} />
           <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/tarifs" element={<PricingPage />} />
           <Route path="/business/:slug" element={<BusinessPage />} />
 
           <Route element={<AuthLayout />}>
@@ -49,6 +52,7 @@ function App() {
               <Route path="/admin/activities" element={<AdminActivitiesPage />} />
               <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
               <Route path="/admin/reviews" element={<AdminReviewsPage />} />
+              <Route path="/admin/plans" element={<AdminPlansPage />} />
               <Route path="/admin/categories" element={<AdminCategoriesPage />} />
             </Route>
           </Route>

@@ -250,6 +250,12 @@ export function LandingPage() {
                 </>
               )}
             </div>
+            <Link
+              to="/tarifs"
+              className="mt-5 inline-block text-sm font-medium text-primary-contrast underline-offset-4 hover:underline"
+            >
+              Découvrir les tarifs des professionnels →
+            </Link>
           </div>
         </section>
       </main>

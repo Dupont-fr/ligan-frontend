@@ -15,6 +15,7 @@ const columns = [
     title: 'Pour les pros',
     links: [
       { label: 'Devenir pro', to: '/register?role=PROFESSIONAL' },
+      { label: 'Tarifs & plans', to: '/tarifs' },
       { label: 'Espace pro', to: '/dashboard' },
       { label: 'Mes sollicitations', to: '/dashboard' },
     ],

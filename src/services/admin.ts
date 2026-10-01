@@ -160,3 +160,33 @@ export function setReviewStatus(
     input,
   )
 }
+
+export interface AdminPlan {
+  id: string
+  code: 'FREE' | 'PRO' | 'PREMIUM'
+  name: string
+  price: number
+  durationDays: number
+  features: string[]
+  highlight: boolean
+  order: number
+  isActive: boolean
+}
+
+export interface AdminPlanUpdate {
+  name?: string
+  price?: number
+  durationDays?: number
+  features?: string[]
+  highlight?: boolean
+  order?: number
+  isActive?: boolean
+}
+
+export function listAdminPlans(): Promise<{ plans: AdminPlan[] }> {
+  return apiGet<{ plans: AdminPlan[] }>('/api/admin/plans')
+}
+
+export function updateAdminPlan(id: string, input: AdminPlanUpdate): Promise<{ plan: AdminPlan }> {
+  return apiPatch<{ plan: AdminPlan }>(`/api/admin/plans/${id}`, input)
+}
