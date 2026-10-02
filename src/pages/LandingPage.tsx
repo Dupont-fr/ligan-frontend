@@ -1,6 +1,6 @@
 import { ArrowRight, CheckCircle2, Clock, MessagesSquare, Search, ShieldCheck, Star, UserRound } from 'lucide-react'
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { SiteFooter } from '../components/layout/SiteFooter'
 import { SiteHeader } from '../components/layout/SiteHeader'
 import { Button } from '../components/ui/Button'
@@ -46,8 +46,15 @@ const trustPoints = [
 export function LandingPage() {
   const [query, setQuery] = useState('')
   const navigate = useNavigate()
+  const location = useLocation()
   const categories = useCategories()
   const { user } = useAuth()
+
+  useEffect(() => {
+    if (!location.hash) return
+    const el = document.getElementById(location.hash.slice(1))
+    el?.scrollIntoView({ behavior: 'smooth' })
+  }, [location.hash])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()

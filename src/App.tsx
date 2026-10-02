@@ -15,11 +15,16 @@ import { LoginPage } from './pages/auth/LoginPage'
 import { RegisterPage } from './pages/auth/RegisterPage'
 import { ResetPasswordPage } from './pages/auth/ResetPasswordPage'
 import { VerifyEmailPage } from './pages/auth/VerifyEmailPage'
+import { AboutPage } from './pages/AboutPage'
 import { BrowsePage } from './pages/BrowsePage'
 import { CategoriesPage } from './pages/CategoriesPage'
+import { ContactPage } from './pages/ContactPage'
 import { DashboardPage } from './pages/dashboard/DashboardPage'
+import { HelpPage } from './pages/HelpPage'
 import { LandingPage } from './pages/LandingPage'
 import { PricingPage } from './pages/PricingPage'
+import { PrivacyPage } from './pages/PrivacyPage'
+import { TermsPage } from './pages/TermsPage'
 import { BusinessPage } from './pages/BusinessPage'
 
 function App() {
@@ -31,6 +36,11 @@ function App() {
           <Route path="/trouver" element={<BrowsePage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/tarifs" element={<PricingPage />} />
+          <Route path="/a-propos" element={<AboutPage />} />
+          <Route path="/aide" element={<HelpPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/conditions" element={<TermsPage />} />
+          <Route path="/confidentialite" element={<PrivacyPage />} />
           <Route path="/business/:slug" element={<BusinessPage />} />
 
           <Route element={<AuthLayout />}>

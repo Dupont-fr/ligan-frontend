@@ -6,9 +6,9 @@ const columns = [
   {
     title: 'À propos',
     links: [
-      { label: 'Notre histoire', to: '/' },
+      { label: 'Notre histoire', to: '/a-propos' },
       { label: 'Comment ça marche', to: '/#how' },
-      { label: 'Contact', to: '/' },
+      { label: 'Contact', to: '/contact' },
     ],
   },
   {
@@ -17,15 +17,14 @@ const columns = [
       { label: 'Devenir pro', to: '/register?role=PROFESSIONAL' },
       { label: 'Tarifs & plans', to: '/tarifs' },
       { label: 'Espace pro', to: '/dashboard' },
-      { label: 'Mes sollicitations', to: '/dashboard' },
     ],
   },
   {
     title: 'Aide & Légal',
     links: [
-      { label: "Centre d'aide", to: '/' },
-      { label: 'Conditions d’utilisation', to: '/' },
-      { label: 'Confidentialité', to: '/' },
+      { label: "Centre d'aide", to: '/aide' },
+      { label: 'Conditions d’utilisation', to: '/conditions' },
+      { label: 'Confidentialité', to: '/confidentialite' },
     ],
   },
 ]
