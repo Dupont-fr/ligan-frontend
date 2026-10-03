@@ -5,6 +5,7 @@ import { SiteFooter } from '../components/layout/SiteFooter'
 import { SiteHeader } from '../components/layout/SiteHeader'
 import { Button } from '../components/ui/Button'
 import { HeroDemo } from '../components/home/HeroDemo'
+import { HeroPeople } from '../components/home/HeroPeople'
 import { useAuth } from '../features/auth/AuthContext'
 import { useCategories } from '../hooks/useCategories'
 
@@ -69,8 +70,13 @@ export function LandingPage() {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="bg-gradient-to-b from-primary-light to-background">
-          <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-14 sm:py-16 lg:grid-cols-2">
+        <section className="relative overflow-hidden bg-gradient-to-b from-primary-light to-background">
+          {/* Pub illustrée : professionnels en arrière-plan du hero */}
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0">
+            <HeroPeople className="h-auto w-full" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/25 to-background/0" />
+          </div>
+          <div className="relative mx-auto grid w-full max-w-6xl items-center gap-10 px-4 pt-14 pb-40 sm:pt-16 sm:pb-48 lg:pb-72 lg:grid-cols-2">
             <div className="text-center lg:text-left">
               <span className="inline-flex items-center gap-1.5 rounded-[var(--radius-full)] border border-primary/30 bg-surface px-3 py-1 text-xs font-medium text-primary">
                 <span className="h-1.5 w-1.5 rounded-full bg-secondary" aria-hidden />
