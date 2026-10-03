@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { SiteFooter } from '../components/layout/SiteFooter'
 import { SiteHeader } from '../components/layout/SiteHeader'
 import { Button } from '../components/ui/Button'
+import { HeroDemo } from '../components/home/HeroDemo'
 import { useAuth } from '../features/auth/AuthContext'
 import { useCategories } from '../hooks/useCategories'
 
@@ -69,50 +70,57 @@ export function LandingPage() {
       <main className="flex-1">
         {/* Hero */}
         <section className="bg-gradient-to-b from-primary-light to-background">
-          <div className="mx-auto w-full max-w-6xl px-4 py-14 text-center sm:py-20">
-            <span className="inline-flex items-center gap-1.5 rounded-[var(--radius-full)] border border-primary/30 bg-surface px-3 py-1 text-xs font-medium text-primary">
-              <span className="h-1.5 w-1.5 rounded-full bg-secondary" aria-hidden />
-              Gratuit et sans compte pour chercher
-            </span>
-            <h1 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl md:text-5xl">
-              Trouvez le bon pro, <span className="text-secondary">près de chez vous</span>
-            </h1>
-            <p className="mx-auto mt-4 max-w-2xl text-base text-text-secondary sm:text-lg">
-              Mécaniciens, plombiers, coiffeurs, professeurs particuliers… Comparez les activités
-              publiées par les professionnels de votre région et contactez-les en direct, sans
-              intermédiaire.
-            </p>
+          <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-14 sm:py-16 lg:grid-cols-2">
+            <div className="text-center lg:text-left">
+              <span className="inline-flex items-center gap-1.5 rounded-[var(--radius-full)] border border-primary/30 bg-surface px-3 py-1 text-xs font-medium text-primary">
+                <span className="h-1.5 w-1.5 rounded-full bg-secondary" aria-hidden />
+                Gratuit et sans compte pour chercher
+              </span>
+              <h1 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl md:text-5xl lg:mx-0">
+                Trouvez le bon pro, <span className="text-secondary">près de chez vous</span>
+              </h1>
+              <p className="mx-auto mt-4 max-w-2xl text-base text-text-secondary sm:text-lg lg:mx-0">
+                Mécaniciens, plombiers, coiffeurs, professeurs particuliers… Comparez les activités
+                publiées par les professionnels de votre région et contactez-les en direct, sans
+                intermédiaire.
+              </p>
 
-            <form onSubmit={handleSearch} className="mx-auto mt-8 flex max-w-xl flex-col gap-2 sm:flex-row">
-              <div className="flex flex-1 items-center gap-2 rounded-[var(--radius-md)] border border-border bg-surface px-4 shadow-[var(--shadow-sm)]">
-                <Search className="h-4 w-4 shrink-0 text-text-muted" aria-hidden />
-                <input
-                  type="search"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Que recherchez-vous ? (ex : mécanicien)"
-                  aria-label="Rechercher un professionnel"
-                  className="h-12 w-full bg-transparent text-base text-text-primary outline-none placeholder:text-text-muted"
-                />
+              <form onSubmit={handleSearch} className="mx-auto mt-8 flex max-w-xl flex-col gap-2 sm:flex-row lg:mx-0">
+                <div className="flex flex-1 items-center gap-2 rounded-[var(--radius-md)] border border-border bg-surface px-4 shadow-[var(--shadow-sm)]">
+                  <Search className="h-4 w-4 shrink-0 text-text-muted" aria-hidden />
+                  <input
+                    type="search"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Que recherchez-vous ? (ex : mécanicien)"
+                    aria-label="Rechercher un professionnel"
+                    className="h-12 w-full bg-transparent text-base text-text-primary outline-none placeholder:text-text-muted"
+                  />
+                </div>
+                <Button type="submit" size="lg" className="w-full sm:w-auto">
+                  Rechercher
+                </Button>
+              </form>
+
+              <div className="mx-auto mt-6 flex max-w-xl flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-text-secondary lg:mx-0 lg:justify-start">
+                <span className="inline-flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-success" aria-hidden />
+                  Recherche 100 % gratuite
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-success" aria-hidden />
+                  Sans compte pour consulter
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-success" aria-hidden />
+                  Contact direct avec le pro
+                </span>
               </div>
-              <Button type="submit" size="lg" className="w-full sm:w-auto">
-                Rechercher
-              </Button>
-            </form>
+            </div>
 
-            <div className="mx-auto mt-6 flex max-w-xl flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-text-secondary">
-              <span className="inline-flex items-center gap-1.5">
-                <CheckCircle2 className="h-4 w-4 text-success" aria-hidden />
-                Recherche 100 % gratuite
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <CheckCircle2 className="h-4 w-4 text-success" aria-hidden />
-                Sans compte pour consulter
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <CheckCircle2 className="h-4 w-4 text-success" aria-hidden />
-                Contact direct avec le pro
-              </span>
+            {/* Démonstration animée du parcours */}
+            <div className="flex justify-center">
+              <HeroDemo />
             </div>
           </div>
         </section>
