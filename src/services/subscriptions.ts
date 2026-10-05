@@ -29,7 +29,7 @@ export interface SubscriptionState {
   planCode: string
   subscription: CurrentSubscription | null
   payments: PaymentRow[]
-  /** true = clés FeexPay absentes, paiements simulés (mode démo). */
+  /** true = clés SebPay absentes, paiements simulés (mode démo). */
   mock: boolean
 }
 
@@ -56,8 +56,15 @@ export function getMySubscription(): Promise<SubscriptionState> {
   return apiGet<SubscriptionState>('/api/subscriptions/me')
 }
 
-export function startCheckout(input: CheckoutInput): Promise<{ payment: StartedPayment; mock: boolean }> {
-  return apiPost<{ payment: StartedPayment; mock: boolean }>('/api/subscriptions/checkout', input)
+export interface CheckoutResult {
+  payment: StartedPayment
+  /** Lien de validation SebPay (page d'approbation) — à ouvrir si présent. */
+  providerLink?: string | null
+  mock: boolean
+}
+
+export function startCheckout(input: CheckoutInput): Promise<CheckoutResult> {
+  return apiPost<CheckoutResult>('/api/subscriptions/checkout', input)
 }
 
 export function getPaymentStatus(id: string): Promise<{ payment: StartedPayment }> {

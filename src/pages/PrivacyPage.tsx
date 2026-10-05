@@ -33,7 +33,7 @@ const sections = [
     id: 'sous-traitants',
     title: '4. Avec qui ?',
     paras: [
-      'Des sous-traitants techniques strictement nécessaires : hébergement et base de données, service d’envoi d’e-mails (Brevo), prestataire de paiement mobile money (FeexPay). Vos données ne sont ni vendues, ni louées, ni cédées à des fins publicitaires.',
+      'Des sous-traitants techniques strictement nécessaires : hébergement et base de données, service d’envoi d’e-mails (Brevo), prestataire de paiement mobile money (SebPay). Vos données ne sont ni vendues, ni louées, ni cédées à des fins publicitaires.',
       'Elles peuvent être communiquées aux autorités si la loi l’exige.',
     ],
   },

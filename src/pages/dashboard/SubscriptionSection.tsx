@@ -80,7 +80,15 @@ export function SubscriptionSection() {
       setPending(data.payment)
       setFormPlan(null)
       reset()
-      setNotice(null)
+      if (data.providerLink) {
+        window.open(data.providerLink, '_blank', 'noopener,noreferrer')
+        setNotice({
+          type: 'success',
+          text: 'Validez le paiement sur la page qui vient de s’ouvrir, puis attendez la confirmation.',
+        })
+      } else {
+        setNotice(null)
+      }
     },
     onError: (err) =>
       setNotice({
@@ -102,7 +110,7 @@ export function SubscriptionSection() {
       }),
   })
 
-  // Sondage du statut de paiement (FeexPay ou simulation)
+  // Sondage du statut de paiement (SebPay ou simulation)
   useEffect(() => {
     if (!pending || pending.status !== 'PENDING') return
     let cancelled = false
@@ -178,7 +186,7 @@ export function SubscriptionSection() {
 
       {state?.mock ? (
         <Alert variant="info" className="mt-4">
-          Mode démonstration : les paiements sont simulés (aucun débit réel). Configurez vos clés FeexPay
+          Mode démonstration : les paiements sont simulés (aucun débit réel). Configurez vos clés SebPay
           dans le serveur pour activer les paiements MTN MoMo et Orange Money.
         </Alert>
       ) : null}
