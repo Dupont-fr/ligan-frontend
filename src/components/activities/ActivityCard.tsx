@@ -1,4 +1,4 @@
-import { MapPin, Navigation, Tag, UserRound } from 'lucide-react'
+import { BadgeCheck, MapPin, Navigation, Tag, UserRound } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { Activity } from '../../services/activities'
 import { Badge } from '../ui/Badge'
@@ -17,11 +17,21 @@ export function ActivityCard({ activity, currentUserId, distance }: ActivityCard
   const isMine = Boolean(currentUserId && proId === currentUserId)
 
   return (
-    <div className="flex flex-col rounded-[var(--radius-md)] border border-border bg-surface p-5 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]">
+    <div
+      className={`flex flex-col rounded-[var(--radius-md)] border border-border bg-surface p-5 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]${
+        activity.planCode === 'PREMIUM' ? ' ring-1 ring-primary/30' : ''
+      }`}
+    >
       <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-1.5">
             <Badge variant="secondary">{activity.category}</Badge>
+            {activity.planCode === 'PREMIUM' ? <Badge variant="promo">Premium</Badge> : null}
+            {activity.isVerified ? (
+              <Badge variant="success">
+                <BadgeCheck className="inline h-3 w-3" aria-hidden /> Vérifié
+              </Badge>
+            ) : null}
             {activity.status && activity.status !== 'APPROVED' ? (
               <Badge variant={activity.status === 'PENDING' ? 'warning' : activity.status === 'REJECTED' ? 'error' : 'neutral'}>
                 {activity.status === 'PENDING'

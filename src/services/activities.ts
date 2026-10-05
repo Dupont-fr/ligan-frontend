@@ -45,6 +45,10 @@ export interface Activity {
   status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED'
   moderationReason?: string
   professional?: { id: string; firstName: string; lastName: string }
+  /** Plan effectif du pro (champ de recherche Sprint 14) — badge/boost visibilité. */
+  planCode?: 'FREE' | 'PRO' | 'PREMIUM'
+  /** Pro vérifié (badge « Vérifié » dans les résultats de recherche). */
+  isVerified?: boolean
   createdAt: string
 }
 
@@ -94,6 +98,8 @@ export interface BusinessProfessional {
   lastName: string
   isVerified: boolean
   memberSince: string | null
+  /** Plan effectif du pro — badge « Premium » sur la fiche (Sprint 14). */
+  planCode?: 'FREE' | 'PRO' | 'PREMIUM'
 }
 
 export interface BusinessRating {

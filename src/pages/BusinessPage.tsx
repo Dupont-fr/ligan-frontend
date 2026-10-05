@@ -258,6 +258,7 @@ export function BusinessPage() {
                         <BadgeCheck className="inline h-3 w-3" aria-hidden /> Vérifié
                       </Badge>
                     ) : null}
+                    {professional.planCode === 'PREMIUM' ? <Badge variant="promo">Premium</Badge> : null}
                     {professional.memberSince ? (
                       <span className="text-text-muted">
                         Membre depuis{' '}
