@@ -69,7 +69,7 @@ export function LandingPage() {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="relative overflow-hidden bg-gradient-to-b from-primary-light to-background">
+        <section className="relative overflow-hidden bg-gradient-to-b from-primary-light via-background via-30% to-background">
           {/* Photo de fond (desktop) — sujets à droite, zone texte à gauche */}
           <img
             src="/img/hero-desktop.webp"
@@ -82,7 +82,17 @@ export function LandingPage() {
             aria-hidden
             className="absolute inset-0 hidden bg-gradient-to-r from-background from-46% via-background/70 via-54% to-transparent to-64% lg:block"
           />
-          <div className="relative mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-14 sm:py-16 lg:grid-cols-2">
+          {/* Photo de fond (mobile / tablette) — le pro apparaît sous le texte */}
+          <div className="absolute inset-x-0 bottom-0 h-[420px] overflow-hidden sm:h-[520px] lg:hidden" aria-hidden>
+            <img
+              src="/img/hero-mobile.webp"
+              alt=""
+              fetchPriority="high"
+              className="hero-photo h-full w-full object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-background via-background/55 via-40% to-transparent to-90%" />
+          </div>
+          <div className="relative mx-auto grid w-full max-w-6xl items-center gap-10 px-4 pt-14 pb-72 sm:pt-16 lg:grid-cols-2 lg:pt-16 lg:pb-16">
             <div className="text-center lg:text-left">
               <span className="inline-flex items-center gap-1.5 rounded-[var(--radius-full)] border border-primary/30 bg-surface px-3 py-1 text-xs font-medium text-primary">
                 <span className="h-1.5 w-1.5 rounded-full bg-secondary" aria-hidden />
@@ -128,22 +138,14 @@ export function LandingPage() {
                   Contact direct avec le pro
                 </span>
               </div>
-
-              {/* Photo (mobile / tablette) */}
-              <img
-                src="/img/hero-mobile.webp"
-                alt="Mécanicien souriant dans son atelier, prêt à intervenir"
-                loading="lazy"
-                className="mx-auto mt-8 aspect-[3/4] w-full max-w-xl rounded-[var(--radius-lg)] object-cover object-center shadow-[var(--shadow-md)] sm:aspect-[16/9] sm:max-w-2xl sm:object-[center_60%] lg:hidden"
-              />
-            </div>
-
-            {/* Démonstration animée du parcours (masquée sur desktop : la photo prend le relais) */}
-            <div className="flex justify-center lg:hidden">
-              <HeroDemo />
             </div>
           </div>
         </section>
+
+        {/* Démonstration animée du parcours (mobile / tablette, sous le hero photo) */}
+        <div className="flex justify-center bg-background px-4 py-10 lg:hidden">
+          <HeroDemo />
+        </div>
 
         {/* Bandeau défilant — ticker promo type marketplace */}
         <div className="overflow-hidden border-y border-border bg-secondary py-2 text-white">
