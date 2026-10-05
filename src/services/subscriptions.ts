@@ -50,6 +50,15 @@ export interface CheckoutInput {
   planId: string
   phoneNumber: string
   network: PaymentNetwork
+  /** Code OTP — requis si l'opérateur sélectionné a `otpRequired: true`. */
+  otpCode?: string
+}
+
+export interface PaymentOperator {
+  slug: string
+  name: string
+  otpRequired: boolean
+  ussdCode: string | null
 }
 
 export function getMySubscription(): Promise<SubscriptionState> {
@@ -69,6 +78,10 @@ export function startCheckout(input: CheckoutInput): Promise<CheckoutResult> {
 
 export function getPaymentStatus(id: string): Promise<{ payment: StartedPayment }> {
   return apiGet<{ payment: StartedPayment }>(`/api/subscriptions/payments/${id}`)
+}
+
+export function listPaymentOperators(): Promise<{ operators: PaymentOperator[] }> {
+  return apiGet<{ operators: PaymentOperator[] }>('/api/payments/operators')
 }
 
 export function downgradeToFree(): Promise<{

@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { CheckCircle2, CreditCard, Loader2, Smartphone, Wallet } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { z } from 'zod'
 import { Alert } from '../../components/ui/Alert'
@@ -16,6 +16,7 @@ import {
   downgradeToFree,
   getMySubscription,
   getPaymentStatus,
+  listPaymentOperators,
   startCheckout,
   type PaymentStatus,
   type StartedPayment,
@@ -29,6 +30,9 @@ const checkoutSchema = z.object({
     .min(8, 'Numéro invalide (8 chiffres minimum)')
     .max(15, 'Numéro invalide')
     .regex(/^\+?[0-9]+$/, 'Chiffres uniquement'),
+  otpCode: z
+    .union([z.string().trim().regex(/^\d{4,12}$/, 'Code OTP invalide (4 à 12 chiffres)'), z.literal('')])
+    .optional(),
 })
 type CheckoutValues = z.infer<typeof checkoutSchema>
 
@@ -67,11 +71,22 @@ export function SubscriptionSection() {
     register,
     handleSubmit,
     reset,
+    setError,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<CheckoutValues>({
     resolver: zodResolver(checkoutSchema),
-    defaultValues: { network: 'mtn', phoneNumber: '' },
+    defaultValues: { network: 'mtn', phoneNumber: '', otpCode: '' },
   })
+
+  const operatorsQuery = useQuery({
+    queryKey: ['payment-operators'],
+    queryFn: listPaymentOperators,
+    staleTime: 60 * 60 * 1000,
+  })
+  const selectedNetwork = useWatch({ control, name: 'network' })
+  const selectedOperator = (operatorsQuery.data?.operators ?? []).find((op) => op.slug === selectedNetwork)
+  const otpRequired = selectedOperator?.otpRequired === true
 
   const checkoutMutation = useMutation({
     mutationFn: startCheckout,
@@ -153,7 +168,12 @@ export function SubscriptionSection() {
 
   const onSubmit = (values: CheckoutValues) => {
     if (!formPlan) return
-    checkoutMutation.mutate({ planId: formPlan.id, ...values })
+    const otpCode = values.otpCode?.trim() ?? ''
+    if (otpRequired && !otpCode) {
+      setError('otpCode', { message: 'Saisissez le code OTP reçu sur votre téléphone' })
+      return
+    }
+    checkoutMutation.mutate({ planId: formPlan.id, ...values, otpCode: otpCode || undefined })
   }
 
   const state = subQuery.data
@@ -339,6 +359,29 @@ export function SubscriptionSection() {
                         {...register('phoneNumber')}
                       />
                     </FormField>
+                    {otpRequired ? (
+                      <FormField
+                        label="Code OTP"
+                        htmlFor={`checkout-otp-${plan.id}`}
+                        error={errors.otpCode?.message}
+                        hint={
+                          selectedOperator?.ussdCode
+                            ? `Composez ${selectedOperator.ussdCode} sur votre téléphone pour recevoir le code, puis saisissez-le ici.`
+                            : 'Saisissez le code de confirmation reçu sur votre téléphone.'
+                        }
+                      >
+                        <input
+                          id={`checkout-otp-${plan.id}`}
+                          type="text"
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                          maxLength={12}
+                          placeholder="123456"
+                          className="w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 py-2.5 text-base text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
+                          {...register('otpCode')}
+                        />
+                      </FormField>
+                    ) : null}
                     {errorMessage ? <Alert variant="error">{errorMessage}</Alert> : null}
                     <div className="flex gap-2">
                       <Button type="submit" size="sm" className="flex-1" loading={isSubmitting}>
