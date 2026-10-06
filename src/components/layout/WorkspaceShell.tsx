@@ -77,7 +77,9 @@ export function WorkspaceShell({ groups, breadcrumb, actions, children }: Worksp
 
   return (
     <div className="flex min-h-dvh bg-background">
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-surface md:flex">
+      {/* Sidebar collée en haut (immobile au scroll) sur desktop — hauteur
+          viewport : le menu reste visible et le pied de compte en bas d'écran. */}
+      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-border bg-surface md:flex">
         <div className="flex h-14 items-center border-b border-border px-4">
           <Logo />
         </div>
