@@ -5,6 +5,7 @@ import { SiteFooter } from '../components/layout/SiteFooter'
 import { SiteHeader } from '../components/layout/SiteHeader'
 import { Button } from '../components/ui/Button'
 import { HeroDemo } from '../components/home/HeroDemo'
+import { RecentActivities } from '../components/home/RecentActivities'
 import { useAuth } from '../features/auth/AuthContext'
 import { useCategories } from '../hooks/useCategories'
 
@@ -166,6 +167,9 @@ export function LandingPage() {
             ))}
           </div>
         </div>
+
+        {/* Activités récentes — preuve de vie + liens internes vers les fiches (SEO) */}
+        <RecentActivities />
 
         {/* Catégories — inspiré Jumia */}
         <section className="mx-auto w-full max-w-6xl px-4 py-12" aria-labelledby="categories-title">
