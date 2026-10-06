@@ -59,3 +59,27 @@ export function getMyStats(period: StatsPeriod): Promise<AnalyticsStats> {
 export function getPlatformOverview(period: StatsPeriod): Promise<PlatformOverview> {
   return apiGet<PlatformOverview>(`/api/analytics/overview?period=${period}`)
 }
+
+export type HistoryRange = '30d' | '90d' | '12mo'
+
+/** Une entrée des courbes d'évolution (cumul à la fin du bucket). */
+export interface HistoryPoint {
+  date: string
+  users: number
+  activities: number
+  activeSubs: number
+  solicitations: number
+  revenue: number
+}
+
+export interface PlatformHistory {
+  range: HistoryRange
+  granularity: 'day' | 'month'
+  from: string
+  points: HistoryPoint[]
+}
+
+/** Évolution cumulée (graphiques admin) — GET /api/analytics/history. */
+export function getPlatformHistory(range: HistoryRange): Promise<PlatformHistory> {
+  return apiGet<PlatformHistory>(`/api/analytics/history?range=${range}`)
+}

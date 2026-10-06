@@ -1,12 +1,15 @@
 import { useQuery } from '@tanstack/react-query'
 import { Eye, MapPin, MessageCircle, Phone, UserRound } from 'lucide-react'
 import { useState } from 'react'
+import { TrendChart } from '../../components/admin/TrendChart'
 import { Alert } from '../../components/ui/Alert'
 import { Badge, type BadgeVariant } from '../../components/ui/Badge'
 import { Card } from '../../components/ui/Card'
 import {
+  getPlatformHistory,
   getPlatformOverview,
   type BusinessEventType,
+  type HistoryRange,
   type StatsPeriod,
 } from '../../services/analytics'
 
@@ -15,6 +18,30 @@ const PERIODS: { id: StatsPeriod; label: string }[] = [
   { id: '7d', label: '7 jours' },
   { id: '30d', label: '30 jours' },
 ]
+
+const HISTORY_RANGES: { id: HistoryRange; label: string }[] = [
+  { id: '30d', label: '30 jours' },
+  { id: '90d', label: '90 jours' },
+  { id: '12mo', label: '12 mois' },
+]
+
+/** Clé de bucket ('2026-10-06' ou '2026-10') → étiquette d'axe. */
+function formatHistoryLabel(date: string, granularity: 'day' | 'month'): string {
+  const d = new Date(granularity === 'month' ? `${date}-01T00:00:00Z` : `${date}T00:00:00Z`)
+  if (Number.isNaN(d.getTime())) return date
+  return new Intl.DateTimeFormat('fr-FR', {
+    ...(granularity === 'month'
+      ? { month: 'short', year: '2-digit' }
+      : { day: '2-digit', month: '2-digit' }),
+    timeZone: 'UTC',
+  }).format(d)
+}
+
+/** Format « k » compact pour les montants (FCFA). */
+function formatFCFA(v: number): string {
+  if (Math.abs(v) < 1000) return String(v)
+  return `${(v / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} k`
+}
 
 const EVENT_META: { type: BusinessEventType; label: string; icon: typeof Eye }[] = [
   { type: 'PROFILE_VIEW', label: 'Vues de profil', icon: Eye },
@@ -32,14 +59,22 @@ const statusMeta: Record<string, { label: string; variant: BadgeVariant }> = {
 
 export function AdminAnalyticsPage() {
   const [period, setPeriod] = useState<StatsPeriod>('7d')
+  const [range, setRange] = useState<HistoryRange>('30d')
 
   const overviewQuery = useQuery({
     queryKey: ['analytics', 'overview', period],
     queryFn: () => getPlatformOverview(period),
   })
 
+  const historyQuery = useQuery({
+    queryKey: ['analytics', 'history', range],
+    queryFn: () => getPlatformHistory(range),
+  })
+
   const overview = overviewQuery.data
   const topActivities = overview?.byActivity ?? []
+  const history = historyQuery.data
+  const historyLabels = (history?.points ?? []).map((p) => formatHistoryLabel(p.date, history?.granularity ?? 'day'))
 
   return (
     <div className="space-y-5">
@@ -96,6 +131,89 @@ export function AdminAnalyticsPage() {
           </Card>
         ))}
       </div>
+
+      {/* Évolution dans le temps — courbes cumulées */}
+      <Card className="p-4 sm:p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-base font-semibold text-text-primary">Évolution dans le temps</h2>
+            <p className="mt-0.5 text-xs text-text-secondary">
+              Totaux cumulés : utilisateurs, activités, abonnements actifs, sollicitations et
+              revenus encaissés.
+            </p>
+          </div>
+          <div
+            className="inline-flex rounded-[var(--radius-sm)] border border-border bg-surface p-1"
+            role="tablist"
+            aria-label="Période des courbes"
+          >
+            {HISTORY_RANGES.map((r) => (
+              <button
+                key={r.id}
+                type="button"
+                role="tab"
+                aria-selected={range === r.id}
+                onClick={() => setRange(r.id)}
+                className={`min-h-9 rounded-[var(--radius-sm)] px-3 text-sm font-medium transition-colors ${
+                  range === r.id
+                    ? 'bg-primary text-white'
+                    : 'text-text-secondary hover:text-text-primary'
+                }`}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {historyQuery.isError ? (
+          <Alert variant="error" className="mt-4">
+            Impossible de charger l’évolution. Réessaie dans un instant.
+          </Alert>
+        ) : historyQuery.isLoading ? (
+          <div className="mt-5 grid gap-6 lg:grid-cols-2">
+            {[0, 1].map((i) => (
+              <div
+                key={i}
+                className="h-60 animate-pulse rounded-[var(--radius-md)] bg-background"
+                aria-hidden
+              />
+            ))}
+          </div>
+        ) : history && historyLabels.length > 1 ? (
+          <div className="mt-5 grid gap-6 lg:grid-cols-2">
+            <div>
+              <h3 className="mb-2 text-sm font-semibold text-text-primary">Croissance</h3>
+              <TrendChart
+                labels={historyLabels}
+                series={[
+                  { key: 'users', name: 'Utilisateurs', color: 'var(--color-primary)', values: history.points.map((p) => p.users) },
+                  { key: 'activities', name: 'Activités', color: 'var(--color-info)', values: history.points.map((p) => p.activities) },
+                  { key: 'subs', name: 'Abonnements actifs', color: 'var(--color-secondary)', values: history.points.map((p) => p.activeSubs) },
+                  { key: 'solicitations', name: 'Sollicitations', color: 'var(--color-warning)', values: history.points.map((p) => p.solicitations) },
+                ]}
+              />
+            </div>
+            <div>
+              <h3 className="mb-2 text-sm font-semibold text-text-primary">Revenus encaissés (FCFA)</h3>
+              <TrendChart
+                labels={historyLabels}
+                formatValue={formatFCFA}
+                series={[
+                  { key: 'revenue', name: 'Revenus', color: 'var(--color-success)', values: history.points.map((p) => p.revenue) },
+                ]}
+              />
+            </div>
+          </div>
+        ) : (
+          <Card className="mt-5 p-6 text-center">
+            <p className="text-sm font-semibold text-text-primary">Pas encore de données</p>
+            <p className="mt-1 text-sm text-text-secondary">
+              Les courbes apparaîtront dès les premières inscriptions.
+            </p>
+          </Card>
+        )}
+      </Card>
 
       {/* Top activités */}
       {overviewQuery.isLoading ? (
