@@ -39,6 +39,7 @@ import { deleteAccount, updateMe } from '../../services/auth'
 import type { Solicitation } from '../../services/solicitations'
 import { StatsSection } from './StatsSection'
 import { SubscriptionSection } from './SubscriptionSection'
+import { UpgradeAlert } from './UpgradeAlert'
 
 const roleLabels: Record<string, string> = {
   CUSTOMER: 'Client',
@@ -115,6 +116,11 @@ export function DashboardPage() {
       groups={shellGroups}
       breadcrumb={['Espace ' + roleLabels[user?.role ?? 'CUSTOMER'], currentCrumb]}
     >
+      {/* Pro en plan gratuit : invitation à passer au plan supérieur (masquée sur la section Abonnement). */}
+      {isPro && section !== 'subscription' ? (
+        <UpgradeAlert onSeePlans={() => setSection('subscription')} />
+      ) : null}
+
       {section === 'feed' ? (
         <FeedSection
           activities={feedQuery.data?.activities ?? []}
