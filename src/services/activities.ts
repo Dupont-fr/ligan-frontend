@@ -173,3 +173,15 @@ export function searchBusinesses(params: BusinessSearchParams = {}): Promise<Bus
   const qs = query.toString()
   return apiGet<BusinessSearchResult>(`/api/businesses/search${qs ? `?${qs}` : ''}`)
 }
+
+/** Une rangée de la landing : catégorie la plus fournie + ses 5 dernières activités. */
+export interface RecentCategoryRow {
+  category: string
+  count: number
+  items: BusinessSearchItem[]
+}
+
+/** Rangées « activités récentes par catégorie » — /api/businesses/recent-by-category. */
+export function recentByCategory(): Promise<{ rows: RecentCategoryRow[] }> {
+  return apiGet<{ rows: RecentCategoryRow[] }>('/api/businesses/recent-by-category')
+}
