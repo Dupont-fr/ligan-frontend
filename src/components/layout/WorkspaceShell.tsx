@@ -44,13 +44,11 @@ function itemClasses(active?: boolean) {
  * avatar, contenu centré en largeur maximale.
  */
 export function WorkspaceShell({ groups, breadcrumb, actions, children }: WorkspaceShellProps) {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const navigate = useNavigate()
 
-  const handleLogout = async () => {
-    await logout()
-    navigate('/login', { replace: true })
-  }
+  // La déconnexion passe par la page de confirmation /deconnexion.
+  const handleLogout = () => navigate('/deconnexion')
 
   const renderItem = (item: ShellItem, key: string) => {
     const content = (

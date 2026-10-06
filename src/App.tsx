@@ -22,6 +22,7 @@ import { ContactPage } from './pages/ContactPage'
 import { DashboardPage } from './pages/dashboard/DashboardPage'
 import { HelpPage } from './pages/HelpPage'
 import { LandingPage } from './pages/LandingPage'
+import { LogoutPage } from './pages/LogoutPage'
 import { PricingPage } from './pages/PricingPage'
 import { PrivacyPage } from './pages/PrivacyPage'
 import { TermsPage } from './pages/TermsPage'
@@ -49,6 +50,7 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />
+            <Route path="/deconnexion" element={<LogoutPage />} />
           </Route>
 
           <Route element={<ProtectedRoute />}>
