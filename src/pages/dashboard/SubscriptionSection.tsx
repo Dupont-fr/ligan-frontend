@@ -73,7 +73,7 @@ export function SubscriptionSection() {
     reset,
     setError,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<CheckoutValues>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: { network: 'mtn', phoneNumber: '', otpCode: '' },
@@ -384,8 +384,14 @@ export function SubscriptionSection() {
                     ) : null}
                     {errorMessage ? <Alert variant="error">{errorMessage}</Alert> : null}
                     <div className="flex gap-2">
-                      <Button type="submit" size="sm" className="flex-1" loading={isSubmitting}>
-                        Payer {formatAmount(plan.price)}
+                      <Button
+                        type="submit"
+                        size="sm"
+                        className="flex-1"
+                        loading={checkoutMutation.isPending}
+                        disabled={checkoutMutation.isPending}
+                      >
+                        {checkoutMutation.isPending ? 'Initialisation…' : `Payer ${formatAmount(plan.price)}`}
                       </Button>
                       <Button type="button" variant="ghost" size="sm" onClick={() => setFormPlan(null)}>
                         Annuler
