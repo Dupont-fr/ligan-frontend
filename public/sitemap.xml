@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://ligan.plus/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://ligan.plus/trouver</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://ligan.plus/categories</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ligan.plus/tarifs</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ligan.plus/a-propos</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://ligan.plus/aide</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://ligan.plus/contact</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://ligan.plus/conditions</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://ligan.plus/confidentialite</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+</urlset>

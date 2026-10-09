@@ -10,7 +10,7 @@ import {
   Phone,
   UserRound,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { SolicitForm } from '../components/activities/SolicitForm'
 import { ReviewsSection } from '../components/activities/ReviewsSection'
@@ -22,6 +22,7 @@ import { buttonClass } from '../components/ui/buttonClass'
 import { Card } from '../components/ui/Card'
 import { StarRating } from '../components/ui/StarRating'
 import { useAuth } from '../features/auth/AuthContext'
+import { useJsonLd, usePageMeta } from '../lib/usePageMeta'
 import { getBusiness } from '../services/activities'
 import { trackEvent, visitorSessionId } from '../services/analytics'
 
@@ -147,6 +148,42 @@ export function BusinessPage() {
   const professional = data?.professional
   const rating = data?.rating ?? { average: 0, count: 0 }
   const reviews = data?.reviews ?? []
+
+  // SEO : titre + description dynamiques, balise structurée ProfessionalService.
+  usePageMeta(
+    activity ? `${activity.title} — LIGAN+` : 'Fiche professionnelle — LIGAN+',
+    activity ? activity.description.slice(0, 160) : undefined,
+  )
+  const jsonLd = useMemo(() => {
+    if (!activity) return null
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'ProfessionalService',
+      name: activity.title,
+      description: activity.description.slice(0, 300),
+      url: `https://ligan.plus/business/${slug}`,
+      ...(activity.contacts.phone ? { telephone: activity.contacts.phone } : {}),
+      ...(activity.address.city
+        ? {
+            address: {
+              '@type': 'PostalAddress',
+              addressLocality: activity.address.city,
+              addressCountry: 'CM',
+            },
+          }
+        : {}),
+      ...(rating.count > 0
+        ? {
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: rating.average,
+              reviewCount: rating.count,
+            },
+          }
+        : {}),
+    }
+  }, [activity, slug, rating.average, rating.count])
+  useJsonLd(jsonLd)
   const todayKey = WEEKDAY_BY_GETDAY[new Date().getDay()]
   const activityId = activity?.id
   const queryClient = useQueryClient()
