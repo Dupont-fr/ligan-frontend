@@ -47,6 +47,14 @@
   body {
     @apply font-sans antialiased;
   }
+  /* Mobile : aucune page ne doit défiler horizontalement. Les carrousels
+     gèrent leur propre overflow-x interne ; tout autre débordement (rangées
+     à -mx, images, textes longs) est rogné au lieu de scroller le body. */
+  @media (max-width: 639px) {
+    body {
+      overflow-x: hidden;
+    }
+  }
 }
 
 /* Bouton avec voile qui remonte au survol (style Jumia).

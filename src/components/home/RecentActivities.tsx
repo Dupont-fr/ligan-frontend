@@ -30,12 +30,14 @@ export function RecentActivities() {
         <div className="mt-6 space-y-8" aria-hidden>
           {[0, 1].map((r) => (
             <div key={r}>
-              <div className="mb-3 h-5 w-44 animate-pulse rounded-[var(--radius-sm)] bg-surface" />
-              <div className="flex gap-4">
+            <div className="mb-3 h-5 w-44 animate-pulse rounded-[var(--radius-sm)] bg-surface" />
+            <div className="overflow-x-hidden">
+              <div className="-mx-4 flex gap-3 px-4 sm:mx-0 sm:gap-4 sm:px-0">
                 {[0, 1, 2, 3, 4].map((n) => (
-                  <div key={n} className="h-52 w-[78vw] max-w-xs shrink-0 animate-pulse rounded-[var(--radius-md)] border border-border bg-surface sm:w-72" />
+                  <div key={n} className="h-52 w-[72vw] max-w-[17rem] shrink-0 animate-pulse rounded-[var(--radius-md)] border border-border bg-surface sm:w-72 sm:max-w-none" />
                 ))}
               </div>
+            </div>
             </div>
           ))}
         </div>
@@ -91,13 +93,18 @@ export function RecentActivities() {
               </h3>
             </div>
 
-            <ul className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-4 pb-1 sm:mx-0 sm:px-0">
-              {row.items.map((activity) => (
-                <li key={activity.id} className="w-[78vw] max-w-xs shrink-0 snap-start sm:w-72">
-                  <ActivityCard activity={activity} />
-                </li>
-              ))}
-            </ul>
+            {/* overflow-x-hidden sur le conteneur : le `-mx-4` de la rangée
+                déborde volontairement pour un effet « plein bord », mais sans
+                cet garde-fou il provoque un scroll horizontal parasite sur iOS. */}
+            <div className="overflow-x-hidden">
+              <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-4 pb-1 sm:mx-0 sm:gap-4 sm:px-0">
+                {row.items.map((activity) => (
+                  <li key={activity.id} className="w-[72vw] max-w-[17rem] shrink-0 snap-start sm:w-72 sm:max-w-none">
+                    <ActivityCard activity={activity} />
+                  </li>
+                ))}
+              </ul>
+            </div>
 
             <Link
               to={`/trouver?categorie=${encodeURIComponent(row.category)}`}
