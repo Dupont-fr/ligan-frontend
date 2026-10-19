@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useSearchParams } from 'react-router-dom'
 import { z } from 'zod'
@@ -47,11 +47,21 @@ export function ResetPasswordPage() {
   const [cooldown, setCooldown] = useState(0)
   const [email, setEmail] = useState(initialEmail)
   const [code, setCode] = useState('')
+  // Vrai pendant la vérification du code — couvre la soumission manuelle
+  // (bouton) ET l'auto-soumission dès les 6 chiffres saisis.
+  const [verifying, setVerifying] = useState(false)
 
   const codeForm = useForm<CodeValues>({
     resolver: zodResolver(codeSchema),
     defaultValues: { email: initialEmail, code: '' },
   })
+
+  // Auto-soumission dès que les 6 chiffres sont saisis (copier-coller du code
+  // compris). `codeAutoSubmitted` évite de rejouer la même vérification si le
+  // champ revient à 6 chiffres après une erreur (l'utilisateur doit corriger
+  // au clavier, donc il repasse sous 6 d'abord — la garde reste utile en cas
+  // de renvoi automatique du code complet).
+  const codeAutoSubmitted = useRef(false)
 
   const passwordForm = useForm<PasswordValues>({
     resolver: zodResolver(passwordSchema),
@@ -64,8 +74,24 @@ export function ResetPasswordPage() {
     return () => clearInterval(t)
   }, [cooldown])
 
+  const watchedCode = codeForm.watch('code', '')
+  const watchedEmail = codeForm.watch('email', '')
+
+  useEffect(() => {
+    // Auto-vérification dès que les 6 chiffres sont présents (tapés ou collés).
+    if (!/^\d{6}$/.test(watchedCode)) {
+      codeAutoSubmitted.current = false
+      return
+    }
+    if (codeAutoSubmitted.current || verifying) return
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(watchedEmail.trim())) return
+    codeAutoSubmitted.current = true
+    void onCodeSubmit({ email: watchedEmail.trim(), code: watchedCode })
+  }, [watchedCode, watchedEmail, verifying])
+
   const onCodeSubmit = async (values: CodeValues) => {
     setFormError(null)
+    setVerifying(true)
     try {
       await verifyResetCode(values.email, values.code)
       setEmail(values.email)
@@ -73,6 +99,8 @@ export function ResetPasswordPage() {
       setStage('password')
     } catch (err) {
       setFormError(err instanceof ApiError ? err.message : 'Une erreur est survenue')
+    } finally {
+      setVerifying(false)
     }
   }
 
@@ -200,7 +228,7 @@ export function ResetPasswordPage() {
           />
         </FormField>
 
-        <Button type="submit" size="lg" className="w-full" loading={codeForm.formState.isSubmitting}>
+        <Button type="submit" size="lg" className="w-full" loading={verifying} disabled={verifying}>
           Valider le code
         </Button>
       </form>
