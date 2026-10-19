@@ -168,8 +168,8 @@ export function ResetPasswordPage() {
       <div className="space-y-1">
         <h1 className="text-2xl font-bold text-text-primary">Code de réinitialisation</h1>
         <p className="text-sm text-text-secondary">
-          Un code à 6 chiffres a été envoyé par email. Saisissez-le pour choisir un nouveau mot de
-          passe.
+          Si un compte est associé à cette adresse, un code à 6 chiffres vous a été envoyé.
+          Saisissez-le pour choisir un nouveau mot de passe.
         </p>
       </div>
 
