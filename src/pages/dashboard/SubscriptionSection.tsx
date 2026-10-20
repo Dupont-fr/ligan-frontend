@@ -27,9 +27,7 @@ const checkoutSchema = z.object({
   phoneNumber: z
     .string()
     .trim()
-    .min(8, 'Numéro invalide (8 chiffres minimum)')
-    .max(15, 'Numéro invalide')
-    .regex(/^\+?[0-9]+$/, 'Chiffres uniquement'),
+    .regex(/^\d{9}$/, 'Le numéro doit contenir 9 chiffres'),
   otpCode: z
     .union([z.string().trim().regex(/^\d{4,12}$/, 'Code OTP invalide (4 à 12 chiffres)'), z.literal('')])
     .optional(),
@@ -347,13 +345,14 @@ export function SubscriptionSection() {
                       label="Numéro à débiter"
                       htmlFor={`checkout-phone-${plan.id}`}
                       error={errors.phoneNumber?.message}
-                      hint="Ex : 699 99 99 99 — vous recevrez une demande de confirmation."
+                      hint="9 chiffres — vous recevrez une demande de confirmation."
                     >
                       <input
                         id={`checkout-phone-${plan.id}`}
                         type="tel"
                         inputMode="numeric"
                         autoComplete="tel"
+                        maxLength={9}
                         placeholder="699999999"
                         className="w-full rounded-[var(--radius-sm)] border border-border bg-background px-3 py-2.5 text-base text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
                         {...register('phoneNumber')}

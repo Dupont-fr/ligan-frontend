@@ -31,10 +31,7 @@ const schema = z
     phone: z
       .string()
       .trim()
-      .regex(
-        /^[0-9\s().-]{8,15}$/,
-        'Numéro de téléphone invalide (8 chiffres minimum)',
-      )
+      .regex(/^\d{9}$/, 'Le numéro de téléphone doit contenir 9 chiffres')
       .optional()
       .or(z.literal('')),
     password: z
@@ -283,9 +280,10 @@ export function RegisterPage() {
             <Input
               id='phone'
               type='tel'
-              inputMode='tel'
+              inputMode='numeric'
               autoComplete='tel-national'
-              placeholder='6 90 00 00 00'
+              maxLength={9}
+              placeholder='690000000'
               error={Boolean(errors.phone)}
               className='pl-[4.4rem]'
               {...register('phone')}

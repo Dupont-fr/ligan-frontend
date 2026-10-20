@@ -533,6 +533,9 @@ function SettingsSection() {
   const [firstName, setFirstName] = useState(user?.firstName ?? '')
   const [lastName, setLastName] = useState(user?.lastName ?? '')
   const [phone, setPhone] = useState(nationalPhone(user?.phone))
+
+  const phoneDigits = phone.replace(/\D/g, '')
+  const phoneValid = phoneDigits.length === 0 || phoneDigits.length === 9
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -548,10 +551,15 @@ function SettingsSection() {
     setSaveMsg(null)
     setSaveError(null)
     try {
+      if (!phoneValid) {
+        setSaveError('Le numéro de téléphone doit contenir 9 chiffres')
+        setSaving(false)
+        return
+      }
       await updateMe({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
-        phone: phone.trim() ? `+237${phone.replace(/\D/g, '')}` : '',
+        phone: phoneDigits ? `+237${phoneDigits}` : '',
       })
       await refreshUser()
       setSaveMsg('Profil mis à jour.')
@@ -670,11 +678,12 @@ function SettingsSection() {
               <input
                 id="me-phone"
                 type="tel"
-                inputMode="tel"
+                inputMode="numeric"
                 autoComplete="tel-national"
+                maxLength={9}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="6 90 00 00 00"
+                placeholder="690000000"
                 className="h-10 w-full rounded-[var(--radius-sm)] border border-border bg-background pl-[4.4rem] pr-3 text-base text-text-primary outline-none placeholder:text-text-muted focus:border-primary"
               />
             </div>

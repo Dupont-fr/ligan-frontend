@@ -35,7 +35,8 @@ const DAYS: Array<{ key: OpeningDay; label: string }> = [
   { key: 'SUN', label: 'Dimanche' },
 ]
 
-const PHONE_RE = /^\+?[0-9\s().-]{8,20}$/
+/** Téléphone : 9 chiffres, sans indicatif (le code pays est ajouté côté client). */
+const PHONE_RE = /^\d{9}$/
 const MAX_PHOTOS = 8
 const MAX_PHOTO_BYTES = 2.5 * 1024 * 1024
 
@@ -179,9 +180,10 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
           return 'Chaque service doit contenir au moins 2 caractères.'
         return null
       case 3:
-        if (!PHONE_RE.test(form.contacts.phone.trim())) return 'Un numéro de téléphone valide est requis.'
+        if (!PHONE_RE.test(form.contacts.phone.trim()))
+          return 'Le numéro de téléphone doit contenir 9 chiffres.'
         if (form.contacts.whatsapp.trim() && !PHONE_RE.test(form.contacts.whatsapp.trim()))
-          return 'Le numéro WhatsApp est invalide.'
+          return 'Le numéro WhatsApp doit contenir 9 chiffres.'
         if (form.contacts.email.trim() && !/^\S+@\S+\.\S+$/.test(form.contacts.email.trim()))
           return 'L’adresse email est invalide.'
         return null
@@ -530,11 +532,11 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
                   <input
                     id="wiz-phone"
                     type="tel"
-                    inputMode="tel"
+                    inputMode="numeric"
                     value={form.contacts.phone}
                     onChange={(e) => patch({ contacts: { ...form.contacts, phone: e.target.value } })}
-                    placeholder="6 90 00 00 00"
-                    maxLength={15}
+                    placeholder="690000000"
+                    maxLength={9}
                     className={`${inputClass} pl-[4.4rem]`}
                   />
                 </div>
@@ -554,11 +556,11 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
                   <input
                     id="wiz-wa"
                     type="tel"
-                    inputMode="tel"
+                    inputMode="numeric"
                     value={form.contacts.whatsapp}
                     onChange={(e) => patch({ contacts: { ...form.contacts, whatsapp: e.target.value } })}
                     placeholder="Identique au téléphone si vide"
-                    maxLength={15}
+                    maxLength={9}
                     className={`${inputClass} pl-[4.4rem]`}
                   />
                 </div>

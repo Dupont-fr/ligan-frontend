@@ -129,6 +129,10 @@ export function AdminUsersPage() {
     e.preventDefault()
     setFormError(null)
     const phoneDigits = form.phone.replace(/\D/g, '')
+    if (phoneDigits && phoneDigits.length !== 9) {
+      setFormError('Le numéro de téléphone doit contenir 9 chiffres')
+      return
+    }
     createMutation.mutate({
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
@@ -247,11 +251,11 @@ export function AdminUsersPage() {
                 <input
                   id="user-phone"
                   type="tel"
-                  inputMode="tel"
+                  inputMode="numeric"
                   value={form.phone}
                   onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                  placeholder="6 90 00 00 00"
-                  maxLength={15}
+                  placeholder="690000000"
+                  maxLength={9}
                   className={`${inputClass} pl-[4.4rem]`}
                 />
               </div>
