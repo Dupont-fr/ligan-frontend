@@ -97,6 +97,7 @@ export function RegisterPage() {
   })
 
   const selectedRole = useWatch({ control, name: 'role' })
+  const passwordValue = useWatch({ control, name: 'password' }) || ''
 
   useEffect(() => {
     const roleParam = searchParams.get('role')
@@ -331,7 +332,7 @@ export function RegisterPage() {
               </span>
             </Alert>
           ) : null}
-          <PasswordChecklist password={watch('password')} />
+          <PasswordChecklist password={passwordValue} />
         </FormField>
 
         <FormField
