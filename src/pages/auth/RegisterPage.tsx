@@ -77,7 +77,6 @@ export function RegisterPage() {
 
   const {
     register,
-    watch,
     control,
     setValue,
     handleSubmit,
