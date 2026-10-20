@@ -1,7 +1,7 @@
 import { apiGet, apiPost } from '../lib/api'
 import type { PublicPlan } from './plans'
 
-export type PaymentNetwork = 'mtn' | 'orange'
+export type PaymentNetwork = string | null;
 export type PaymentStatus = 'PENDING' | 'SUCCESSFUL' | 'FAILED' | 'EXPIRED'
 
 export interface CurrentSubscription {
@@ -49,7 +49,7 @@ export interface StartedPayment {
 export interface CheckoutInput {
   planId: string
   phoneNumber: string
-  network: PaymentNetwork
+  network: string
   /** Code OTP — requis si l'opérateur sélectionné a `otpRequired: true`. */
   otpCode?: string
 }

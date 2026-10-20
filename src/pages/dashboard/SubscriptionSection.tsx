@@ -23,7 +23,7 @@ import {
 } from '../../services/subscriptions'
 
 const checkoutSchema = z.object({
-  network: z.enum(['mtn', 'orange']),
+  network: z.string().min(1, 'Choisissez un opérateur'),
   phoneNumber: z
     .string()
     .trim()
@@ -74,7 +74,7 @@ export function SubscriptionSection() {
     formState: { errors },
   } = useForm<CheckoutValues>({
     resolver: zodResolver(checkoutSchema),
-    defaultValues: { network: 'mtn', phoneNumber: '', otpCode: '' },
+    defaultValues: { network: '', phoneNumber: '', otpCode: '' },
   })
 
   const operatorsQuery = useQuery({
@@ -82,9 +82,12 @@ export function SubscriptionSection() {
     queryFn: listPaymentOperators,
     staleTime: 60 * 60 * 1000,
   })
+  const operators = operatorsQuery.data?.operators ?? []
   const selectedNetwork = useWatch({ control, name: 'network' })
-  const selectedOperator = (operatorsQuery.data?.operators ?? []).find((op) => op.slug === selectedNetwork)
+  const selectedOperator = operators.find((op) => op.slug === selectedNetwork)
   const otpRequired = selectedOperator?.otpRequired === true
+  const operatorLabel = (slug: string | null) =>
+    slug ? (operators.find((op) => op.slug === slug)?.name ?? slug) : ''
 
   const checkoutMutation = useMutation({
     mutationFn: startCheckout,
@@ -224,7 +227,7 @@ export function SubscriptionSection() {
             </p>
             <p className="text-text-secondary">
               Confirmez la demande sur votre téléphone
-              {pending.network ? ` (${pending.network === 'orange' ? 'Orange Money' : 'MTN MoMo'})` : ''}. Cette
+              {pending.network ? ` (${operatorLabel(pending.network)})` : ''}. Cette
               page se met à jour automatiquement.
             </p>
           </div>
@@ -324,21 +327,26 @@ export function SubscriptionSection() {
                       htmlFor={`checkout-network-${plan.id}`}
                       error={errors.network?.message}
                     >
-                      <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Réseau mobile money">
-                        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-[var(--radius-sm)] border border-border bg-background px-3 py-2.5 text-sm font-medium text-text-primary transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary-light has-[:checked]:text-primary">
-                          <input
-                            type="radio"
-                            value="mtn"
-                            id={`checkout-network-${plan.id}`}
-                            className="sr-only"
-                            {...register('network')}
-                          />
-                          MTN MoMo
-                        </label>
-                        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-[var(--radius-sm)] border border-border bg-background px-3 py-2.5 text-sm font-medium text-text-primary transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary-light has-[:checked]:text-primary">
-                          <input type="radio" value="orange" className="sr-only" {...register('network')} />
-                          Orange Money
-                        </label>
+                      <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Opérateur mobile money">
+                        {operators.length === 0 ? (
+                          <p className="col-span-2 text-sm text-text-secondary">Opérateurs indisponibles, réessayez.</p>
+                        ) : (
+                          operators.map((op, index) => (
+                            <label
+                              key={op.slug}
+                              className="flex cursor-pointer items-center justify-center gap-2 rounded-[var(--radius-sm)] border border-border bg-background px-3 py-2.5 text-sm font-medium text-text-primary transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary-light has-[:checked]:text-primary"
+                            >
+                              <input
+                                type="radio"
+                                value={op.slug}
+                                id={`checkout-network-${plan.id}-${index}`}
+                                className="sr-only"
+                                {...register('network')}
+                              />
+                              {op.name}
+                            </label>
+                          ))
+                        )}
                       </div>
                     </FormField>
                     <FormField
@@ -424,7 +432,7 @@ export function SubscriptionSection() {
                   </p>
                   <p className="text-xs text-text-muted">
                     {formatDate(payment.createdAt)}
-                    {payment.network ? ` · ${payment.network === 'orange' ? 'Orange Money' : 'MTN MoMo'}` : ''}
+                    {payment.network ? ` · ${operatorLabel(payment.network)}` : ''}
                     {payment.failureReason ? ` · ${payment.failureReason}` : ''}
                   </p>
                 </div>
