@@ -117,7 +117,7 @@ export function RegisterPage() {
         lastName: values.lastName,
         email: values.email,
         phone: values.phone
-          ? `+237${values.phone.replace(/\D/g, '')}`
+          ? values.phone.replace(/\D/g, '')
           : undefined,
         password: values.password,
         role: values.role,
