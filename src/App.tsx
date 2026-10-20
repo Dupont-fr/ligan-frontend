@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { Seo } from './components/Seo'
 import { ScrollToTop } from './components/ScrollToTop'
+import { VisitorTracker } from './components/VisitorTracker'
 import { AuthProvider } from './features/auth/AuthContext'
 import { ProtectedRoute } from './features/auth/ProtectedRoute'
 import { LandingPage } from './pages/LandingPage'
@@ -78,6 +79,7 @@ function App() {
       <BrowserRouter>
         <Seo />
         <ScrollToTop />
+        <VisitorTracker />
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/" element={<LandingPage />} />

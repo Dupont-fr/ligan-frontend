@@ -139,7 +139,7 @@ export function AdminAnalyticsPage() {
             <h2 className="text-base font-semibold text-text-primary">Évolution dans le temps</h2>
             <p className="mt-0.5 text-xs text-text-secondary">
               Totaux cumulés : utilisateurs, activités, abonnements actifs, sollicitations et
-              revenus encaissés.
+              revenus encaissés. En bas : visiteurs uniques du site public.
             </p>
           </div>
           <div
@@ -181,28 +181,55 @@ export function AdminAnalyticsPage() {
             ))}
           </div>
         ) : history && historyLabels.length > 1 ? (
-          <div className="mt-5 grid gap-6 lg:grid-cols-2">
-            <div>
-              <h3 className="mb-2 text-sm font-semibold text-text-primary">Croissance</h3>
-              <TrendChart
-                labels={historyLabels}
-                series={[
-                  { key: 'users', name: 'Utilisateurs', color: 'var(--color-primary)', values: history.points.map((p) => p.users) },
-                  { key: 'activities', name: 'Activités', color: 'var(--color-info)', values: history.points.map((p) => p.activities) },
-                  { key: 'subs', name: 'Abonnements actifs', color: 'var(--color-secondary)', values: history.points.map((p) => p.activeSubs) },
-                  { key: 'solicitations', name: 'Sollicitations', color: 'var(--color-warning)', values: history.points.map((p) => p.solicitations) },
-                ]}
-              />
+          <div className="mt-5 space-y-6">
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div>
+                <h3 className="mb-2 text-sm font-semibold text-text-primary">Croissance</h3>
+                <TrendChart
+                  labels={historyLabels}
+                  series={[
+                    { key: 'users', name: 'Utilisateurs', color: 'var(--color-primary)', values: history.points.map((p) => p.users) },
+                    { key: 'activities', name: 'Activités', color: 'var(--color-info)', values: history.points.map((p) => p.activities) },
+                    { key: 'subs', name: 'Abonnements actifs', color: 'var(--color-secondary)', values: history.points.map((p) => p.activeSubs) },
+                    { key: 'solicitations', name: 'Sollicitations', color: 'var(--color-warning)', values: history.points.map((p) => p.solicitations) },
+                  ]}
+                />
+              </div>
+              <div>
+                <h3 className="mb-2 text-sm font-semibold text-text-primary">Revenus encaissés (FCFA)</h3>
+                <TrendChart
+                  labels={historyLabels}
+                  formatValue={formatFCFA}
+                  series={[
+                    { key: 'revenue', name: 'Revenus', color: 'var(--color-success)', values: history.points.map((p) => p.revenue) },
+                  ]}
+                />
+              </div>
             </div>
-            <div>
-              <h3 className="mb-2 text-sm font-semibold text-text-primary">Revenus encaissés (FCFA)</h3>
-              <TrendChart
-                labels={historyLabels}
-                formatValue={formatFCFA}
-                series={[
-                  { key: 'revenue', name: 'Revenus', color: 'var(--color-success)', values: history.points.map((p) => p.revenue) },
-                ]}
-              />
+
+            <div className="border-t border-border pt-5">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                <h3 className="text-sm font-semibold text-text-primary">Visiteurs du site</h3>
+                <p className="text-xs text-text-secondary">
+                  {history.uniqueVisitors ?? 0} visiteur{(history.uniqueVisitors ?? 0) > 1 ? 's' : ''}{' '}
+                  unique{(history.uniqueVisitors ?? 0) > 1 ? 's' : ''} · {history.pageViews ?? 0} page
+                  {(history.pageViews ?? 0) > 1 ? 's' : ''} vue{(history.pageViews ?? 0) > 1 ? 's' : ''} · par{' '}
+                  {history.granularity === 'month' ? 'mois' : 'jour'}
+                </p>
+              </div>
+              <div className="mt-2">
+                <TrendChart
+                  labels={historyLabels}
+                  series={[
+                    {
+                      key: 'visitors',
+                      name: 'Visiteurs uniques',
+                      color: 'var(--color-primary)',
+                      values: history.points.map((p) => p.visitors),
+                    },
+                  ]}
+                />
+              </div>
             </div>
           </div>
         ) : (

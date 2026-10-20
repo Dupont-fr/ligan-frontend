@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from '../lib/api'
+import { API_URL, apiGet, apiPost } from '../lib/api'
 
 export type BusinessEventType = 'PROFILE_VIEW' | 'PHONE_CLICK' | 'WHATSAPP_CLICK' | 'DIRECTION_CLICK'
 
@@ -52,6 +52,45 @@ export function visitorSessionId(): string | undefined {
   }
 }
 
+const VISITOR_ID_KEY = 'ligan-visitor-id'
+
+/** Identifiant visiteur anonyme et persistant (random, jamais d'IP). */
+export function visitorId(): string | undefined {
+  try {
+    let id = localStorage.getItem(VISITOR_ID_KEY)
+    if (!id) {
+      const uuid =
+        typeof crypto !== 'undefined'
+          ? (crypto as Crypto & { randomUUID?: () => string }).randomUUID?.()
+          : undefined
+      id = uuid ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`
+      localStorage.setItem(VISITOR_ID_KEY, id)
+    }
+    return id
+  } catch {
+    return undefined
+  }
+}
+
+// Évite les doublons d'un même chemin (StrictMode monte les effets 2× en dev).
+let lastTrackedPath: string | null = null
+
+/** Enregistre une page vue (fire-and-forget, erreurs ignorées). */
+export function trackVisit(path: string): void {
+  if (path === lastTrackedPath) return
+  lastTrackedPath = path
+
+  const id = visitorId()
+  if (!id) return
+
+  void fetch(`${API_URL}/api/analytics/visits`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ visitorId: id, path }),
+    keepalive: true,
+  }).catch(() => {})
+}
+
 export function getMyStats(period: StatsPeriod): Promise<AnalyticsStats> {
   return apiGet<AnalyticsStats>(`/api/analytics/stats?period=${period}`)
 }
@@ -70,12 +109,18 @@ export interface HistoryPoint {
   activeSubs: number
   solicitations: number
   revenue: number
+  /** Visiteurs uniques du bucket (non cumulé). */
+  visitors: number
 }
 
 export interface PlatformHistory {
   range: HistoryRange
   granularity: 'day' | 'month'
   from: string
+  /** Visiteurs uniques sur toute la période. */
+  uniqueVisitors: number
+  /** Pages vues sur toute la période. */
+  pageViews: number
   points: HistoryPoint[]
 }
 

@@ -41,7 +41,7 @@ const sections = [
     id: 'conservation',
     title: '5. Combien de temps ?',
     paras: [
-      'Les données de compte sont conservées jusqu’à la suppression du compte, réalisable depuis votre espace (section Mon compte) ou sur demande depuis la page Contact. Les messages et avis restent liés à l’activité du service. Les journaux de sécurité sont conservés pendant une durée limitée, puis supprimés ou anonymisés.',
+      'Les données de compte sont conservées jusqu’à la suppression du compte, réalisable depuis votre espace (section Mon compte) ou sur demande depuis la page Contact. Les messages et avis restent liés à l’activité du service. Les journaux de sécurité sont conservés pendant une durée limitée, puis supprimés ou anonymisés. Les statistiques de visite, anonymes, sont supprimées automatiquement après 400 jours.',
     ],
   },
   {
@@ -55,7 +55,7 @@ const sections = [
     id: 'cookies',
     title: '7. Cookies et stockage local',
     paras: [
-      'La plateforme utilise le stockage local de votre navigateur pour mémoriser votre thème d’affichage (clair/sombre) et votre session. Aucun cookie de publicité ciblée n’est déposé.',
+      'La plateforme utilise le stockage local de votre navigateur pour mémoriser votre thème d’affichage (clair/sombre), votre session, ainsi qu’un identifiant visiteur anonyme (chaîne aléatoire, sans adresse IP ni donnée personnelle) servant à compter les visiteurs uniques et à produire des statistiques d’audience agrégées. Aucun cookie de publicité ciblée n’est déposé.',
     ],
   },
   {
