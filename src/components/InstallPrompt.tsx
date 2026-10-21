@@ -2,11 +2,13 @@ import { Download, Share, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Button } from './ui/Button'
 import {
+  canPromptInstall,
   dismissInstall,
   isDismissed,
-  isIosSafari,
+  isIos,
   isStandalone,
-  type BeforeInstallPromptEvent,
+  onInstallState,
+  promptInstall,
 } from '../lib/pwa'
 
 /**
@@ -15,34 +17,26 @@ import {
  * Deux cas :
  * - Android / Chrome / Edge : l'invite native du navigateur est capturée et
  *   déclenchée au clic sur « Installer » ;
- * - iOS Safari : l'invite n'existe pas, on affiche la marche à suivre
- *   (Partager → Sur l'écran d'accueil).
+ * - iOS (Safari et autres navigateurs iOS) : l'invite n'existe pas, on
+ *   affiche la marche à suivre (Partager → Sur l'écran d'accueil).
+ *
+ * La bannière n'apparaît qu'une fois le service worker actif (c'est la
+ * condition posée par le navigateur pour proposer l'installation) : comptez
+ * une dizaine de secondes après la toute première visite, ou rechargez la page.
  *
  * Le composant est purement visuel : aucun impact sur la navigation ni sur
  * les données de l'application.
  */
 export function InstallPrompt() {
-  const [promptEvent, setPromptEvent] = useState<BeforeInstallPromptEvent | null>(null)
+  const [available, setAvailable] = useState(() => canPromptInstall())
   const [dismissed, setDismissed] = useState(() => isDismissed())
   const [installed, setInstalled] = useState(() => isStandalone())
 
   useEffect(() => {
-    const onBeforeInstallPrompt = (event: Event) => {
-      // Empêche l'invite native (mini-bannière) : on affiche la nôtre.
-      event.preventDefault()
-      setPromptEvent(event as BeforeInstallPromptEvent)
-    }
-    const onAppInstalled = () => {
-      setInstalled(true)
-      setPromptEvent(null)
-    }
-
-    window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt)
-    window.addEventListener('appinstalled', onAppInstalled)
-    return () => {
-      window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt)
-      window.removeEventListener('appinstalled', onAppInstalled)
-    }
+    return onInstallState(() => {
+      setAvailable(canPromptInstall())
+      if (isStandalone()) setInstalled(true)
+    })
   }, [])
 
   const close = () => {
@@ -52,14 +46,19 @@ export function InstallPrompt() {
 
   if (installed || dismissed) return null
 
-  const showIosHint = !promptEvent && isIosSafari()
-  if (!promptEvent && !showIosHint) return null
+  const showIosHint = !available && isIos()
+  if (!available && !showIosHint) return null
 
   const install = async () => {
-    if (!promptEvent) return
-    await promptEvent.prompt()
-    await promptEvent.userChoice
-    setPromptEvent(null)
+    const outcome = await promptInstall()
+    if (outcome === 'accepted') {
+      setInstalled(true)
+      // On mémorise aussi le refus : la bannière ne reviendra pas de sitôt,
+      // mais le bouton « Installer l'application » du pied de page reste
+      // disponible si l'utilisateur change d'avis.
+      close()
+      return
+    }
     close()
   }
 
@@ -71,7 +70,7 @@ export function InstallPrompt() {
     >
       <div className="flex items-start gap-3">
         <img
-          src="/icons/icon-192.png"
+          src="/logo-mark.png"
           alt=""
           width={44}
           height={44}
@@ -100,7 +99,7 @@ export function InstallPrompt() {
         </button>
       </div>
 
-      {promptEvent ? (
+      {available ? (
         <Button size="sm" className="mt-3 w-full" onClick={install}>
           <Download className="h-4 w-4" aria-hidden />
           Installer l’application

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ThemeToggle } from '../shared/ThemeToggle'
 import { Button } from '../ui/Button'
+import { InstallButton } from '../InstallButton'
 import { useAuth } from '../../features/auth/AuthContext'
 import { useCategories } from '../../hooks/useCategories'
 import type { UserRole } from '../../services/auth'
@@ -156,6 +157,9 @@ export function SiteHeader() {
                   </Link>
                 </li>
               ) : null}
+              <li>
+                <InstallButton variant="menu" />
+              </li>
             </ul>
             <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
               {status === 'authenticated' && user ? (

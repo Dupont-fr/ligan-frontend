@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../features/auth/AuthContext'
 import { ThemeToggle } from '../shared/ThemeToggle'
+import { InstallButton } from '../InstallButton'
 import { Button } from '../ui/Button'
 import { Logo } from './Logo'
 
@@ -102,6 +103,9 @@ export function WorkspaceShell({ groups, breadcrumb, actions, children }: Worksp
         </nav>
 
         <div className="border-t border-border p-3">
+          <div className="mb-2 px-2.5">
+            <InstallButton />
+          </div>
           <div className="flex items-center gap-2.5 px-2.5 py-1.5">
             <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius-full)] bg-primary-light text-xs font-semibold text-primary">
               {initials(user?.firstName, user?.lastName)}
@@ -139,6 +143,7 @@ export function WorkspaceShell({ groups, breadcrumb, actions, children }: Worksp
 
           <div className="flex shrink-0 items-center gap-2">
             {actions}
+            <InstallButton variant="icon" />
             <ThemeToggle />
             <span
               title={`${user?.firstName ?? ''} ${user?.lastName ?? ''}`}

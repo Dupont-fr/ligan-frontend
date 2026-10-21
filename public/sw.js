@@ -11,10 +11,23 @@
  * - le cache est purgé à chaque nouvelle version du service worker.
  */
 
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const CACHE_NAME = `ligan-shell-${CACHE_VERSION}`;
 /* Racine de l'application (compatible avec un déploiement sous un sous-chemin). */
 const SHELL_URL = new URL(self.registration.scope).pathname;
+
+/* Ressources indispensables au lancement de l'application installée
+ * (logo, icônes, manifeste) : pré-chargées pour rester disponibles hors
+ * connexion et pour que l'icône de l'application soit toujours présente. */
+const PRECACHE_URLS = [
+  './manifest.webmanifest',
+  './logo-mark.png',
+  './favicon.png',
+  './icons/icon-180.png',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/icon-maskable-512.png',
+];
 
 /**
  * Prépare une réponse pour le cache.
@@ -72,7 +85,8 @@ async function precacheShell() {
     // Tous les fichiers du build (pages « lazy » comprises) : elles restent
     // accessibles hors connexion, même si l'utilisateur ne les a jamais visitées.
     try {
-      const manifest = await fetch('/asset-manifest.json', { cache: 'no-cache' });
+      const manifestUrl = new URL('asset-manifest.json', self.registration.scope);
+      const manifest = await fetch(manifestUrl, { cache: 'no-cache' });
       if (manifest && manifest.ok) {
         const data = await manifest.json();
         const files = Object.values(data)
@@ -92,6 +106,18 @@ async function precacheShell() {
     } catch {
       /* manifeste absent : le pré-cache se limite à la coquille */
     }
+
+    // Logo, icônes et manifeste : nécessaires à l'application installée.
+    await Promise.all(
+      PRECACHE_URLS.map(async (url) => {
+        try {
+          const asset = await fetch(new URL(url, self.registration.scope), { cache: 'no-cache' });
+          if (asset && asset.ok) await cache.put(new URL(url, self.registration.scope).pathname, toCacheable(asset));
+        } catch {
+          /* ressource indisponible : ignorée */
+        }
+      }),
+    );
   } catch {
     /* hors ligne au moment de l'installation : on retentera à l'activation */
   }

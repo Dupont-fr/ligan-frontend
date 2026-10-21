@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useCategories } from '../../hooks/useCategories'
+import { InstallButton } from '../InstallButton'
 import { Logo } from './Logo'
 
 const columns = [
@@ -43,6 +44,7 @@ export function SiteFooter() {
           <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">
             Trouvez les professionnels près de vous.
           </p>
+          <InstallButton className="pt-1" />
         </div>
 
         {columns.map((col) => (
