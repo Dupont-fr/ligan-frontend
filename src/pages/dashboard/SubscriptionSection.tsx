@@ -41,8 +41,10 @@ const statusLabels: Record<PaymentStatus, { label: string; variant: 'success' | 
   EXPIRED: { label: 'Expiré', variant: 'neutral' },
 }
 
-const MAX_POLL_ATTEMPTS = 40
-const POLL_INTERVAL_MS = 1500
+const MAX_POLL_ATTEMPTS = 60
+// 3 s × 60 = 3 min de scrutation : une confirmation mobile money peut prendre
+// plus de 2 minutes (le client doit valider la demande sur son téléphone).
+const POLL_INTERVAL_MS = 3000
 /**
  * Délai avant de rejouer une collecte refusée par l'opérateur. Enchaîner les
  * demandes fait grimper le risque de blocage côté opérateur (anti-fraude) sans
