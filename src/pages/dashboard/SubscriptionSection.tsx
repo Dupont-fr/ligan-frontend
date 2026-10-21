@@ -62,6 +62,10 @@ export function SubscriptionSection() {
   const subQuery = useQuery({
     queryKey: ['subscription'],
     queryFn: getMySubscription,
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError && error.status === 401) return false
+      return failureCount < 2
+    },
   })
   const plansQuery = useQuery({ queryKey: ['plans'], queryFn: listPlans })
 
