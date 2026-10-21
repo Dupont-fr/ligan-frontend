@@ -43,6 +43,12 @@ const statusLabels: Record<PaymentStatus, { label: string; variant: 'success' | 
 
 const MAX_POLL_ATTEMPTS = 40
 const POLL_INTERVAL_MS = 1500
+/**
+ * Délai avant de rejouer une collecte refusée par l'opérateur. Enchaîner les
+ * demandes fait grimper le risque de blocage côté opérateur (anti-fraude) sans
+ * changer le résultat : on espace donc les tentatives.
+ */
+const RETRY_COOLDOWN_SECONDS = 60
 
 function formatAmount(amount: number): string {
   return `${amount.toLocaleString('fr-FR')} FCFA`
@@ -57,6 +63,7 @@ export function SubscriptionSection() {
   const [pending, setPending] = useState<StartedPayment | null>(null)
   const [formPlan, setFormPlan] = useState<PublicPlan | null>(null)
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [retryAfter, setRetryAfter] = useState(0)
   const attemptsRef = useRef(0)
 
   const subQuery = useQuery({
@@ -110,11 +117,14 @@ export function SubscriptionSection() {
         setNotice(null)
       }
     },
-    onError: (err) =>
+    onError: (err) => {
+      // Collecte refusée par l'opérateur : on espace les tentatives suivantes.
+      setRetryAfter(RETRY_COOLDOWN_SECONDS)
       setNotice({
         type: 'error',
         text: err instanceof ApiError ? err.message : 'Le paiement n’a pas pu être initialisé',
-      }),
+      })
+    },
   })
 
   const downgradeMutation = useMutation({
@@ -170,6 +180,13 @@ export function SubscriptionSection() {
       clearTimeout(timer)
     }
   }, [pending, queryClient])
+
+  // Décompte du délai avant de rejouer une collecte refusée.
+  useEffect(() => {
+    if (retryAfter <= 0) return
+    const timer = setTimeout(() => setRetryAfter((value) => Math.max(0, value - 1)), 1000)
+    return () => clearTimeout(timer)
+  }, [retryAfter])
 
   const onSubmit = (values: CheckoutValues) => {
     if (!formPlan) return
@@ -393,16 +410,28 @@ export function SubscriptionSection() {
                         />
                       </FormField>
                     ) : null}
-                    {errorMessage ? <Alert variant="error">{errorMessage}</Alert> : null}
+                    {errorMessage ? (
+                      <Alert variant="error">
+                        {errorMessage}
+                        <span className="mt-1 block text-xs">
+                          Astuce : vérifiez que le numéro est bien rattaché à l’opérateur choisi et que le
+                          compte mobile money est provisionné. Vous pouvez changer d’opérateur ci-dessus.
+                        </span>
+                      </Alert>
+                    ) : null}
                     <div className="flex gap-2">
                       <Button
                         type="submit"
                         size="sm"
                         className="flex-1"
                         loading={checkoutMutation.isPending}
-                        disabled={checkoutMutation.isPending}
+                        disabled={checkoutMutation.isPending || retryAfter > 0}
                       >
-                        {checkoutMutation.isPending ? 'Initialisation…' : `Payer ${formatAmount(plan.price)}`}
+                        {checkoutMutation.isPending
+                          ? 'Initialisation…'
+                          : retryAfter > 0
+                            ? `Réessayer dans ${retryAfter} s`
+                            : `Payer ${formatAmount(plan.price)}`}
                       </Button>
                       <Button type="button" variant="ghost" size="sm" onClick={() => setFormPlan(null)}>
                         Annuler
