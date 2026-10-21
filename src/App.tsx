@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { Seo } from './components/Seo'
 import { ScrollToTop } from './components/ScrollToTop'
 import { VisitorTracker } from './components/VisitorTracker'
+import { InstallPrompt } from './components/InstallPrompt'
 import { AuthProvider } from './features/auth/AuthContext'
 import { ProtectedRoute } from './features/auth/ProtectedRoute'
 import { LandingPage } from './pages/LandingPage'
@@ -80,6 +81,7 @@ function App() {
         <Seo />
         <ScrollToTop />
         <VisitorTracker />
+        <InstallPrompt />
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/" element={<LandingPage />} />

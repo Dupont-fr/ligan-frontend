@@ -10,6 +10,11 @@ const base = process.env.VITE_BASE ?? '/'
 export default defineConfig({
   base,
   plugins: [react(), tailwindcss()],
+  build: {
+    // Manifeste des assets : permet au service worker de pré-cacher tous les
+    // fichiers du build pour que l'application installée fonctionne hors ligne.
+    manifest: 'asset-manifest.json',
+  },
   server: {
     proxy: {
       // En développement, /api est proxifié vers le backend local.
