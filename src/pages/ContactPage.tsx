@@ -165,7 +165,7 @@ export function ContactPage() {
                     id='contact-name'
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder='Ex. Maurice Kamto'
+                    placeholder='Ex. Nom Prenom'
                     autoComplete='name'
                   />
                 </FormField>
