@@ -10,7 +10,7 @@ import { FormField } from '../components/ui/FormField'
 import { Input } from '../components/ui/Input'
 
 const SUPPORT_EMAIL = 'support@ligan.plus'
-const Email = 'dupontdjeague@gmail.com'
+const Email = 'supportliganplus@gmail.com'
 const subjects = [
   'Question générale',
   'Devenir professionnel',
