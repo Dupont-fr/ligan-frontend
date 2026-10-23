@@ -8,6 +8,7 @@ import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { FormField } from '../components/ui/FormField'
 import { Input } from '../components/ui/Input'
+import { sendContact } from '../services/contact'
 
 const SUPPORT_EMAIL = 'support@ligan.plus'
 const Email = 'supportliganplus@gmail.com'
@@ -31,9 +32,13 @@ export function ContactPage() {
     message?: string
   }>({})
   const [copied, setCopied] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    if (isSubmitting) return
     const nextErrors: typeof errors = {}
     if (!name.trim()) nextErrors.name = 'Indiquez votre nom.'
     if (!/^\S+@\S+\.\S+$/.test(email))
@@ -43,8 +48,31 @@ export function ContactPage() {
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length > 0) return
 
-    const body = `Bonjour,\n\n${message.trim()}\n\n— ${name.trim()} (${email.trim()})`
-    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(`[LIGAN+] ${subject}`)}&body=${encodeURIComponent(body)}`
+    setIsSubmitting(true)
+    setFormError(null)
+
+    try {
+      await sendContact({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        subject,
+        message: message.trim(),
+      })
+      setSuccess(true)
+      setName('')
+      setEmail('')
+      setMessage('')
+      setSubject(subjects[0])
+    } catch (err) {
+      const message =
+        err && typeof err === 'object' && 'response' in err
+          ? // @ts-expect-error shape API
+            err.response?.data?.message
+          : undefined
+      setFormError(message || "Impossible d'envoyer le message pour le moment. Réessayez plus tard.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const copyEmail = async () => {
@@ -150,11 +178,30 @@ export function ContactPage() {
               Envoyer un message
             </h2>
             <p className='mt-1 text-sm text-text-secondary'>
-              Votre messagerie s’ouvrira avec le message pré-rempli : il ne
-              reste qu’à l’envoyer.
+              Remplissez le formulaire ci-dessous. Nous vous répondrons par
+              e-mail dans les plus brefs délais.
             </p>
 
-            <form className='mt-5 space-y-4' onSubmit={handleSubmit} noValidate>
+            {success ? (
+              <Alert variant='success' className='mt-4'>
+                <p className='font-medium'>Message envoyé avec succès</p>
+                <p className='mt-1 text-sm'>
+                  Merci pour votre message. L’équipe LIGAN+ vous répondra par
+                  e-mail à l’adresse indiquée.
+                </p>
+                <Button
+                  type='button'
+                  variant='ghost'
+                  size='sm'
+                  className='mt-2'
+                  onClick={() => setSuccess(false)}
+                >
+                  Envoyer un autre message
+                </Button>
+              </Alert>
+            ) : (
+              <form className='mt-5 space-y-4' onSubmit={handleSubmit} noValidate>
+                {formError ? <Alert variant='error'>{formError}</Alert> : null}
               <div className='grid gap-4 sm:grid-cols-2'>
                 <FormField
                   label='Votre nom'
@@ -216,15 +263,15 @@ export function ContactPage() {
               </FormField>
 
               <Alert variant='info'>
-                Aucune donnée n’est envoyée avant l’ouverture de votre logiciel
-                de messagerie.
+                Nous répondons généralement sous 24 à 48 heures ouvrées.
               </Alert>
 
-              <Button type='submit' size='lg' className='w-full'>
+              <Button type='submit' size='lg' className='w-full' disabled={isSubmitting}>
                 <Send className='h-4 w-4' aria-hidden />
-                Envoyer le message
+                {isSubmitting ? 'Envoi en cours…' : 'Envoyer le message'}
               </Button>
             </form>
+            )}
           </Card>
         </section>
       </main>
