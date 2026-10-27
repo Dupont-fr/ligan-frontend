@@ -739,7 +739,7 @@ function SettingsSection() {
           </Button>
         )}
       </Card>
-      <div data-bottom-nav-spacer className="lg:hidden" />
+      <div className="h-16 lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} />
     </div>
   )
 }
