@@ -10,8 +10,7 @@ import { FormField } from '../components/ui/FormField'
 import { Input } from '../components/ui/Input'
 import { sendContact } from '../services/contact'
 
-const SUPPORT_EMAIL = 'support@ligan.plus'
-const Email = 'supportliganplus@gmail.com'
+const SUPPORT_EMAIL = 'supportliganplus@gmail.com'
 const subjects = [
   'Question générale',
   'Devenir professionnel',
@@ -119,7 +118,7 @@ export function ContactPage() {
               </h2>
               <div className='mt-1.5 flex items-center gap-2'>
                 <a
-                  href={`mailto:${Email}`}
+                  href={`mailto:${SUPPORT_EMAIL}`}
                   className='break-all text-sm font-medium text-primary hover:underline'
                 >
                   {SUPPORT_EMAIL}
