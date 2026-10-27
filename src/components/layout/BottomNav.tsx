@@ -10,14 +10,15 @@ const activeClassName = 'text-primary'
  */
 export function BottomNav() {
   const { pathname } = useLocation()
-  const { status } = useAuth()
-  const spaceTo = status === 'authenticated' ? '/dashboard' : '/login'
+  const { status, user } = useAuth()
+  const isAuthenticated = status === 'authenticated'
+  const spaceTo = isAuthenticated ? '/dashboard' : '/login'
 
   const items = [
     { to: '/', icon: Home, label: 'Accueil' },
     { to: '/trouver', icon: Search, label: 'Rechercher' },
     { to: '/categories', icon: LayoutGrid, label: 'Catégories' },
-    { to: spaceTo, icon: UserRound, label: 'Mon espace' },
+    { to: spaceTo, icon: UserRound, label: isAuthenticated ? 'Mon espace' : 'Mon espace' },
   ]
 
   return (
