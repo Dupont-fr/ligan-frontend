@@ -24,6 +24,7 @@ export function BottomNav() {
     <nav
       className="bottom-nav fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface/95 backdrop-blur lg:hidden"
       aria-label="Navigation rapide"
+      role="navigation"
     >
       <ul className="mx-auto flex h-14 w-full max-w-lg items-stretch">
         {items.map(({ to, icon: Icon, label }) => {

@@ -192,6 +192,15 @@
   .has-bottom-nav {
     padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
   }
+
+  body:has(.bottom-nav) main:not(.no-bottom-nav) {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+
+  [data-bottom-nav-spacer] {
+    display: block;
+    height: calc(3.5rem + env(safe-area-inset-bottom));
+  }
 }
 
 /* Ancres sous le header sticky */
