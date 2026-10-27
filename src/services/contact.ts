@@ -8,5 +8,5 @@ export interface ContactPayload {
 }
 
 export async function sendContact(payload: ContactPayload) {
-  return apiPost<{ message: string }>('/contact', payload)
+  return apiPost<{ message: string }>('/api/contact', payload)
 }
