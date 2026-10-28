@@ -34,8 +34,8 @@ export function SiteFooter() {
   const categories = useCategories()
   return (
     <footer className="border-t border-border bg-surface">
-      <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="space-y-3">
+      <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="space-y-3 col-span-2 lg:col-span-1">
           <Logo />
           <p className="max-w-xs text-sm text-text-secondary">
             La plateforme qui met en relation les clients et les professionnels locaux :
@@ -47,23 +47,25 @@ export function SiteFooter() {
           <InstallButton className="pt-1" />
         </div>
 
-        {columns.map((col) => (
-          <div key={col.title}>
-            <p className="mb-3 text-sm font-semibold text-text-primary">{col.title}</p>
-            <ul className="space-y-2">
-              {col.links.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    to={link.to}
-                    className="text-sm text-text-secondary transition-colors hover:text-primary"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        <div className="contents sm:contents lg:grid lg:grid-cols-3 lg:col-span-3 lg:gap-8">
+          {columns.map((col) => (
+            <div key={col.title}>
+              <p className="mb-3 text-sm font-semibold text-text-primary">{col.title}</p>
+              <ul className="space-y-2">
+                {col.links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      to={link.to}
+                      className="text-sm text-text-secondary transition-colors hover:text-primary"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="border-t border-border">
