@@ -1,4 +1,4 @@
-import { X, Check, ChevronLeft, ChevronRight, LocateFixed, Plus, Trash2, ImagePlus, Loader2 } from 'lucide-react'
+import { X, Check, ChevronLeft, ChevronRight, LocateFixed, Plus, Trash2, ImagePlus, Loader2, Sparkles } from 'lucide-react'
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
 import { useAuth } from '../../features/auth/AuthContext'
 import { useCategories } from '../../hooks/useCategories'
@@ -11,6 +11,7 @@ import {
   type OpeningDay,
   type OpeningHour,
 } from '../../services/activities'
+import { generateActivityDraft } from '../../services/ai'
 import { uploadImageToCloudinary } from '../../services/cloudinary'
 import { Alert } from '../ui/Alert'
 import { Button } from '../ui/Button'
@@ -135,6 +136,9 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
   const [saving, setSaving] = useState(false)
   const [geoBusy, setGeoBusy] = useState(false)
   const [geoError, setGeoError] = useState<string | null>(null)
+  const [aiPrompt, setAiPrompt] = useState('')
+  const [aiBusy, setAiBusy] = useState(false)
+  const [aiError, setAiError] = useState<string | null>(null)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -145,6 +149,36 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
   }, [onClose])
 
   const patch = (partial: Partial<FormState>) => setForm((f) => ({ ...f, ...partial }))
+
+  const generateWithAi = async () => {
+    if (!aiPrompt.trim() || aiBusy) return
+    setAiBusy(true)
+    setAiError(null)
+    try {
+      const draft = await generateActivityDraft(aiPrompt.trim())
+      if (draft.titre && draft.titre.trim().length >= 3) {
+        patch({ title: draft.titre.trim() })
+      }
+      if (draft.description && draft.description.trim().length >= 10) {
+        patch({ description: draft.description.trim() })
+      }
+      if (Array.isArray(draft.services) && draft.services.length > 0) {
+        const nextServices = draft.services
+          .filter((s) => typeof s === 'string' && s.trim().length >= 2)
+          .slice(0, 10)
+          .map((s) => ({ name: s.trim(), price: '' }))
+        if (nextServices.length > 0) {
+          patch({ services: nextServices })
+        }
+      }
+      setAiPrompt('')
+      setStep(0)
+    } catch (err) {
+      setAiError(err instanceof ApiError ? err.message : "Impossible de générer l'activité avec l'IA")
+    } finally {
+      setAiBusy(false)
+    }
+  }
 
   const locate = () => {
     if (!('geolocation' in navigator)) {
@@ -386,6 +420,33 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
 
           {step === 0 ? (
             <div className="space-y-4">
+              {!editing ? (
+                <div className="rounded-[var(--radius-md)] border border-primary/40 bg-primary-light/40 p-4">
+                  <div className="flex items-start gap-2">
+                    <Sparkles className="mt-0.5 h-4 w-4 text-primary" aria-hidden />
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-text-primary">Générer avec l'IA (Pro / Premium)</p>
+                      <p className="mt-1 text-xs text-text-secondary">
+                        Décrivez votre activité en quelques mots : l'IA remplira automatiquement le titre, la description et les services, orientés marketing.
+                      </p>
+                      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                        <input
+                          value={aiPrompt}
+                          onChange={(e) => setAiPrompt(e.target.value)}
+                          placeholder="Ex. Plomberie à domicile à Douala, réparation fuite, débouchage"
+                          className={inputClass}
+                          maxLength={500}
+                        />
+                        <Button type="button" size="sm" onClick={generateWithAi} loading={aiBusy} disabled={aiBusy || aiPrompt.trim().length < 10}>
+                          <Sparkles className="h-4 w-4" aria-hidden />
+                          Générer
+                        </Button>
+                      </div>
+                      {aiError ? <p className="mt-2 text-xs text-error">{aiError}</p> : null}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
               <div>
                 <label htmlFor="wiz-title" className="mb-1 block text-sm font-medium text-text-primary">
                   Titre de l’activité *
