@@ -6,6 +6,7 @@ import { ThemeToggle } from '../shared/ThemeToggle'
 import { InstallButton } from '../InstallButton'
 import { Button } from '../ui/Button'
 import { Logo } from './Logo'
+import { BottomNav } from './BottomNav'
 
 export interface ShellItem {
   label: string
@@ -189,6 +190,7 @@ export function WorkspaceShell({ groups, breadcrumb, actions, children }: Worksp
         <main className="flex-1">
           <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-8 md:py-8">{children}</div>
         </main>
+        <BottomNav />
       </div>
     </div>
   )
