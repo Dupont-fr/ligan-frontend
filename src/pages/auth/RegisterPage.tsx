@@ -74,6 +74,7 @@ export function RegisterPage() {
   const [searchParams] = useSearchParams()
   const [formError, setFormError] = useState<string | null>(null)
   const [showPasswordTip, setShowPasswordTip] = useState(false)
+  const [showRolePrompt, setShowRolePrompt] = useState(false)
 
   const {
     register,
@@ -102,7 +103,10 @@ export function RegisterPage() {
     const roleParam = searchParams.get('role')
     if (roleParam === 'PROFESSIONAL' || roleParam === 'CUSTOMER') {
       setValue('role', roleParam)
+      return
     }
+    // Afficher l'alerte uniquement à l'ouverture du formulaire sans rôle prédéfini
+    setShowRolePrompt(true)
   }, [searchParams, setValue])
 
   if (status === 'authenticated') {
@@ -169,6 +173,52 @@ export function RegisterPage() {
           propres services.
         </p>
       </div>
+
+      {showRolePrompt ? (
+        <Alert variant='info' className='mt-4'>
+          <div className='flex items-start justify-between gap-3'>
+            <div>
+              <p className='font-medium'>Êtes-vous professionnel ou recherchez-vous un professionnel ?</p>
+              <p className='mt-1 text-sm'>
+                Sélectionnez votre type de compte ci-dessous pour adapter le formulaire à votre besoin.
+              </p>
+              <div className='mt-3 flex flex-wrap gap-2'>
+                <Button
+                  type='button'
+                  size='sm'
+                  onClick={() => {
+                    setValue('role', 'CUSTOMER', { shouldDirty: true })
+                    setShowRolePrompt(false)
+                  }}
+                >
+                  <Search className='h-4 w-4' aria-hidden />
+                  Je cherche un professionnel
+                </Button>
+                <Button
+                  type='button'
+                  size='sm'
+                  variant='outline'
+                  onClick={() => {
+                    setValue('role', 'PROFESSIONAL', { shouldDirty: true })
+                    setShowRolePrompt(false)
+                  }}
+                >
+                  <BriefcaseBusiness className='h-4 w-4' aria-hidden />
+                  Je suis professionnel
+                </Button>
+              </div>
+            </div>
+            <button
+              type='button'
+              onClick={() => setShowRolePrompt(false)}
+              className='rounded-[var(--radius-sm)] p-1 text-text-muted transition-colors hover:bg-background hover:text-text-primary'
+              aria-label='Fermer cette alerte'
+            >
+              <X className='h-4 w-4' aria-hidden />
+            </button>
+          </div>
+        </Alert>
+      ) : null}
 
       <div
         className='mt-5 grid gap-3 sm:grid-cols-2'
