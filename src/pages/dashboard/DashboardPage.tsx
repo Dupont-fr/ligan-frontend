@@ -112,11 +112,10 @@ export function DashboardPage() {
   const currentCrumb = visibleNav.find((item) => item.id === section)?.label ?? ''
 
   return (
-    <div className="has-bottom-nav">
-      <WorkspaceShell
-        groups={shellGroups}
-        breadcrumb={['Espace ' + roleLabels[user?.role ?? 'CUSTOMER'], currentCrumb]}
-      >
+    <WorkspaceShell
+      groups={shellGroups}
+      breadcrumb={['Espace ' + roleLabels[user?.role ?? 'CUSTOMER'], currentCrumb]}
+    >
       {/* Pro en plan gratuit : invitation à passer au plan supérieur (masquée sur la section Abonnement). */}
       {isPro && section !== 'subscription' ? (
         <UpgradeAlert onSeePlans={() => setSection('subscription')} />
@@ -739,7 +738,6 @@ function SettingsSection() {
           </Button>
         )}
       </Card>
-      <div className="h-16 lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} />
     </div>
   )
 }

@@ -10,23 +10,21 @@ const activeClassName = 'text-primary'
  */
 export function BottomNav() {
   const { pathname } = useLocation()
-  const { status, user } = useAuth()
-  const isAuthenticated = status === 'authenticated'
-  const spaceTo = isAuthenticated ? '/dashboard' : '/login'
+  const { status } = useAuth()
+  const spaceTo = status === 'authenticated' ? '/dashboard' : '/login'
 
   const items = [
     { to: '/', icon: Home, label: 'Accueil' },
     { to: '/trouver', icon: Search, label: 'Rechercher' },
     { to: '/categories', icon: LayoutGrid, label: 'Catégories' },
-    { to: spaceTo, icon: UserRound, label: isAuthenticated ? 'Mon espace' : 'Mon espace' },
+    { to: spaceTo, icon: UserRound, label: 'Mon espace' },
   ]
 
   return (
     <nav
-      className="bottom-nav fixed inset-x-0 bottom-0 z-[999] border-t border-border bg-surface/95 backdrop-blur lg:hidden"
+      className="bottom-nav fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface/95 backdrop-blur lg:hidden"
       aria-label="Navigation rapide"
       role="navigation"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <ul className="mx-auto flex h-14 w-full max-w-lg items-stretch">
         {items.map(({ to, icon: Icon, label }) => {
