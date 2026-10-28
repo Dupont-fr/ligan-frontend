@@ -31,6 +31,9 @@ export interface SubscriptionState {
   payments: PaymentRow[]
   /** true = clés SebPay absentes, paiements simulés (mode démo). */
   mock: boolean
+  canRestore?: boolean
+  previousPlanEndsAt?: string | null
+  restored?: boolean
 }
 
 export interface StartedPayment {
@@ -72,8 +75,8 @@ export interface CheckoutResult {
   mock: boolean
 }
 
-export function startCheckout(input: CheckoutInput): Promise<CheckoutResult> {
-  return apiPost<CheckoutResult>('/api/subscriptions/checkout', input)
+export function startCheckout(input: CheckoutInput): Promise<CheckoutResult & { restored?: boolean }> {
+  return apiPost<CheckoutResult & { restored?: boolean }>('/api/subscriptions/checkout', input)
 }
 
 export function getPaymentStatus(id: string): Promise<{ payment: StartedPayment }> {

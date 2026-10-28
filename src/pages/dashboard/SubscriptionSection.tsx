@@ -104,7 +104,14 @@ export function SubscriptionSection() {
 
   const checkoutMutation = useMutation({
     mutationFn: startCheckout,
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
+      if (data.restored) {
+        setFormPlan(null)
+        reset()
+        setNotice({ type: 'success', text: 'Votre abonnement précédent a été restauré sans paiement.' })
+        queryClient.invalidateQueries({ queryKey: ['subscription'] })
+        return
+      }
       attemptsRef.current = 0
       setPending(data.payment)
       setFormPlan(null)
@@ -306,6 +313,28 @@ export function SubscriptionSection() {
             >
               <Wallet className="h-4 w-4" aria-hidden />
               {downgradeMutation.isPending ? 'Traitement…' : 'Passer au plan FREE'}
+            </Button>
+          ) : state?.canRestore ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const proPlan = plans.find((p) => p.code === 'PRO') ?? plans.find((p) => p.price > 0)
+                if (proPlan) {
+                  setFormPlan(proPlan)
+                  setNotice({
+                    type: 'success',
+                    text: state.previousPlanEndsAt
+                      ? `Vous pouvez restaurer votre abonnement jusqu'au ${formatDate(state.previousPlanEndsAt)} sans repayer.`
+                      : 'Votre abonnement précédent est encore valide et peut être restauré sans repayer.',
+                  })
+                } else {
+                  setNotice({ type: 'error', text: 'Aucun plan payant disponible pour restauration.' })
+                }
+              }}
+            >
+              <CreditCard className="h-4 w-4" aria-hidden />
+              Restaurer mon abonnement
             </Button>
           ) : null}
         </div>
