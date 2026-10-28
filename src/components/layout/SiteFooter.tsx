@@ -24,8 +24,14 @@ const columns = [
     title: 'Aide & Légal',
     links: [
       { label: "Centre d'aide", to: '/aide' },
-      { label: 'Conditions d’utilisation', to: '/conditions' },
+      { label: "Conditions d'utilisation", to: '/conditions' },
       { label: 'Confidentialité', to: '/confidentialite' },
+    ],
+  },
+  {
+    title: 'Partenaire',
+    links: [
+      { label: 'DupontTech CM', to: 'https://dupontdjeague.de5.net', external: true as const },
     ],
   },
 ]
@@ -34,7 +40,7 @@ export function SiteFooter() {
   const categories = useCategories()
   return (
     <footer className="border-t border-border bg-surface">
-      <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         <div className="space-y-3 col-span-2 lg:col-span-1">
           <Logo />
           <p className="max-w-xs text-sm text-text-secondary">
@@ -47,19 +53,30 @@ export function SiteFooter() {
           <InstallButton className="pt-1" />
         </div>
 
-        <div className="contents sm:contents lg:grid lg:grid-cols-3 lg:col-span-3 lg:gap-8">
+        <div className="contents sm:contents md:grid md:grid-cols-4 md:col-span-3 lg:grid lg:grid-cols-4 lg:col-span-4 lg:gap-8">
           {columns.map((col) => (
             <div key={col.title}>
               <p className="mb-3 text-sm font-semibold text-text-primary">{col.title}</p>
               <ul className="space-y-2">
                 {col.links.map((link) => (
                   <li key={link.label}>
-                    <Link
-                      to={link.to}
-                      className="text-sm text-text-secondary transition-colors hover:text-primary"
-                    >
-                      {link.label}
-                    </Link>
+                    {'external' in link && link.external ? (
+                      <a
+                        href={link.to}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-text-secondary transition-colors hover:text-primary"
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link
+                        to={link.to}
+                        className="text-sm text-text-secondary transition-colors hover:text-primary"
+                      >
+                        {link.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
