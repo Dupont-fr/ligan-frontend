@@ -80,8 +80,14 @@ export function listMyActivities(): Promise<{ activities: Activity[] }> {
   return apiGet<{ activities: Activity[] }>('/api/activities/mine')
 }
 
-export function createActivity(input: ActivityInput): Promise<{ activity: Activity }> {
-  return apiPost<{ activity: Activity }>('/api/activities', input)
+export interface CreatedActivityResponse {
+  activity: Activity
+  freeActivityLimit?: { used: number; max: number; remaining: number }
+  warning?: string
+}
+
+export function createActivity(input: ActivityInput): Promise<CreatedActivityResponse> {
+  return apiPost<CreatedActivityResponse>('/api/activities', input)
 }
 
 export function updateActivity(id: string, input: ActivityInput): Promise<{ activity: Activity }> {

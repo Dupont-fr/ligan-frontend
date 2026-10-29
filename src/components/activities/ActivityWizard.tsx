@@ -335,7 +335,12 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
       if (editing && initial?.id) {
         await updateActivity(initial.id, body)
       } else {
-        await createActivity(body)
+        const res = await createActivity(body)
+        if (res.warning) {
+          setError(res.warning)
+          onSaved()
+          return
+        }
       }
       onSaved()
     } catch (err) {
