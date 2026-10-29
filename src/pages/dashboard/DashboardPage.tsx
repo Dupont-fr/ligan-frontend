@@ -259,7 +259,20 @@ function MyActivitiesSection({
             Complétez votre fiche en quelques étapes : informations, services, horaires, photos.
           </p>
         </div>
-        <Button size="sm" onClick={() => setWizard({ editing: null })}>
+        <Button
+          size="sm"
+          onClick={() => {
+            const isFree = user?.role === 'PROFESSIONAL' // we don't have plan here easily; rely on backend + also check count
+            if (activities.length >= 2) {
+              setError("Vous avez atteint la limite de 2 activités gratuites. Passez en Pro ou Premium pour créer plus d'activités.")
+              return
+            }
+            if (activities.length === 1) {
+              setSuccessMsg("Attention : il ne vous reste plus qu'1 activité gratuite.")
+            }
+            setWizard({ editing: null })
+          }}
+        >
           <Plus className="h-4 w-4" aria-hidden />
           Publier une activité
         </Button>
@@ -307,7 +320,20 @@ function MyActivitiesSection({
               <p className="mt-1 text-sm text-text-secondary">
                 Publiez votre première activité : elle apparaîtra dans le fil et la recherche.
               </p>
-              <Button className="mt-4" size="sm" onClick={() => setWizard({ editing: null })}>
+              <Button
+                className="mt-4"
+                size="sm"
+                onClick={() => {
+                  if (activities.length >= 2) {
+                    setError("Vous avez atteint la limite de 2 activités gratuites. Passez en Pro ou Premium pour créer plus d'activités.")
+                    return
+                  }
+                  if (activities.length === 1) {
+                    setSuccessMsg("Attention : il ne vous reste plus qu'1 activité gratuite.")
+                  }
+                  setWizard({ editing: null })
+                }}
+              >
                 <Plus className="h-4 w-4" aria-hidden />
                 Publier une activité
               </Button>
