@@ -8,6 +8,6 @@ export interface AIGenerateActivityDraft {
 }
 
 export async function generateActivityDraft(prompt: string) {
-  const res = await apiPost<{ draft: AIGenerateActivityDraft }>('/api/ai/generate-activity', { prompt })
-  return res.draft
+  const res = await apiPost<{ draft: AIGenerateActivityDraft; freeAiLimit?: { used: number; max: number; remaining: number }; warning?: string }>('/api/ai/generate-activity', { prompt })
+  return res
 }
