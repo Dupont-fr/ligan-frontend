@@ -10,12 +10,14 @@ import {
   Search,
   Settings,
   ShieldCheck,
+  Sparkles,
   Trash2,
   UserRound,
   X,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { ActivityAiGenerator } from '../../components/activities/ActivityAiGenerator'
 import { ActivityCard } from '../../components/activities/ActivityCard'
 import { ActivityWizard } from '../../components/activities/ActivityWizard'
 import { WorkspaceShell, type ShellGroup } from '../../components/layout/WorkspaceShell'
@@ -230,10 +232,19 @@ function MyActivitiesSection({
   isLoading: boolean
   onChanged: () => void
 }) {
-  const [wizard, setWizard] = useState<{ editing: Activity | null } | null>(null)
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const [wizard, setWizard] = useState<{ editing: Activity | null; aiDraft?: { title: string; description: string; services: Array<{ name: string; price: string }> } } | null>(null)
+  const [aiOpen, setAiOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const handler = () => setAiOpen(true)
+    window.addEventListener('ligan:open-ai-generator', handler)
+    return () => window.removeEventListener('ligan:open-ai-generator', handler)
+  }, [])
 
   const handleDelete = async (id: string) => {
     setError(null)
@@ -259,23 +270,43 @@ function MyActivitiesSection({
             Complétez votre fiche en quelques étapes : informations, services, horaires, photos.
           </p>
         </div>
-        <Button
-          size="sm"
-          onClick={() => {
-            const isFree = user?.role === 'PROFESSIONAL' // we don't have plan here easily; rely on backend + also check count
-            if (activities.length >= 2) {
-              setError("Vous avez atteint la limite de 2 activités gratuites. Passez en Pro ou Premium pour créer plus d'activités.")
-              return
-            }
-            if (activities.length === 1) {
-              setSuccessMsg("Attention : il ne vous reste plus qu'1 activité gratuite.")
-            }
-            setWizard({ editing: null })
-          }}
-        >
-          <Plus className="h-4 w-4" aria-hidden />
-          Publier une activité
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (activities.length >= 2) {
+                setError("Vous avez atteint la limite de 2 activités gratuites avec l'IA. Passez en Pro ou Premium pour continuer.")
+                setTimeout(() => navigate('/dashboard?section=subscription'), 1200)
+                return
+              }
+              if (activities.length === 1) {
+                setSuccessMsg("Attention : il ne vous reste plus qu'1 activité gratuite avec l'IA.")
+              }
+              setAiOpen(true)
+            }}
+          >
+            <Sparkles className="h-4 w-4" aria-hidden />
+            Créer avec l'IA
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => {
+              if (activities.length >= 2) {
+                setError("Vous avez atteint la limite de 2 activités gratuites. Passez en Pro ou Premium pour créer plus d'activités.")
+                setTimeout(() => navigate('/dashboard?section=subscription'), 1200)
+                return
+              }
+              if (activities.length === 1) {
+                setSuccessMsg("Attention : il ne vous reste plus qu'1 activité gratuite.")
+              }
+              setWizard({ editing: null })
+            }}
+          >
+            <Plus className="h-4 w-4" aria-hidden />
+            Créer manuellement
+          </Button>
+        </div>
       </div>
 
       {error ? <Alert variant="error" className="mt-4">{error}</Alert> : null}
@@ -421,9 +452,32 @@ function MyActivitiesSection({
           )}
       </div>
 
+      <ActivityAiGenerator
+        open={aiOpen}
+        onClose={() => setAiOpen(false)}
+        onGenerated={(draft) => {
+          const services = Array.isArray(draft.services)
+            ? draft.services
+                .filter((s) => typeof s === 'string' && s.trim().length >= 2)
+                .slice(0, 10)
+                .map((s) => ({ name: String(s).trim(), price: '' }))
+            : []
+          setWizard({
+            editing: null,
+            aiDraft: {
+              title: draft.titre?.trim() ?? '',
+              description: draft.description?.trim() ?? '',
+              services,
+            },
+          })
+        }}
+      />
+
       {wizard ? (
         <ActivityWizard
           initial={wizard.editing ?? undefined}
+          aiDraft={wizard.aiDraft}
+          createdViaAi={Boolean(wizard.aiDraft) && !wizard.editing}
           onClose={() => setWizard(null)}
           onSaved={() => {
             setWizard(null)

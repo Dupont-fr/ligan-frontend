@@ -1,4 +1,4 @@
-import { X, Check, ChevronLeft, ChevronRight, LocateFixed, Plus, Trash2, ImagePlus, Loader2, Sparkles } from 'lucide-react'
+import { X, Check, ChevronLeft, ChevronRight, LocateFixed, Plus, Trash2, ImagePlus, Loader2 } from 'lucide-react'
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
 import { useAuth } from '../../features/auth/AuthContext'
 import { useCategories } from '../../hooks/useCategories'
@@ -11,7 +11,6 @@ import {
   type OpeningDay,
   type OpeningHour,
 } from '../../services/activities'
-import { generateActivityDraft } from '../../services/ai'
 import { uploadImageToCloudinary } from '../../services/cloudinary'
 import { Alert } from '../ui/Alert'
 import { Button } from '../ui/Button'
@@ -115,30 +114,37 @@ function fromActivity(activity: Activity): FormState {
 
 interface ActivityWizardProps {
   initial?: Activity
+  aiDraft?: { title: string; description: string; services: Array<{ name: string; price: string }> }
+  createdViaAi?: boolean
   onClose: () => void
   onSaved: () => void
 }
 
-export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProps) {
+export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose, onSaved }: ActivityWizardProps) {
   const { user } = useAuth()
   const categories = useCategories()
   const editing = Boolean(initial)
 
   const [step, setStep] = useState(0)
-  const [form, setForm] = useState<FormState>(() =>
-    initial
-      ? fromActivity(initial)
-      : emptyForm(categories[0]?.label ?? '', user?.phone?.startsWith('+237') ? user.phone.slice(5) : (user?.phone ?? '')),
-  )
+  const [form, setForm] = useState<FormState>(() => {
+    if (initial) return fromActivity(initial)
+    const base = emptyForm(categories[0]?.label ?? '', user?.phone?.startsWith('+237') ? user.phone.slice(5) : (user?.phone ?? ''))
+    if (aiDraft && !editing) {
+      return {
+        ...base,
+        title: aiDraft.title,
+        description: aiDraft.description,
+        services: aiDraft.services.length > 0 ? aiDraft.services : base.services,
+      }
+    }
+    return base
+  })
   const [photos, setPhotos] = useState<string[]>(initial?.photos ?? [])
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [geoBusy, setGeoBusy] = useState(false)
   const [geoError, setGeoError] = useState<string | null>(null)
-  const [aiPrompt, setAiPrompt] = useState('')
-  const [aiBusy, setAiBusy] = useState(false)
-  const [aiError, setAiError] = useState<string | null>(null)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -149,36 +155,6 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
   }, [onClose])
 
   const patch = (partial: Partial<FormState>) => setForm((f) => ({ ...f, ...partial }))
-
-  const generateWithAi = async () => {
-    if (!aiPrompt.trim() || aiBusy) return
-    setAiBusy(true)
-    setAiError(null)
-    try {
-      const draft = await generateActivityDraft(aiPrompt.trim())
-      if (draft.titre && draft.titre.trim().length >= 3) {
-        patch({ title: draft.titre.trim() })
-      }
-      if (draft.description && draft.description.trim().length >= 10) {
-        patch({ description: draft.description.trim() })
-      }
-      if (Array.isArray(draft.services) && draft.services.length > 0) {
-        const nextServices = draft.services
-          .filter((s) => typeof s === 'string' && s.trim().length >= 2)
-          .slice(0, 10)
-          .map((s) => ({ name: s.trim(), price: '' }))
-        if (nextServices.length > 0) {
-          patch({ services: nextServices })
-        }
-      }
-      setAiPrompt('')
-      setStep(0)
-    } catch (err) {
-      setAiError(err instanceof ApiError ? err.message : "Impossible de générer l'activité avec l'IA")
-    } finally {
-      setAiBusy(false)
-    }
-  }
 
   const locate = () => {
     if (!('geolocation' in navigator)) {
@@ -335,7 +311,7 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
       if (editing && initial?.id) {
         await updateActivity(initial.id, body)
       } else {
-        const res = await createActivity(body)
+        const res = await createActivity({ ...body, createdViaAi } as any)
         if (res.warning) {
           setError(res.warning)
           onSaved()
@@ -425,32 +401,15 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
 
           {step === 0 ? (
             <div className="space-y-4">
-              {!editing ? (
-                <div className="rounded-[var(--radius-md)] border border-primary/40 bg-primary-light/40 p-4">
-                  <div className="flex items-start gap-2">
-                    <Sparkles className="mt-0.5 h-4 w-4 text-primary" aria-hidden />
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-text-primary">Générer avec l'IA (Pro / Premium)</p>
-                      <p className="mt-1 text-xs text-text-secondary">
-                        Décrivez votre activité en quelques mots : l'IA remplira automatiquement le titre, la description et les services, orientés marketing.
-                      </p>
-                      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-                        <input
-                          value={aiPrompt}
-                          onChange={(e) => setAiPrompt(e.target.value)}
-                          placeholder="Ex. Plomberie à domicile à Douala, réparation fuite, débouchage"
-                          className={inputClass}
-                          maxLength={500}
-                        />
-                        <Button type="button" size="sm" onClick={generateWithAi} loading={aiBusy} disabled={aiBusy || aiPrompt.trim().length < 10}>
-                          <Sparkles className="h-4 w-4" aria-hidden />
-                          Générer
-                        </Button>
-                      </div>
-                      {aiError ? <p className="mt-2 text-xs text-error">{aiError}</p> : null}
-                    </div>
-                  </div>
-                </div>
+              {createdViaAi && !editing ? (
+                <Alert variant="info">
+                  Formulaire pré-rempli par l'IA. Vérifiez et complétez les informations avant de publier.
+                </Alert>
+              ) : null}
+              {!editing && !createdViaAi ? (
+                <Button type="button" variant="outline" size="sm" onClick={() => window.dispatchEvent(new CustomEvent('ligan:open-ai-generator'))}>
+                  Générer avec l'IA
+                </Button>
               ) : null}
               <div>
                 <label htmlFor="wiz-title" className="mb-1 block text-sm font-medium text-text-primary">
@@ -863,8 +822,8 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
           ) : null}
         </div>
 
-        <div className="flex items-center justify-between gap-3 border-t border-border bg-background/50 px-5 py-3">
-          <Button variant="ghost" size="sm" onClick={step === 0 ? onClose : () => setStep((s) => s - 1)}>
+        <div className="sticky bottom-0 flex flex-col-reverse gap-2 border-t border-border bg-background/95 px-4 py-3 sm:static sm:flex-row sm:items-center sm:justify-between sm:bg-background/50 sm:px-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.75rem)' }}>
+          <Button variant="ghost" size="sm" onClick={step === 0 ? onClose : () => setStep((s) => s - 1)} className="w-full sm:w-auto">
             {step === 0 ? (
               'Annuler'
             ) : (
@@ -876,12 +835,12 @@ export function ActivityWizard({ initial, onClose, onSaved }: ActivityWizardProp
           </Button>
 
           {step < STEPS.length - 1 ? (
-            <Button size="sm" onClick={goNext}>
+            <Button size="sm" onClick={goNext} className="w-full sm:w-auto">
               Suivant
               <ChevronRight className="h-4 w-4" aria-hidden />
             </Button>
           ) : (
-            <Button size="sm" loading={saving || uploading} onClick={submit}>
+            <Button size="sm" loading={saving || uploading} onClick={submit} className="w-full sm:w-auto">
               {editing ? 'Enregistrer' : 'Publier l’activité'}
             </Button>
           )}
