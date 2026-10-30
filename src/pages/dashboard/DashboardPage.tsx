@@ -233,7 +233,6 @@ function MyActivitiesSection({
   onChanged: () => void
 }) {
   const navigate = useNavigate()
-  const { user } = useAuth()
   const [wizard, setWizard] = useState<{ editing: Activity | null; aiDraft?: { title: string; description: string; services: Array<{ name: string; price: string }> } } | null>(null)
   const [aiOpen, setAiOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
