@@ -57,7 +57,7 @@ export function ActivityAiGenerator({ open, onClose, onGenerated }: ActivityAiGe
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 p-4 backdrop-blur-sm sm:items-center"
+      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 px-3 py-2 backdrop-blur-sm sm:items-center sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-label="Générateur IA d'activité"
@@ -65,7 +65,7 @@ export function ActivityAiGenerator({ open, onClose, onGenerated }: ActivityAiGe
         if (e.target === e.currentTarget) onClose()
       }}
     >
-      <div className="w-full max-w-lg rounded-[var(--radius-md)] border border-border bg-surface shadow-[var(--shadow-lg)]">
+      <div className="w-full max-w-lg max-h-[90dvh] overflow-y-auto rounded-[var(--radius-md)] border border-border bg-surface shadow-[var(--shadow-lg)]">
         <div className="flex items-start justify-between gap-4 border-b border-border px-4 py-3 sm:px-5 sm:py-4">
           <div className="flex items-start gap-2">
             <Sparkles className="mt-0.5 h-5 w-5 text-primary" aria-hidden />
@@ -95,7 +95,7 @@ export function ActivityAiGenerator({ open, onClose, onGenerated }: ActivityAiGe
             id="ai-prompt"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            rows={5}
+            rows={4}
             maxLength={500}
             placeholder="Ex. Plomberie à domicile à Douala : réparation de fuites, débouchage, installation sanitaire"
             className={`${inputClass} h-auto py-2.5`}
@@ -103,8 +103,8 @@ export function ActivityAiGenerator({ open, onClose, onGenerated }: ActivityAiGe
           <p className="mt-1 text-right text-xs text-text-muted">{prompt.length}/500</p>
         </div>
 
-        <div className="flex flex-col-reverse gap-2 border-t border-border bg-background/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-          <Button variant="ghost" size="sm" onClick={onClose} disabled={busy}>
+        <div className="sticky bottom-0 flex flex-col-reverse gap-2 border-t border-border bg-background/95 px-4 py-3 sm:static sm:flex-row sm:items-center sm:justify-between sm:bg-background/50 sm:px-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.75rem)' }}>
+          <Button variant="ghost" size="sm" onClick={onClose} disabled={busy} className="w-full sm:w-auto">
             Annuler
           </Button>
           <Button size="sm" onClick={generate} loading={busy} disabled={busy || prompt.trim().length < 10} className="w-full sm:w-auto">
