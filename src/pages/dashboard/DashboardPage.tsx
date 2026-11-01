@@ -61,6 +61,7 @@ export function DashboardPage() {
   const { user } = useAuth()
   const queryClient = useQueryClient()
   const isPro = user?.role === 'PROFESSIONAL'
+  const isProAccount = user?.role === 'PROFESSIONAL'
   const [section, setSection] = useState<Section>('feed')
 
   const navItems: { id: Section; label: string; icon: typeof LayoutGrid; proOnly?: boolean }[] = [
@@ -239,7 +240,7 @@ function MyActivitiesSection({
   const [error, setError] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
-  const isProAccount = authUser?.role === 'PROFESSIONAL'
+  const isProAccount = authUser?.role === 'PROFESSIONAL' || (authUser as any)?.isProfessional === true
 
   useEffect(() => {
     const handler = () => setAiOpen(true)
