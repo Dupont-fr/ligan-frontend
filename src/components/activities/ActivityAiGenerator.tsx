@@ -9,7 +9,13 @@ import { Button } from '../ui/Button'
 interface ActivityAiGeneratorProps {
   open: boolean
   onClose: () => void
-  onGenerated: (draft: { titre: string; description: string; services?: string[] }) => void
+  onGenerated: (draft: {
+    titre: string
+    description: string
+    services?: string[]
+    category?: string
+    openingHours?: Array<{ day: string; open: string; close: string; closed: boolean }>
+  }) => void
 }
 
 const inputClass =
@@ -34,6 +40,8 @@ export function ActivityAiGenerator({ open, onClose, onGenerated }: ActivityAiGe
         titre: draft.titre,
         description: draft.description,
         services: Array.isArray(draft.services) ? draft.services : [],
+        category: draft.category,
+        openingHours: Array.isArray(draft.openingHours) ? draft.openingHours : [],
       })
       setPrompt('')
       onClose()
@@ -72,7 +80,7 @@ export function ActivityAiGenerator({ open, onClose, onGenerated }: ActivityAiGe
             <div>
               <h2 className="text-base font-semibold tracking-tight text-text-primary">Générer mon activité avec l'IA</h2>
               <p className="mt-0.5 text-xs text-text-secondary">
-                Décrivez votre activité. L'IA créera un titre, une description et des services optimisés.
+                Décrivez votre activité, horaires et services. L'IA créera un titre, une description marketing, la catégorie, les services et proposera vos horaires.
               </p>
             </div>
           </div>
@@ -89,18 +97,18 @@ export function ActivityAiGenerator({ open, onClose, onGenerated }: ActivityAiGe
         <div className="px-4 py-4 sm:px-5">
           {error ? <Alert variant="error" className="mb-4">{error}</Alert> : null}
           <label className="mb-1 block text-sm font-medium text-text-primary" htmlFor="ai-prompt">
-            Décrivez votre activité *
+            Décrivez votre activité, horaires, services *
           </label>
           <textarea
             id="ai-prompt"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            rows={4}
-            maxLength={500}
-            placeholder="Ex. Plomberie à domicile à Douala : réparation de fuites, débouchage, installation sanitaire"
-            className={`${inputClass} h-auto py-2.5`}
+            rows={5}
+            maxLength={800}
+            placeholder="Ex. Salon de coiffure femme/homme à Yaoundé, ouvert du lundi au samedi de 09:00 à 19:00, coupe, tresses, soins, manucure. Je veux attirer les clients avec une description marketing."
+            className={`${inputClass} h-auto min-h-[120px] py-2.5`}
           />
-          <p className="mt-1 text-right text-xs text-text-muted">{prompt.length}/500</p>
+          <p className="mt-1 text-right text-xs text-text-muted">{prompt.length}/800</p>
         </div>
 
         <div className="sticky bottom-0 flex flex-col-reverse gap-2 border-t border-border bg-background/95 px-4 py-3 sm:static sm:flex-row sm:items-center sm:justify-between sm:bg-background/50 sm:px-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.75rem)' }}>
