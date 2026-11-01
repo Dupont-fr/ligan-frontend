@@ -154,6 +154,14 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
+  useEffect(() => {
+    if (!editing && aiDraft && form.services.length === 0) {
+      patch({ services: aiDraft.services.length > 0 ? aiDraft.services : [{ name: '', price: '' }] })
+    } else if (!editing && form.services.length === 0) {
+      patch({ services: [{ name: '', price: '' }] })
+    }
+  }, [aiDraft, editing])
+
   const patch = (partial: Partial<FormState>) => setForm((f) => ({ ...f, ...partial }))
 
   const locate = () => {
@@ -488,11 +496,11 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
           {step === 2 ? (
             <div>
               <p className="mb-3 text-sm text-text-secondary">
-                Liste les prestations proposées (optionnel). Le premier champ suffit, le tarif est facultatif.
+                Liste vos prestations proposées. Indiquez au moins votre première prestation. Le tarif est facultatif.
               </p>
               <div className="space-y-2">
                 {form.services.map((service, index) => (
-                  <div key={index} className="flex gap-2">
+                  <div key={index} className="flex flex-col gap-2 sm:flex-row">
                     <input
                       value={service.name}
                       onChange={(e) =>
@@ -501,30 +509,34 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
                         })
                       }
                       maxLength={80}
-                      placeholder="Ex : Débouchage de canalisation"
-                      aria-label={`Service ${index + 1}`}
+                      placeholder="Ex : Coupe homme + barbe"
+                      aria-label={`Prestation ${index + 1}`}
                       className={inputClass}
                     />
-                    <input
-                      value={service.price}
-                      onChange={(e) =>
-                        patch({
-                          services: form.services.map((s, i) => (i === index ? { ...s, price: e.target.value } : s)),
-                        })
-                      }
-                      maxLength={60}
-                      placeholder="Tarif (facultatif)"
-                      aria-label={`Tarif du service ${index + 1}`}
-                      className={`${inputClass} w-44 shrink-0`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => patch({ services: form.services.filter((_, i) => i !== index) })}
-                      aria-label={`Retirer le service ${index + 1}`}
-                      className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-sm)] border border-border text-text-secondary transition-colors hover:border-error hover:text-error"
-                    >
-                      <Trash2 className="h-4 w-4" aria-hidden />
-                    </button>
+                    <div className="flex gap-2">
+                      <input
+                        value={service.price}
+                        onChange={(e) =>
+                          patch({
+                            services: form.services.map((s, i) => (i === index ? { ...s, price: e.target.value } : s)),
+                          })
+                        }
+                        maxLength={60}
+                        placeholder="Tarif (facultatif)"
+                        aria-label={`Tarif de la prestation ${index + 1}`}
+                        className={`${inputClass} w-full sm:w-44 shrink-0`}
+                      />
+                      {form.services.length > 1 ? (
+                        <button
+                          type="button"
+                          onClick={() => patch({ services: form.services.filter((_, i) => i !== index) })}
+                          aria-label={`Retirer la prestation ${index + 1}`}
+                          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-sm)] border border-border text-text-secondary transition-colors hover:border-error hover:text-error"
+                        >
+                          <Trash2 className="h-4 w-4" aria-hidden />
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -535,7 +547,7 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
                   className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary-hover"
                 >
                   <Plus className="h-4 w-4" aria-hidden />
-                  Ajouter un service
+                  Ajouter une prestation
                 </button>
               ) : null}
             </div>
