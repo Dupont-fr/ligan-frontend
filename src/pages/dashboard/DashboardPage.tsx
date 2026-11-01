@@ -233,11 +233,12 @@ function MyActivitiesSection({
   onChanged: () => void
 }) {
   const navigate = useNavigate()
-  const [wizard, setWizard] = useState<{ editing: Activity | null; aiDraft?: { title: string; description: string; services: Array<{ name: string; price: string }> } } | null>(null)
+  const [wizard, setWizard] = useState<{ editing: Activity | null; aiDraft?: { title: string; description: string; services: Array<{ name: string; price: string }>; category?: string; openingHours?: any[] } } | null>(null)
   const [aiOpen, setAiOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const isProAccount = user?.role === 'PROFESSIONAL'
 
   useEffect(() => {
     const handler = () => setAiOpen(true)
@@ -274,12 +275,13 @@ function MyActivitiesSection({
             variant="outline"
             size="sm"
             onClick={() => {
-              if (activities.length >= 2) {
+              if (!isProAccount) return
+              if (!isProAccount && activities.length >= 2) {
                 setError("Vous avez atteint la limite de 2 activités gratuites avec l'IA. Passez en Pro ou Premium pour continuer.")
                 setTimeout(() => navigate('/dashboard?section=subscription'), 1200)
                 return
               }
-              if (activities.length === 1) {
+              if (!isProAccount && activities.length === 1) {
                 setSuccessMsg("Attention : il ne vous reste plus qu'1 activité gratuite avec l'IA.")
               }
               setAiOpen(true)
@@ -291,12 +293,12 @@ function MyActivitiesSection({
           <Button
             size="sm"
             onClick={() => {
-              if (activities.length >= 2) {
+              if (!isProAccount && activities.length >= 2) {
                 setError("Vous avez atteint la limite de 2 activités gratuites. Passez en Pro ou Premium pour créer plus d'activités.")
                 setTimeout(() => navigate('/dashboard?section=subscription'), 1200)
                 return
               }
-              if (activities.length === 1) {
+              if (!isProAccount && activities.length === 1) {
                 setSuccessMsg("Attention : il ne vous reste plus qu'1 activité gratuite.")
               }
               setWizard({ editing: null })
@@ -354,11 +356,11 @@ function MyActivitiesSection({
                 className="mt-4"
                 size="sm"
                 onClick={() => {
-                  if (activities.length >= 2) {
+                  if (!isProAccount && activities.length >= 2) {
                     setError("Vous avez atteint la limite de 2 activités gratuites. Passez en Pro ou Premium pour créer plus d'activités.")
                     return
                   }
-                  if (activities.length === 1) {
+                  if (!isProAccount && activities.length === 1) {
                     setSuccessMsg("Attention : il ne vous reste plus qu'1 activité gratuite.")
                   }
                   setWizard({ editing: null })
