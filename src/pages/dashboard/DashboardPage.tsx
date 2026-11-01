@@ -233,12 +233,13 @@ function MyActivitiesSection({
   onChanged: () => void
 }) {
   const navigate = useNavigate()
+  const { user: authUser } = useAuth()
   const [wizard, setWizard] = useState<{ editing: Activity | null; aiDraft?: { title: string; description: string; services: Array<{ name: string; price: string }>; category?: string; openingHours?: any[] } } | null>(null)
   const [aiOpen, setAiOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
-  const isProAccount = user?.role === 'PROFESSIONAL'
+  const isProAccount = authUser?.role === 'PROFESSIONAL'
 
   useEffect(() => {
     const handler = () => setAiOpen(true)
