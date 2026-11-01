@@ -467,7 +467,9 @@ function MyActivitiesSection({
               title: draft.titre?.trim() ?? '',
               description: draft.description?.trim() ?? '',
               services,
-            },
+              category: draft.category,
+              openingHours: Array.isArray(draft.openingHours) ? draft.openingHours : [],
+            } as any,
           })
         }}
       />
