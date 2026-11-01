@@ -276,7 +276,6 @@ function MyActivitiesSection({
             variant="outline"
             size="sm"
             onClick={() => {
-              if (!isProAccount) return
               if (!isProAccount && activities.length >= 2) {
                 setError("Vous avez atteint la limite de 2 activités gratuites avec l'IA. Passez en Pro ou Premium pour continuer.")
                 setTimeout(() => navigate('/dashboard?section=subscription'), 1200)
