@@ -195,7 +195,9 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
         return null
       case 2:
         if (form.services.some((s) => s.name.trim().length > 0 && s.name.trim().length < 2))
-          return 'Chaque service doit contenir au moins 2 caractères.'
+          return 'Chaque prestation doit contenir au moins 2 caractères.'
+        const hasValid = form.services.some((s) => s.name.trim().length >= 2)
+        if (!hasValid) return 'Indiquez au moins une prestation proposée.'
         return null
       case 3:
         if (!PHONE_RE.test(form.contacts.phone.trim()))
