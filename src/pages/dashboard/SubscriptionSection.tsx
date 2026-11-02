@@ -95,25 +95,46 @@ export function SubscriptionSection() {
     queryFn: listPaymentOperators,
     staleTime: 60 * 60 * 1000,
   })
-  let operators = operatorsQuery.data?.operators ?? []
-  const seen = new Set<string>()
-  operators = operators.filter((op) => {
-    const key = op.slug.toLowerCase()
-    if (seen.has(key)) return false
-    seen.add(key)
-    return true
+  let operatorsRaw = operatorsQuery.data?.operators ?? []
+  const mtnGroup = operatorsRaw.filter((op) => {
+    const s = (op.slug || '').toLowerCase()
+    const n = (op.name || '').toLowerCase()
+    return s.includes('mtn') || n.includes('mtn')
   })
-  const hasOrange = operators.some((op) => op.slug === 'orange' || op.slug.toLowerCase().includes('orange'))
-  const hasMtn = operators.some((op) => op.slug === 'mtn' || op.slug.toLowerCase().includes('mtn'))
-  if (!hasOrange && !operatorsQuery.isLoading) {
-    operators = [...operators, { slug: 'orange', name: 'Orange Money', otpRequired: false, ussdCode: null }]
+  const orangeGroup = operatorsRaw.filter((op) => {
+    const s = (op.slug || '').toLowerCase()
+    const n = (op.name || '').toLowerCase()
+    return s.includes('orange') || n.includes('orange')
+  })
+  const others = operatorsRaw.filter((op) => {
+    const s = (op.slug || '').toLowerCase()
+    const n = (op.name || '').toLowerCase()
+    const isMtn = s.includes('mtn') || n.includes('mtn')
+    const isOrange = s.includes('orange') || n.includes('orange')
+    return !isMtn && !isOrange
+  })
+  let operators: any[] = []
+  if (mtnGroup.length > 0) {
+    operators.push({
+      slug: 'mtn',
+      name: 'MTN MoMo',
+      otpRequired: mtnGroup.some((o: any) => o.otpRequired),
+      ussdCode: mtnGroup.find((o: any) => o.ussdCode)?.ussdCode ?? null,
+    })
+  } else if (!operatorsQuery.isLoading) {
+    operators.push({ slug: 'mtn', name: 'MTN MoMo', otpRequired: false, ussdCode: null })
   }
-  if (!hasMtn && !operatorsQuery.isLoading && operators.length === 0) {
-    operators = [
-      { slug: 'mtn', name: 'MTN MoMo', otpRequired: false, ussdCode: null },
-      { slug: 'orange', name: 'Orange Money', otpRequired: false, ussdCode: null },
-    ]
+  if (orangeGroup.length > 0) {
+    operators.push({
+      slug: 'orange',
+      name: 'Orange Money',
+      otpRequired: orangeGroup.some((o: any) => o.otpRequired),
+      ussdCode: orangeGroup.find((o: any) => o.ussdCode)?.ussdCode ?? null,
+    })
+  } else if (!operatorsQuery.isLoading) {
+    operators.push({ slug: 'orange', name: 'Orange Money', otpRequired: false, ussdCode: null })
   }
+  operators = [...operators, ...others]
   const selectedNetwork = useWatch({ control, name: 'network' })
   const selectedOperator = operators.find((op) => op.slug === selectedNetwork)
   const otpRequired = selectedOperator?.otpRequired === true
