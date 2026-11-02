@@ -95,7 +95,18 @@ export function SubscriptionSection() {
     queryFn: listPaymentOperators,
     staleTime: 60 * 60 * 1000,
   })
-  const operators = operatorsQuery.data?.operators ?? []
+  let operators = operatorsQuery.data?.operators ?? []
+  const hasOrange = operators.some((op) => op.slug === 'orange' || op.slug.toLowerCase().includes('orange'))
+  const hasMtn = operators.some((op) => op.slug === 'mtn' || op.slug.toLowerCase().includes('mtn'))
+  if (!hasOrange && !operatorsQuery.isLoading) {
+    operators = [...operators, { slug: 'orange', name: 'Orange Money', otpRequired: false, ussdCode: null }]
+  }
+  if (!hasMtn && !operatorsQuery.isLoading && operators.length === 0) {
+    operators = [
+      { slug: 'mtn', name: 'MTN MoMo', otpRequired: false, ussdCode: null },
+      { slug: 'orange', name: 'Orange Money', otpRequired: false, ussdCode: null },
+    ]
+  }
   const selectedNetwork = useWatch({ control, name: 'network' })
   const selectedOperator = operators.find((op) => op.slug === selectedNetwork)
   const otpRequired = selectedOperator?.otpRequired === true
