@@ -96,47 +96,33 @@ export function SubscriptionSection() {
     staleTime: 60 * 60 * 1000,
   })
   let operatorsRaw = operatorsQuery.data?.operators ?? []
-  const mtnGroup = operatorsRaw.filter((op) => {
-    const s = (op.slug || '').toLowerCase()
-    const n = (op.name || '').toLowerCase()
-    return s.includes('mtn') || n.includes('mtn')
+  // Déduplication simple par slug
+  const seen = new Set<string>()
+  let operators = operatorsRaw.filter((op: any) => {
+    const key = (op.slug || op.name || '').toLowerCase()
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
   })
-  const orangeGroup = operatorsRaw.filter((op) => {
+  const hasOrange = operators.some((op: any) => {
     const s = (op.slug || '').toLowerCase()
     const n = (op.name || '').toLowerCase()
     return s.includes('orange') || n.includes('orange')
   })
-  const others = operatorsRaw.filter((op) => {
+  const hasMtn = operators.some((op: any) => {
     const s = (op.slug || '').toLowerCase()
     const n = (op.name || '').toLowerCase()
-    const isMtn = s.includes('mtn') || n.includes('mtn')
-    const isOrange = s.includes('orange') || n.includes('orange')
-    return !isMtn && !isOrange
+    return s.includes('mtn') || n.includes('mtn')
   })
-  let operators: any[] = []
-  if (mtnGroup.length > 0) {
-    const orig = mtnGroup[0] as any
-    operators.push({
-      slug: orig.slug || 'mtn',
-      name: 'MTN MoMo',
-      otpRequired: mtnGroup.some((o: any) => o.otpRequired) || orig.otpRequired,
-      ussdCode: mtnGroup.find((o: any) => o.ussdCode)?.ussdCode ?? orig.ussdCode ?? null,
-    })
-  } else if (!operatorsQuery.isLoading) {
-    operators.push({ slug: 'mtn', name: 'MTN MoMo', otpRequired: false, ussdCode: null })
+  if (!hasOrange && !operatorsQuery.isLoading) {
+    operators = [...operators, { slug: 'orange', name: 'Orange Money', otpRequired: false, ussdCode: null }]
   }
-  if (orangeGroup.length > 0) {
-    const orig = orangeGroup[0] as any
-    operators.push({
-      slug: orig.slug || 'orange',
-      name: 'Orange Money',
-      otpRequired: orangeGroup.some((o: any) => o.otpRequired) || orig.otpRequired,
-      ussdCode: orangeGroup.find((o: any) => o.ussdCode)?.ussdCode ?? orig.ussdCode ?? null,
-    })
-  } else if (!operatorsQuery.isLoading) {
-    operators.push({ slug: 'orange', name: 'Orange Money', otpRequired: false, ussdCode: null })
+  if (!hasMtn && !operatorsQuery.isLoading && operators.length === 0) {
+    operators = [
+      { slug: 'mtn', name: 'MTN MoMo', otpRequired: false, ussdCode: null },
+      { slug: 'orange', name: 'Orange Money', otpRequired: false, ussdCode: null },
+    ]
   }
-  operators = [...operators, ...others]
   const selectedNetwork = useWatch({ control, name: 'network' })
   const selectedOperator = operators.find((op) => op.slug === selectedNetwork)
   const otpRequired = selectedOperator?.otpRequired === true
