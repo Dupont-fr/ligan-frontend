@@ -115,21 +115,23 @@ export function SubscriptionSection() {
   })
   let operators: any[] = []
   if (mtnGroup.length > 0) {
+    const orig = mtnGroup[0] as any
     operators.push({
-      slug: 'mtn',
+      slug: orig.slug || 'mtn',
       name: 'MTN MoMo',
-      otpRequired: mtnGroup.some((o: any) => o.otpRequired),
-      ussdCode: mtnGroup.find((o: any) => o.ussdCode)?.ussdCode ?? null,
+      otpRequired: mtnGroup.some((o: any) => o.otpRequired) || orig.otpRequired,
+      ussdCode: mtnGroup.find((o: any) => o.ussdCode)?.ussdCode ?? orig.ussdCode ?? null,
     })
   } else if (!operatorsQuery.isLoading) {
     operators.push({ slug: 'mtn', name: 'MTN MoMo', otpRequired: false, ussdCode: null })
   }
   if (orangeGroup.length > 0) {
+    const orig = orangeGroup[0] as any
     operators.push({
-      slug: 'orange',
+      slug: orig.slug || 'orange',
       name: 'Orange Money',
-      otpRequired: orangeGroup.some((o: any) => o.otpRequired),
-      ussdCode: orangeGroup.find((o: any) => o.ussdCode)?.ussdCode ?? null,
+      otpRequired: orangeGroup.some((o: any) => o.otpRequired) || orig.otpRequired,
+      ussdCode: orangeGroup.find((o: any) => o.ussdCode)?.ussdCode ?? orig.ussdCode ?? null,
     })
   } else if (!operatorsQuery.isLoading) {
     operators.push({ slug: 'orange', name: 'Orange Money', otpRequired: false, ussdCode: null })
