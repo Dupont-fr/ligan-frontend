@@ -96,6 +96,13 @@ export function SubscriptionSection() {
     staleTime: 60 * 60 * 1000,
   })
   let operators = operatorsQuery.data?.operators ?? []
+  const seen = new Set<string>()
+  operators = operators.filter((op) => {
+    const key = op.slug.toLowerCase()
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
   const hasOrange = operators.some((op) => op.slug === 'orange' || op.slug.toLowerCase().includes('orange'))
   const hasMtn = operators.some((op) => op.slug === 'mtn' || op.slug.toLowerCase().includes('mtn'))
   if (!hasOrange && !operatorsQuery.isLoading) {
