@@ -115,14 +115,23 @@ export function SubscriptionSection() {
     return s.includes('mtn') || n.includes('mtn')
   })
   if (!hasOrange && !operatorsQuery.isLoading) {
-    operators = [...operators, { slug: 'orange', name: 'Orange Money', otpRequired: false, ussdCode: null }]
+    operators.push({ slug: 'orange', name: 'Orange Money', otpRequired: false, ussdCode: null })
   }
-  if (!hasMtn && !operatorsQuery.isLoading && operators.length === 0) {
-    operators = [
-      { slug: 'mtn', name: 'MTN MoMo', otpRequired: false, ussdCode: null },
-      { slug: 'orange', name: 'Orange Money', otpRequired: false, ussdCode: null },
-    ]
+  if (!hasMtn && !operatorsQuery.isLoading) {
+    operators.push({ slug: 'mtn', name: 'MTN MoMo', otpRequired: false, ussdCode: null })
   }
+  // Normaliser les slugs pour Orange/Mtn
+  operators = operators.map((op: any) => {
+    const s = (op.slug || '').toLowerCase()
+    const n = (op.name || '').toLowerCase()
+    if (s.includes('orange') || n.includes('orange')) {
+      return { ...op, slug: op.slug && op.slug.toLowerCase().includes('orange') ? op.slug : 'orange', name: 'Orange Money' }
+    }
+    if (s.includes('mtn') || n.includes('mtn')) {
+      return { ...op, slug: op.slug && op.slug.toLowerCase().includes('mtn') ? op.slug : 'mtn', name: 'MTN MoMo' }
+    }
+    return op
+  })
   const selectedNetwork = useWatch({ control, name: 'network' })
   const selectedOperator = operators.find((op) => op.slug === selectedNetwork)
   const otpRequired = selectedOperator?.otpRequired === true
