@@ -42,7 +42,7 @@ export interface Activity {
   photos: string[]
   latitude?: number
   longitude?: number
-  status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED'
+  status?: 'DRAFT' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED'
   moderationReason?: string
   professional?: { id: string; firstName: string; lastName: string }
   /** Plan effectif du pro (champ de recherche Sprint 14) — badge/boost visibilité. */

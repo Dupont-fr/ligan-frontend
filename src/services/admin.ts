@@ -46,7 +46,7 @@ export interface AdminStats {
   reviews: { total: number; pending: number; approved: number; rejected: number }
 }
 
-export type ActivityStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED'
+export type ActivityStatus = 'DRAFT' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED'
 
 export interface AdminActivity {
   id: string

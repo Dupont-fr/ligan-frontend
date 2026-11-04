@@ -28,7 +28,28 @@ function parseEnvelope<T>(body: string): ApiEnvelope<T> | null {
   }
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+let refreshingPromise: Promise<void> | null = null
+
+async function refreshSession(): Promise<void> {
+  if (refreshingPromise) {
+    return refreshingPromise
+  }
+  refreshingPromise = fetch(`${API_URL}/api/auth/refresh`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  })
+    .then(() => {
+      refreshingPromise = null
+    })
+    .catch((err) => {
+      refreshingPromise = null
+      throw err
+    })
+  return refreshingPromise
+}
+
+async function request<T>(path: string, init: RequestInit = {}, retried = false): Promise<T> {
   const headers: Record<string, string> = { Accept: 'application/json' }
   if (init.body) {
     headers['Content-Type'] = 'application/json'
@@ -36,9 +57,18 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 
   const res = await fetch(`${API_URL}${path}`, {
     ...init,
-    headers: { ...headers, ...init.headers },
+    headers: { ...headers, ...(init.headers as Record<string, string> | undefined) },
     credentials: 'include',
   })
+
+  if (res.status === 401 && !retried && path !== '/api/auth/refresh' && path !== '/api/auth/login' && path !== '/api/auth/logout') {
+    try {
+      await refreshSession()
+      return request<T>(path, init, true)
+    } catch {
+      // fall through to normal error handling
+    }
+  }
 
   const json: ApiEnvelope<T> | null = parseEnvelope<T>(await res.text())
 

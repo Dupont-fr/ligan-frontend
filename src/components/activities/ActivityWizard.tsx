@@ -126,8 +126,19 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
   const editing = Boolean(initial)
 
   const [step, setStep] = useState(0)
+  const [loadedDraft, setLoadedDraft] = useState<any>(null)
   const [form, setForm] = useState<FormState>(() => {
     if (initial) return fromActivity(initial)
+    try {
+      if (!editing && !aiDraft) {
+        const saved = localStorage.getItem('ligan_activity_draft')
+        if (saved) {
+          const draft = JSON.parse(saved)
+          setLoadedDraft(draft)
+          return draft.form
+        }
+      }
+    } catch {}
     const base = emptyForm(categories[0]?.label ?? '', user?.phone?.startsWith('+237') ? user.phone.slice(5) : (user?.phone ?? ''))
     if (aiDraft && !editing) {
       return {
@@ -139,20 +150,98 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
     }
     return base
   })
-  const [photos, setPhotos] = useState<string[]>(initial?.photos ?? [])
+  const [photos, setPhotos] = useState<string[]>(() => {
+    if (initial?.photos) return initial.photos
+    try {
+      if (!editing && !aiDraft) {
+        const saved = localStorage.getItem('ligan_activity_draft')
+        if (saved) {
+          const draft = JSON.parse(saved)
+          return draft.photos || []
+        }
+      }
+    } catch {}
+    return []
+  })
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [geoBusy, setGeoBusy] = useState(false)
   const [geoError, setGeoError] = useState<string | null>(null)
 
+  const hasUnsavedChanges = useMemo(() => {
+    if (editing) return false
+    if (aiDraft && form.title.trim()) return true
+    if (form.title.trim() || form.description.trim() || form.services.some((s) => s.name.trim()) || photos.length > 0) return true
+    return false
+  }, [aiDraft, editing, form.description, form.services, form.title, photos.length])
+
+  const saveDraft = () => {
+    try {
+      const draft = {
+        form,
+        photos,
+        createdViaAi,
+        aiDraft,
+        savedAt: new Date().toISOString(),
+      }
+      localStorage.setItem('ligan_activity_draft', JSON.stringify(draft))
+      alert('Brouillon enregistré. Vous pourrez le reprendre plus tard.')
+      onClose()
+    } catch {
+      alert("Impossible d'enregistrer le brouillon.")
+      onClose()
+    }
+  }
+
+  const handleClose = () => {
+    if (editing) {
+      onClose()
+      return
+    }
+    if (hasUnsavedChanges) {
+      const shouldSaveDraft = window.confirm("Terminer l'activité plus tard ?\n\nEnregistrer ce brouillon pour le reprendre plus tard.")
+      if (shouldSaveDraft) {
+        saveDraft()
+        return
+      }
+      try { localStorage.removeItem('ligan_activity_draft') } catch {}
+      onClose()
+      return
+    }
+    try { localStorage.removeItem('ligan_activity_draft') } catch {}
+    onClose()
+  }
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        if (editing) {
+          onClose()
+          return
+        }
+        if (hasUnsavedChanges) {
+          const shouldSaveDraft = window.confirm("Terminer l'activité plus tard ?\n\nEnregistrer ce brouillon pour le reprendre plus tard.")
+          if (shouldSaveDraft) {
+            try {
+              const draft = { form, photos, createdViaAi, aiDraft, savedAt: new Date().toISOString() }
+              localStorage.setItem('ligan_activity_draft', JSON.stringify(draft))
+              alert('Brouillon enregistré. Vous pourrez le reprendre plus tard.')
+            } catch {}
+            onClose()
+            return
+          }
+          try { localStorage.removeItem('ligan_activity_draft') } catch {}
+        } else {
+          try { localStorage.removeItem('ligan_activity_draft') } catch {}
+        }
+        onClose()
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+  }, [onClose, hasUnsavedChanges, editing, form, photos, createdViaAi, aiDraft])
 
   useEffect(() => {
     if (!editing && aiDraft && form.services.length === 0) {
@@ -324,10 +413,12 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
         const res = await createActivity({ ...body, createdViaAi } as any)
         if (res.warning) {
           setError(res.warning)
+          try { localStorage.removeItem('ligan_activity_draft') } catch {}
           onSaved()
           return
         }
       }
+      try { localStorage.removeItem('ligan_activity_draft') } catch {}
       onSaved()
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Enregistrement impossible. Réessayez.')
@@ -346,7 +437,7 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
       aria-modal="true"
       aria-label={editing ? 'Modifier l’activité' : 'Publier une activité'}
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose()
+        if (e.target === e.currentTarget) handleClose()
       }}
     >
       <div className="mx-auto my-6 w-full max-w-3xl rounded-[var(--radius-md)] border border-border bg-surface shadow-[var(--shadow-lg)]">
@@ -359,7 +450,7 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             aria-label="Fermer"
             className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] text-text-secondary transition-colors hover:bg-background hover:text-text-primary"
           >
