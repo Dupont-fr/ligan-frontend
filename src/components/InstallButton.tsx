@@ -132,7 +132,7 @@ function InstallDialog({ open, onClose, title, steps, panelRef }: InstallDialogP
   if (!open) return null
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center"
+      className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/70 p-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] sm:items-center sm:pb-4"
       onClick={onClose}
     >
       <div
@@ -142,7 +142,7 @@ function InstallDialog({ open, onClose, title, steps, panelRef }: InstallDialogP
         aria-label={title}
         tabIndex={-1}
         onClick={(event) => event.stopPropagation()}
-        className="w-full max-w-md rounded-[var(--radius-lg)] border border-border bg-surface p-5 shadow-[var(--shadow-md)] outline-none"
+        className="max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-[var(--radius-lg)] border border-border bg-surface p-5 shadow-[var(--shadow-md)] outline-none"
       >
         <div className="mb-3 flex items-start justify-between gap-3">
           <h2 className="text-base font-semibold text-text-primary">{title}</h2>
