@@ -125,10 +125,10 @@ export function SubscriptionSection() {
     const s = (op.slug || '').toLowerCase()
     const n = (op.name || '').toLowerCase()
     if (s.includes('orange') || n.includes('orange')) {
-      return { ...op, slug: op.slug && op.slug.toLowerCase().includes('orange') ? op.slug : 'orange', name: 'Orange Money' }
+      return { ...op, slug: 'orange', name: 'Orange Money' }
     }
     if (s.includes('mtn') || n.includes('mtn')) {
-      return { ...op, slug: op.slug && op.slug.toLowerCase().includes('mtn') ? op.slug : 'mtn', name: 'MTN MoMo' }
+      return { ...op, slug: 'mtn', name: 'MTN MoMo' }
     }
     return op
   })
