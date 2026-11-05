@@ -190,3 +190,34 @@ export function listAdminPlans(): Promise<{ plans: AdminPlan[] }> {
 export function updateAdminPlan(id: string, input: AdminPlanUpdate): Promise<{ plan: AdminPlan }> {
   return apiPatch<{ plan: AdminPlan }>(`/api/admin/plans/${id}`, input)
 }
+
+export interface EmailCampaignGenerate {
+  email: { subject: string; preheader?: string; body: string }
+}
+
+export function generateEmailCampaignAI(concept: string): Promise<EmailCampaignGenerate> {
+  return apiPost<EmailCampaignGenerate>('/api/admin/emails/ai-generate', { concept })
+}
+
+export interface EmailCampaignBulkSendInput {
+  subject: string
+  preheader?: string
+  body: string
+  recipientType: 'ALL' | 'BY_ROLE' | 'MANUAL'
+  recipientRoles?: ('CUSTOMER' | 'PROFESSIONAL' | 'ADMIN')[]
+  recipientUserIds?: string[]
+  testEmail?: string
+  sendTestOnly?: boolean
+  confirmBulk?: boolean
+}
+
+export function bulkSendEmailCampaign(input: EmailCampaignBulkSendInput): Promise<{
+  message: string
+  sentCount?: number
+  failedCount?: number
+  totalCount?: number
+  test?: boolean
+}> {
+  return apiPost('/api/admin/emails/bulk-send', input)
+}
+

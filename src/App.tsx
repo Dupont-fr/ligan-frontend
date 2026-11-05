@@ -22,6 +22,9 @@ const AdminCategoriesPage = lazy(() =>
 const AdminDashboardPage = lazy(() =>
   import('./pages/admin/AdminDashboardPage').then((m) => ({ default: m.AdminDashboardPage })),
 )
+const AdminEmailCampaignsPage = lazy(() =>
+  import('./pages/admin/AdminEmailCampaignsPage').then((m) => ({ default: m.AdminEmailCampaignsPage })),
+)
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout').then((m) => ({ default: m.AdminLayout })))
 const AdminPlansPage = lazy(() =>
   import('./pages/admin/AdminPlansPage').then((m) => ({ default: m.AdminPlansPage })),
@@ -117,6 +120,7 @@ function App() {
                 <Route path="/admin/reviews" element={<AdminReviewsPage />} />
                 <Route path="/admin/plans" element={<AdminPlansPage />} />
                 <Route path="/admin/categories" element={<AdminCategoriesPage />} />
+                <Route path="/admin/emails" element={<AdminEmailCampaignsPage />} />
               </Route>
             </Route>
 
