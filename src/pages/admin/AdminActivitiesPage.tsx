@@ -17,6 +17,7 @@ const statusMeta: Record<ActivityStatus, { label: string; variant: BadgeVariant 
   PENDING: { label: 'En attente', variant: 'warning' },
   APPROVED: { label: 'Validée', variant: 'success' },
   REJECTED: { label: 'Refusée', variant: 'error' },
+  DRAFT: { label: 'Brouillon', variant: 'neutral' },
   SUSPENDED: { label: 'Suspendue', variant: 'neutral' },
 }
 
@@ -327,3 +328,4 @@ function ActivityRow({
     </li>
   )
 }
+

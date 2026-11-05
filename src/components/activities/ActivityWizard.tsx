@@ -126,7 +126,6 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
   const editing = Boolean(initial)
 
   const [step, setStep] = useState(0)
-  const [loadedDraft, setLoadedDraft] = useState<any>(null)
   const [form, setForm] = useState<FormState>(() => {
     if (initial) return fromActivity(initial)
     try {

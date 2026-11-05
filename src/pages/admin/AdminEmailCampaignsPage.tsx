@@ -3,7 +3,6 @@ import { Mail, Send, Sparkles, Users, AlertCircle, CheckCircle } from 'lucide-re
 import { useState } from 'react'
 import { bulkSendEmailCampaign, generateEmailCampaignAI } from '../../services/admin'
 import { listUsers } from '../../services/admin'
-import { cn } from '../../lib/utils'
 
 export function AdminEmailCampaignsPage() {
   const [concept, setConcept] = useState('')
@@ -15,7 +14,6 @@ export function AdminEmailCampaignsPage() {
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [testEmail, setTestEmail] = useState('')
   const [showConfirm, setShowConfirm] = useState(false)
-  const [preview, setPreview] = useState(false)
 
   const { data: usersData } = useQuery({
     queryKey: ['admin', 'users', 'emails'],
@@ -184,12 +182,11 @@ export function AdminEmailCampaignsPage() {
                   <button
                     key={role}
                     onClick={() => toggleRole(role)}
-                    className={cn(
-                      'rounded-full px-3 py-1 text-xs',
+                    className={`rounded-full px-3 py-1 text-xs ${
                       recipientRoles.includes(role)
                         ? 'bg-primary text-primary-foreground'
-                        : 'bg-background text-text-secondary border border-border',
-                    )}
+                        : 'bg-background text-text-secondary border border-border'
+                    }`}
                   >
                     {role}
                   </button>
