@@ -133,7 +133,6 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
         const saved = localStorage.getItem('ligan_activity_draft')
         if (saved) {
           const draft = JSON.parse(saved)
-          setLoadedDraft(draft)
           return draft.form
         }
       }
@@ -953,3 +952,5 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
     </div>
   )
 }
+
+
