@@ -144,9 +144,9 @@ export function AdminEmailCampaignsPage() {
                   rows={10}
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
-                  placeholder="Rédigez votre message... Utilisez {{firstName}} pour la personnalisation"
+                  placeholder="Rédigez votre message... Utilisez {`{{firstName}}`} pour la personnalisation"
                 />
-                <p className="mt-1 text-xs text-text-muted">Astuce: utilisez {{firstName}} pour personnaliser avec le prénom</p>
+                <p className="mt-1 text-xs text-text-muted">Astuce: utilisez {`{{firstName}}`} pour personnaliser avec le prénom</p>
               </div>
             </div>
           </section>
@@ -295,3 +295,5 @@ export function AdminEmailCampaignsPage() {
     </div>
   )
 }
+
+
