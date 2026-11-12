@@ -221,3 +221,40 @@ export function bulkSendEmailCampaign(input: EmailCampaignBulkSendInput): Promis
   return apiPost('/api/admin/emails/bulk-send', input)
 }
 
+export type EmailCampaignStatus = 'DRAFT' | 'SENT' | 'SENDING' | 'FAILED'
+export type EmailCampaignRecipientType = 'ALL' | 'BY_ROLE' | 'MANUAL'
+
+export interface AdminEmailCampaign {
+  id: string
+  subject: string
+  preheader: string
+  recipientType: EmailCampaignRecipientType
+  recipientRoles: ('CUSTOMER' | 'PROFESSIONAL' | 'ADMIN')[]
+  status: EmailCampaignStatus
+  sentCount: number
+  failedCount: number
+  totalCount: number
+  lastError: string | null
+  sentAt: string | null
+  createdAt: string
+  createdBy: { id: string; firstName?: string; lastName?: string } | null
+}
+
+export interface AdminEmailCampaignsPage {
+  campaigns: AdminEmailCampaign[]
+  total: number
+  page: number
+  pages: number
+}
+
+export function listEmailCampaigns(params?: {
+  page?: number
+  limit?: number
+}): Promise<AdminEmailCampaignsPage> {
+  const query = new URLSearchParams()
+  if (params?.page) query.set('page', String(params.page))
+  if (params?.limit) query.set('limit', String(params.limit))
+  const qs = query.toString()
+  return apiGet<AdminEmailCampaignsPage>(`/api/admin/emails/campaigns${qs ? `?${qs}` : ''}`)
+}
+

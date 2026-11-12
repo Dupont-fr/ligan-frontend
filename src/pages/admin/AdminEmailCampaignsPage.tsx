@@ -1,10 +1,37 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { Mail, Send, Sparkles, Users, AlertCircle, CheckCircle } from 'lucide-react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Mail, Send, Sparkles, Users, AlertCircle, CheckCircle, History } from 'lucide-react'
 import { useState } from 'react'
-import { bulkSendEmailCampaign, generateEmailCampaignAI } from '../../services/admin'
-import { listUsers } from '../../services/admin'
+import { Alert } from '../../components/ui/Alert'
+import { Badge } from '../../components/ui/Badge'
+import {
+  bulkSendEmailCampaign,
+  generateEmailCampaignAI,
+  listEmailCampaigns,
+  listUsers,
+  type AdminEmailCampaign,
+} from '../../services/admin'
+
+function formatCampaignDate(iso: string): string {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return '—'
+  return date.toLocaleString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+function campaignStatusVariant(campaign: AdminEmailCampaign): 'success' | 'warning' | 'error' | 'info' | 'neutral' {
+  if (campaign.status === 'SENT') return campaign.failedCount > 0 ? 'warning' : 'success'
+  if (campaign.status === 'FAILED') return 'error'
+  if (campaign.status === 'SENDING') return 'info'
+  return 'neutral'
+}
 
 export function AdminEmailCampaignsPage() {
+  const queryClient = useQueryClient()
   const [concept, setConcept] = useState('')
   const [subject, setSubject] = useState('')
   const [preheader, setPreheader] = useState('')
@@ -14,11 +41,20 @@ export function AdminEmailCampaignsPage() {
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [testEmail, setTestEmail] = useState('')
   const [showConfirm, setShowConfirm] = useState(false)
+  const [notice, setNotice] = useState<{ variant: 'success' | 'warning' | 'error'; message: string } | null>(
+    null,
+  )
 
   const { data: usersData } = useQuery({
     queryKey: ['admin', 'users', 'emails'],
     queryFn: listUsers,
   })
+
+  const { data: historyData } = useQuery({
+    queryKey: ['admin', 'email-campaigns'],
+    queryFn: () => listEmailCampaigns({ limit: 20 }),
+  })
+  const campaigns = historyData?.campaigns ?? []
 
   const users = usersData?.users.filter((u) => !u.suspended) || []
   const totalRecipients =
@@ -60,8 +96,32 @@ export function AdminEmailCampaignsPage() {
         recipientUserIds: recipientType === 'MANUAL' ? selectedUserIds : undefined,
         confirmBulk: true,
       }),
-    onSuccess: () => {
+    onSuccess: (data) => {
       setShowConfirm(false)
+      const sent = data.sentCount ?? 0
+      const failed = data.failedCount ?? 0
+      const total = data.totalCount ?? 0
+      setNotice({
+        variant: failed > 0 ? 'warning' : 'success',
+        message:
+          failed > 0
+            ? `Email envoyé à ${sent} utilisateur(s) sur ${total} (${failed} échec(s)).`
+            : `Email envoyé à ${sent} utilisateur(s).`,
+      })
+      // Réinitialise le formulaire après l'envoi
+      setConcept('')
+      setSubject('')
+      setPreheader('')
+      setBody('')
+      setTestEmail('')
+      setRecipientRoles([])
+      setSelectedUserIds([])
+      setRecipientType('ALL')
+      queryClient.invalidateQueries({ queryKey: ['admin', 'email-campaigns'] })
+    },
+    onError: () => {
+      setShowConfirm(false)
+      setNotice({ variant: 'error', message: "Échec de l'envoi de la campagne. Veuillez réessayer." })
     },
   })
 
@@ -87,6 +147,23 @@ export function AdminEmailCampaignsPage() {
           </p>
         </div>
       </div>
+
+      {notice && (
+        <div className="mt-4">
+          <Alert variant={notice.variant}>
+            <span className="flex w-full items-center justify-between gap-3">
+              <span>{notice.message}</span>
+              <button
+                type="button"
+                onClick={() => setNotice(null)}
+                className="shrink-0 text-xs font-medium underline opacity-70 hover:opacity-100"
+              >
+                Fermer
+              </button>
+            </span>
+          </Alert>
+        </div>
+      )}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <div className="space-y-4">
@@ -257,6 +334,58 @@ export function AdminEmailCampaignsPage() {
         </div>
       </div>
 
+      <section className="mt-6 rounded-[var(--radius-md)] border border-border bg-surface p-5">
+        <div className="flex items-center gap-2">
+          <History className="h-4 w-4 text-primary" />
+          <h2 className="text-sm font-semibold text-text-primary">Historique des campagnes</h2>
+        </div>
+        <p className="mt-1 text-xs text-text-muted">
+          Les {campaigns.length} dernière(s) campagne(s) envoyée(s)
+        </p>
+
+        {campaigns.length === 0 ? (
+          <p className="mt-4 text-sm text-text-muted">Aucune campagne envoyée pour le moment.</p>
+        ) : (
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full min-w-[640px] text-left text-sm">
+              <thead>
+                <tr className="border-b border-border text-xs text-text-muted">
+                  <th className="pb-2 pr-3 font-medium">Objet</th>
+                  <th className="pb-2 pr-3 font-medium">Date</th>
+                  <th className="pb-2 pr-3 font-medium">Statut</th>
+                  <th className="pb-2 pr-3 font-medium">Envoyés</th>
+                  <th className="pb-2 pr-3 font-medium">Échecs</th>
+                  <th className="pb-2 font-medium">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {campaigns.map((c) => (
+                  <tr key={c.id} className="border-b border-border/60 last:border-0">
+                    <td className="py-2 pr-3">
+                      <span className="font-medium text-text-primary">{c.subject}</span>
+                      {c.createdBy && (
+                        <span className="block text-xs text-text-muted">
+                          par {c.createdBy.firstName} {c.createdBy.lastName}
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-2 pr-3 text-text-secondary">
+                      {formatCampaignDate(c.sentAt ?? c.createdAt)}
+                    </td>
+                    <td className="py-2 pr-3">
+                      <Badge variant={campaignStatusVariant(c)}>{c.status}</Badge>
+                    </td>
+                    <td className="py-2 pr-3 text-text-primary">{c.sentCount}</td>
+                    <td className="py-2 pr-3 text-text-primary">{c.failedCount}</td>
+                    <td className="py-2 text-text-primary">{c.totalCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
       {showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-[var(--radius-md)] border border-border bg-surface p-5">
@@ -279,16 +408,6 @@ export function AdminEmailCampaignsPage() {
                 {sendMutation.isPending ? 'Envoi...' : 'Confirmer et envoyer'}
               </button>
             </div>
-            {sendMutation.isSuccess && (
-              <p className="mt-2 flex items-center gap-1 text-xs text-emerald-600">
-                <CheckCircle className="h-3 w-3" /> {sendMutation.data?.message}
-              </p>
-            )}
-            {sendMutation.isError && (
-              <p className="mt-2 flex items-center gap-1 text-xs text-red-600">
-                <AlertCircle className="h-3 w-3" /> Erreur lors de l'envoi
-              </p>
-            )}
           </div>
         </div>
       )}
