@@ -1,5 +1,5 @@
-import { X, Check, ChevronLeft, ChevronRight, LocateFixed, Plus, Trash2, ImagePlus, Loader2 } from 'lucide-react'
-import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
+import { X, Check, ChevronLeft, ChevronRight, LocateFixed, Plus, Trash2, ImagePlus, Loader2, Save } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { useAuth } from '../../features/auth/AuthContext'
 import { useCategories } from '../../hooks/useCategories'
 import { ApiError } from '../../lib/api'
@@ -137,7 +137,7 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
         }
       }
     } catch {}
-    const base = emptyForm(categories[0]?.label ?? '', user?.phone?.startsWith('+237') ? user.phone.slice(5) : (user?.phone ?? ''))
+    const base = emptyForm('', user?.phone?.startsWith('+237') ? user.phone.slice(5) : (user?.phone ?? ''))
     if (aiDraft && !editing) {
       return {
         ...base,
@@ -166,13 +166,58 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
   const [saving, setSaving] = useState(false)
   const [geoBusy, setGeoBusy] = useState(false)
   const [geoError, setGeoError] = useState<string | null>(null)
+  const [leaveOpen, setLeaveOpen] = useState(false)
+
+  /* Sélection de catégorie façon « autocomplétion » : l'utilisateur tape, la
+     liste se filtre, puis il choisit dans la liste. */
+  const [catQuery, setCatQuery] = useState(() => form.category)
+  const [catOpen, setCatOpen] = useState(false)
+  const catBoxRef = useRef<HTMLDivElement>(null)
+
+  const normalized = (value: string) =>
+    value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+
+  const filteredCategories = useMemo(() => {
+    const q = normalized(catQuery.trim())
+    if (!q) return categories
+    return categories.filter((cat) => normalized(cat.label).includes(q))
+  }, [catQuery, categories])
+
+  const onCategoryInput = (value: string) => {
+    setCatQuery(value)
+    setCatOpen(true)
+    const match = categories.find((cat) => normalized(cat.label) === normalized(value.trim()))
+    patch({ category: match ? match.label : '' })
+  }
+
+  const selectCategory = (label: string) => {
+    patch({ category: label })
+    setCatQuery(label)
+    setCatOpen(false)
+  }
+
+  useEffect(() => {
+    if (!catOpen) return
+    const onDown = (e: MouseEvent) => {
+      if (catBoxRef.current && !catBoxRef.current.contains(e.target as Node)) setCatOpen(false)
+    }
+    document.addEventListener('mousedown', onDown)
+    return () => document.removeEventListener('mousedown', onDown)
+  }, [catOpen])
 
   const hasUnsavedChanges = useMemo(() => {
     if (editing) return false
     if (aiDraft && form.title.trim()) return true
-    if (form.title.trim() || form.description.trim() || form.services.some((s) => s.name.trim()) || photos.length > 0) return true
+    if (
+      form.title.trim() ||
+      form.description.trim() ||
+      form.category.trim() ||
+      form.services.some((s) => s.name.trim()) ||
+      photos.length > 0
+    )
+      return true
     return false
-  }, [aiDraft, editing, form.description, form.services, form.title, photos.length])
+  }, [aiDraft, editing, form.category, form.description, form.services, form.title, photos.length])
 
   const saveDraft = () => {
     try {
@@ -184,12 +229,13 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
         savedAt: new Date().toISOString(),
       }
       localStorage.setItem('ligan_activity_draft', JSON.stringify(draft))
-      alert('Brouillon enregistré. Vous pourrez le reprendre plus tard.')
-      onClose()
-    } catch {
-      alert("Impossible d'enregistrer le brouillon.")
-      onClose()
-    }
+    } catch {}
+    onClose()
+  }
+
+  const discardDraft = () => {
+    try { localStorage.removeItem('ligan_activity_draft') } catch {}
+    onClose()
   }
 
   const handleClose = () => {
@@ -198,48 +244,38 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
       return
     }
     if (hasUnsavedChanges) {
-      const shouldSaveDraft = window.confirm("Terminer l'activité plus tard ?\n\nEnregistrer ce brouillon pour le reprendre plus tard.")
-      if (shouldSaveDraft) {
-        saveDraft()
-        return
-      }
-      try { localStorage.removeItem('ligan_activity_draft') } catch {}
-      onClose()
+      // Boîte de confirmation intégrée à l'application (pas de window.confirm natif).
+      setLeaveOpen(true)
       return
     }
-    try { localStorage.removeItem('ligan_activity_draft') } catch {}
-    onClose()
+    discardDraft()
   }
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        if (editing) {
-          onClose()
-          return
-        }
-        if (hasUnsavedChanges) {
-          const shouldSaveDraft = window.confirm("Terminer l'activité plus tard ?\n\nEnregistrer ce brouillon pour le reprendre plus tard.")
-          if (shouldSaveDraft) {
-            try {
-              const draft = { form, photos, createdViaAi, aiDraft, savedAt: new Date().toISOString() }
-              localStorage.setItem('ligan_activity_draft', JSON.stringify(draft))
-              alert('Brouillon enregistré. Vous pourrez le reprendre plus tard.')
-            } catch {}
-            onClose()
-            return
-          }
-          try { localStorage.removeItem('ligan_activity_draft') } catch {}
-        } else {
-          try { localStorage.removeItem('ligan_activity_draft') } catch {}
-        }
-        onClose()
+      if (e.key !== 'Escape') return
+      e.preventDefault()
+      if (leaveOpen) {
+        setLeaveOpen(false)
+        return
       }
+      if (catOpen) {
+        setCatOpen(false)
+        return
+      }
+      if (editing) {
+        onClose()
+        return
+      }
+      if (hasUnsavedChanges) {
+        setLeaveOpen(true)
+        return
+      }
+      discardDraft()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [onClose, hasUnsavedChanges, editing, form, photos, createdViaAi, aiDraft])
+  }, [onClose, hasUnsavedChanges, editing, leaveOpen, catOpen])
 
   useEffect(() => {
     if (!editing && aiDraft && form.services.length === 0) {
@@ -552,18 +588,55 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
                 <label htmlFor="wiz-cat" className="mb-1 block text-sm font-medium text-text-primary">
                   Catégorie *
                 </label>
-                <select
-                  id="wiz-cat"
-                  value={form.category}
-                  onChange={(e) => patch({ category: e.target.value })}
-                  className={inputClass}
-                >
-                  {categories.map((cat) => (
-                    <option key={cat.slug} value={cat.label}>
-                      {cat.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative" ref={catBoxRef}>
+                  <input
+                    id="wiz-cat"
+                    role="combobox"
+                    aria-expanded={catOpen}
+                    aria-controls="wiz-cat-list"
+                    aria-autocomplete="list"
+                    autoComplete="off"
+                    value={catQuery}
+                    onChange={(e) => onCategoryInput(e.target.value)}
+                    onFocus={() => setCatOpen(true)}
+                    placeholder="Commencez à taper… (ex : plomb)"
+                    className={inputClass}
+                  />
+                  {catOpen ? (
+                    <ul
+                      id="wiz-cat-list"
+                      role="listbox"
+                      className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-[var(--radius-sm)] border border-border bg-surface py-1 shadow-[var(--shadow-md)]"
+                    >
+                      {filteredCategories.length === 0 ? (
+                        <li className="px-3 py-2 text-sm text-text-muted">Aucune catégorie trouvée.</li>
+                      ) : (
+                        filteredCategories.map((cat) => (
+                          <li key={cat.slug}>
+                            <button
+                              type="button"
+                              role="option"
+                              aria-selected={form.category === cat.label}
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => selectCategory(cat.label)}
+                              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-background ${
+                                form.category === cat.label
+                                  ? 'bg-primary-light font-medium text-primary'
+                                  : 'text-text-primary'
+                              }`}
+                            >
+                              <cat.icon className="h-4 w-4 shrink-0" aria-hidden />
+                              {cat.label}
+                            </button>
+                          </li>
+                        ))
+                      )}
+                    </ul>
+                  ) : null}
+                </div>
+                <p className="mt-1 text-xs text-text-muted">
+                  Tapez quelques lettres puis choisissez la catégorie dans la liste.
+                </p>
               </div>
               <div>
                 <label htmlFor="wiz-price" className="mb-1 block text-sm font-medium text-text-primary">
@@ -926,7 +999,7 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
         </div>
 
         <div className="sticky bottom-0 flex flex-col-reverse gap-2 border-t border-border bg-background/95 px-4 py-3 sm:static sm:flex-row sm:items-center sm:justify-between sm:bg-background/50 sm:px-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.75rem)' }}>
-          <Button variant="ghost" size="sm" onClick={step === 0 ? onClose : () => setStep((s) => s - 1)} className="w-full sm:w-auto">
+          <Button variant="ghost" size="sm" onClick={step === 0 ? handleClose : () => setStep((s) => s - 1)} className="w-full sm:w-auto">
             {step === 0 ? (
               'Annuler'
             ) : (
@@ -949,6 +1022,47 @@ export function ActivityWizard({ initial, aiDraft, createdViaAi = false, onClose
           )}
         </div>
       </div>
+
+      {leaveOpen ? (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="wiz-leave-title"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setLeaveOpen(false)
+          }}
+        >
+          <div className="w-full max-w-md rounded-[var(--radius-md)] border border-border bg-surface p-5 shadow-[var(--shadow-lg)]">
+            <div className="flex items-start gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-full)] bg-secondary-light text-secondary">
+                <Save className="h-4 w-4" aria-hidden />
+              </span>
+              <div>
+                <h2 id="wiz-leave-title" className="text-base font-semibold text-text-primary">
+                  Enregistrer votre brouillon&nbsp;?
+                </h2>
+                <p className="mt-1 text-sm text-text-secondary">
+                  Vous avez commencé à remplir cette activité. Enregistrez-la comme brouillon pour la
+                  reprendre plus tard, ou quittez sans enregistrer.
+                </p>
+              </div>
+            </div>
+            <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
+              <Button variant="ghost" size="sm" onClick={() => setLeaveOpen(false)}>
+                Continuer la saisie
+              </Button>
+              <Button variant="outline" size="sm" onClick={discardDraft}>
+                Quitter sans enregistrer
+              </Button>
+              <Button size="sm" onClick={saveDraft}>
+                <Save className="h-4 w-4" aria-hidden />
+                Enregistrer le brouillon
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

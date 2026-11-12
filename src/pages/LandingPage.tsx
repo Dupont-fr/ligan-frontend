@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCircle2, ChevronDown, Clock, MessagesSquare, Search, ShieldCheck, Star, UserRound } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Clock, MessagesSquare, Search, ShieldCheck, Star, UserRound } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { SiteFooter } from '../components/layout/SiteFooter'
@@ -51,12 +51,11 @@ export function LandingPage() {
   const location = useLocation()
   const categories = useCategories()
   const { user } = useAuth()
-  const [showAllCategories, setShowAllCategories] = useState(false)
 
   /* Sur l'accueil on ne montre que les 10 catégories principales ;
-     le bouton « Voir toutes les catégories » déploie la liste complète. */
+     le bouton « Voir toutes les catégories » mène à la page dédiée /categories. */
   const HOME_CATEGORIES_LIMIT = 10
-  const visibleCategories = showAllCategories ? categories : categories.slice(0, HOME_CATEGORIES_LIMIT)
+  const visibleCategories = categories.slice(0, HOME_CATEGORIES_LIMIT)
 
   useEffect(() => {
     if (!location.hash) return
@@ -212,19 +211,12 @@ export function LandingPage() {
 
           {categories.length > HOME_CATEGORIES_LIMIT ? (
             <div className="mt-6 flex justify-center">
-              <Button
-                variant="outline"
-                onClick={() => setShowAllCategories((v) => !v)}
-                aria-expanded={showAllCategories}
-              >
-                {showAllCategories
-                  ? 'Voir moins'
-                  : `Voir toutes les catégories (${categories.length})`}
-                <ChevronDown
-                  className={`h-4 w-4 transition-transform ${showAllCategories ? 'rotate-180' : ''}`}
-                  aria-hidden
-                />
-              </Button>
+              <Link to="/categories">
+                <Button variant="outline">
+                  Voir toutes les catégories ({categories.length})
+                  <ArrowRight className="h-4 w-4" aria-hidden />
+                </Button>
+              </Link>
             </div>
           ) : null}
         </section>

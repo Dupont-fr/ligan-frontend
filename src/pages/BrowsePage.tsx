@@ -162,23 +162,50 @@ export function BrowsePage() {
               </Button>
             </form>
 
-            {/* Catégories : sur mobile, une seule ligne défilable horizontalement
-                (30 catégories ne tiennent pas en largeur) ; sur desktop, retour
-                à la ligne classique. */}
-            <div className="mt-4 -mx-4 overflow-x-hidden sm:mx-0">
-              <div className="flex gap-2 overflow-x-auto overscroll-x-contain px-4 pb-1 sm:flex-wrap sm:px-0 sm:pb-0">
-                {categories.map((cat) => (
-                  <button
-                    key={cat.slug}
-                    type="button"
-                    onClick={() => toggleCategory(cat.label)}
-                    className={chipClass(category === cat.label)}
-                  >
-                    <cat.icon className="h-3.5 w-3.5" aria-hidden />
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
+            {/* Catégories : sur mobile, grille compacte (10 par ligne → 3 lignes
+                pour 30 catégories) pour éviter de faire défiler ; sur desktop,
+                puces avec libellés qui reviennent à la ligne. */}
+            <div className="mt-4 grid grid-cols-10 gap-1.5 sm:hidden">
+              {categories.map((cat) => (
+                <button
+                  key={cat.slug}
+                  type="button"
+                  onClick={() => toggleCategory(cat.label)}
+                  title={cat.label}
+                  aria-label={cat.label}
+                  aria-pressed={category === cat.label}
+                  className={`flex aspect-square items-center justify-center rounded-[var(--radius-sm)] border transition-colors ${
+                    category === cat.label
+                      ? 'border-primary bg-primary text-primary-contrast'
+                      : 'border-border bg-surface text-text-secondary active:border-primary active:text-primary'
+                  }`}
+                >
+                  <cat.icon className="h-4 w-4" aria-hidden />
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-text-secondary sm:hidden">
+              {category ? (
+                <>
+                  Catégorie : <span className="font-medium text-text-primary">{category}</span>
+                </>
+              ) : (
+                'Touchez une icône pour filtrer par catégorie.'
+              )}
+            </p>
+
+            <div className="mt-4 hidden flex-wrap gap-2 sm:flex">
+              {categories.map((cat) => (
+                <button
+                  key={cat.slug}
+                  type="button"
+                  onClick={() => toggleCategory(cat.label)}
+                  className={chipClass(category === cat.label)}
+                >
+                  <cat.icon className="h-3.5 w-3.5" aria-hidden />
+                  {cat.label}
+                </button>
+              ))}
             </div>
 
             <div className="mt-3 flex flex-wrap items-center gap-2">
