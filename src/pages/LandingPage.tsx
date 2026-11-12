@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCircle2, Clock, MessagesSquare, Search, ShieldCheck, Star, UserRound } from 'lucide-react'
+import { ArrowRight, CheckCircle2, ChevronDown, Clock, MessagesSquare, Search, ShieldCheck, Star, UserRound } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { SiteFooter } from '../components/layout/SiteFooter'
@@ -51,6 +51,12 @@ export function LandingPage() {
   const location = useLocation()
   const categories = useCategories()
   const { user } = useAuth()
+  const [showAllCategories, setShowAllCategories] = useState(false)
+
+  /* Sur l'accueil on ne montre que les 10 catégories principales ;
+     le bouton « Voir toutes les catégories » déploie la liste complète. */
+  const HOME_CATEGORIES_LIMIT = 10
+  const visibleCategories = showAllCategories ? categories : categories.slice(0, HOME_CATEGORIES_LIMIT)
 
   useEffect(() => {
     if (!location.hash) return
@@ -188,7 +194,7 @@ export function LandingPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
-            {categories.map((cat) => (
+            {visibleCategories.map((cat) => (
               <Link
                 key={cat.slug}
                 to={`/trouver?categorie=${encodeURIComponent(cat.label)}`}
@@ -203,6 +209,24 @@ export function LandingPage() {
               </Link>
             ))}
           </div>
+
+          {categories.length > HOME_CATEGORIES_LIMIT ? (
+            <div className="mt-6 flex justify-center">
+              <Button
+                variant="outline"
+                onClick={() => setShowAllCategories((v) => !v)}
+                aria-expanded={showAllCategories}
+              >
+                {showAllCategories
+                  ? 'Voir moins'
+                  : `Voir toutes les catégories (${categories.length})`}
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${showAllCategories ? 'rotate-180' : ''}`}
+                  aria-hidden
+                />
+              </Button>
+            </div>
+          ) : null}
         </section>
 
         {/* Comment ça marche — inspiré Angi */}

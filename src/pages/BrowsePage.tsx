@@ -127,7 +127,7 @@ export function BrowsePage() {
   const total = data?.total ?? 0
 
   const chipClass = (active: boolean) =>
-    `inline-flex items-center gap-1.5 rounded-[var(--radius-full)] border px-3 py-1.5 text-xs font-medium transition-colors ${
+    `inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[var(--radius-full)] border px-3 py-1.5 text-xs font-medium transition-colors ${
       active
         ? 'border-primary bg-primary text-primary-contrast'
         : 'border-border bg-surface text-text-secondary hover:border-primary hover:text-primary'
@@ -162,18 +162,23 @@ export function BrowsePage() {
               </Button>
             </form>
 
-            <div className="mt-4 flex flex-wrap gap-2">
-              {categories.map((cat) => (
-                <button
-                  key={cat.slug}
-                  type="button"
-                  onClick={() => toggleCategory(cat.label)}
-                  className={chipClass(category === cat.label)}
-                >
-                  <cat.icon className="h-3.5 w-3.5" aria-hidden />
-                  {cat.label}
-                </button>
-              ))}
+            {/* Catégories : sur mobile, une seule ligne défilable horizontalement
+                (30 catégories ne tiennent pas en largeur) ; sur desktop, retour
+                à la ligne classique. */}
+            <div className="mt-4 -mx-4 overflow-x-hidden sm:mx-0">
+              <div className="flex gap-2 overflow-x-auto overscroll-x-contain px-4 pb-1 sm:flex-wrap sm:px-0 sm:pb-0">
+                {categories.map((cat) => (
+                  <button
+                    key={cat.slug}
+                    type="button"
+                    onClick={() => toggleCategory(cat.label)}
+                    className={chipClass(category === cat.label)}
+                  >
+                    <cat.icon className="h-3.5 w-3.5" aria-hidden />
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="mt-3 flex flex-wrap items-center gap-2">
