@@ -191,3 +191,34 @@ export interface RecentCategoryRow {
 export function recentByCategory(): Promise<{ rows: RecentCategoryRow[] }> {
   return apiGet<{ rows: RecentCategoryRow[] }>('/api/businesses/recent-by-category')
 }
+
+/** Une rangée du fil d'activité : catégorie + ses activités (Premium d'abord, puis récentes). */
+export interface ActivityCategoryRow {
+  category: string
+  count: number
+  items: BusinessSearchItem[]
+}
+
+/** Fil d'activité groupé par catégorie — /api/activities/feed. */
+export function feedByCategory(params?: { limit?: number }): Promise<{ rows: ActivityCategoryRow[] }> {
+  const query = new URLSearchParams()
+  if (params?.limit) query.set('limit', String(params.limit))
+  const qs = query.toString()
+  return apiGet<{ rows: ActivityCategoryRow[] }>(`/api/activities/feed${qs ? `?${qs}` : ''}`)
+}
+
+/** Regroupe une liste plate d'activités par catégorie (conserve l'ordre reçu). */
+export function groupActivitiesByCategory(items: BusinessSearchItem[]): ActivityCategoryRow[] {
+  const rows = new Map<string, ActivityCategoryRow>()
+  for (const item of items) {
+    const key = item.category || 'Autres'
+    let row = rows.get(key)
+    if (!row) {
+      row = { category: key, count: 0, items: [] }
+      rows.set(key, row)
+    }
+    row.items.push(item)
+    row.count += 1
+  }
+  return Array.from(rows.values())
+}

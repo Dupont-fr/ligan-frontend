@@ -2,12 +2,12 @@ import { useQuery } from '@tanstack/react-query'
 import { BadgeCheck, Camera, Clock, LocateFixed, RotateCcw, Search, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { ActivityCard } from '../components/activities/ActivityCard'
+import { CategoryActivitySections } from '../components/activities/CategoryActivitySections'
 import { SiteFooter } from '../components/layout/SiteFooter'
 import { SiteHeader } from '../components/layout/SiteHeader'
 import { Button } from '../components/ui/Button'
 import { useCategories } from '../hooks/useCategories'
-import { searchBusinesses, type BusinessSort } from '../services/activities'
+import { groupActivitiesByCategory, searchBusinesses, type BusinessSort } from '../services/activities'
 
 const RADIUS_OPTIONS_KM = [1, 5, 10, 25, 50]
 const RESULTS_LIMIT = 50
@@ -307,11 +307,7 @@ export function BrowsePage() {
               ) : null}
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {items.map((activity) => (
-                <ActivityCard key={activity.id} activity={activity} distance={activity.distance} />
-              ))}
-            </div>
+            <CategoryActivitySections rows={groupActivitiesByCategory(items)} />
           )}
         </div>
       </main>

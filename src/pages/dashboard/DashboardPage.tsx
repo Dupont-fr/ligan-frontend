@@ -18,8 +18,8 @@ import {
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ActivityAiGenerator } from '../../components/activities/ActivityAiGenerator'
-import { ActivityCard } from '../../components/activities/ActivityCard'
 import { ActivityWizard } from '../../components/activities/ActivityWizard'
+import { CategoryActivitySections } from '../../components/activities/CategoryActivitySections'
 import { WorkspaceShell, type ShellGroup } from '../../components/layout/WorkspaceShell'
 import { Alert } from '../../components/ui/Alert'
 import { Badge } from '../../components/ui/Badge'
@@ -29,9 +29,10 @@ import { useAuth } from '../../features/auth/AuthContext'
 import { ApiError } from '../../lib/api'
 import {
   deleteActivity,
-  listActivities,
+  feedByCategory,
   listMyActivities,
   type Activity,
+  type ActivityCategoryRow,
 } from '../../services/activities'
 import {
   listMySolicitations,
@@ -75,7 +76,7 @@ export function DashboardPage() {
 
   const feedQuery = useQuery({
     queryKey: ['activities', 'feed'],
-    queryFn: () => listActivities(),
+    queryFn: () => feedByCategory(),
     enabled: section === 'feed',
   })
 
@@ -125,7 +126,7 @@ export function DashboardPage() {
 
       {section === 'feed' ? (
         <FeedSection
-          activities={feedQuery.data?.activities ?? []}
+          rows={feedQuery.data?.rows ?? []}
           isLoading={feedQuery.isLoading}
           currentUserId={user?.id}
           isPro={isPro}
@@ -160,28 +161,26 @@ export function DashboardPage() {
 }
 
 function FeedSection({
-  activities,
+  rows,
   isLoading,
   currentUserId,
   isPro,
   onManage,
 }: {
-  activities: { id: string }[] & Parameters<typeof ActivityCard>[0]['activity'][]
+  rows: ActivityCategoryRow[]
   isLoading: boolean
   currentUserId?: string
   isPro: boolean
   onManage: () => void
 }) {
-  const typed = activities as Parameters<typeof ActivityCard>[0]['activity'][]
-
   return (
     <div>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold tracking-tight text-text-primary">Fil d’activité</h1>
           <p className="mt-1 text-sm text-text-secondary">
-            Les dernières activités publiées par les professionnels. Ouvrez une fiche pour leur
-            envoyer une demande.
+            Les dernières activités publiées par les professionnels, classées par catégorie. Ouvrez
+            une fiche pour leur envoyer une demande.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -200,12 +199,24 @@ function FeedSection({
       </div>
 
       {isLoading ? (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="h-48 animate-pulse rounded-[var(--radius-md)] border border-border bg-surface" />
+        <div className="mt-6 space-y-8" aria-hidden>
+          {[0, 1].map((r) => (
+            <div key={r}>
+              <div className="mb-3 h-5 w-44 animate-pulse rounded-[var(--radius-sm)] bg-surface" />
+              <div className="overflow-x-hidden">
+                <div className="-mx-4 flex gap-3 px-4 sm:mx-0 sm:gap-4 sm:px-0">
+                  {[0, 1, 2].map((n) => (
+                    <div
+                      key={n}
+                      className="h-48 w-[72vw] max-w-[17rem] shrink-0 animate-pulse rounded-[var(--radius-md)] border border-border bg-surface sm:w-72 sm:max-w-none"
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
           ))}
         </div>
-      ) : typed.length === 0 ? (
+      ) : rows.length === 0 ? (
         <Card className="mt-6 p-10 text-center">
           <p className="font-medium text-text-primary">Aucune activité publiée pour le moment</p>
           <p className="mt-1 text-sm text-text-secondary">
@@ -213,10 +224,8 @@ function FeedSection({
           </p>
         </Card>
       ) : (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {typed.map((activity) => (
-            <ActivityCard key={activity.id} activity={activity} currentUserId={currentUserId} />
-          ))}
+        <div className="mt-6">
+          <CategoryActivitySections rows={rows} currentUserId={currentUserId} />
         </div>
       )}
     </div>
