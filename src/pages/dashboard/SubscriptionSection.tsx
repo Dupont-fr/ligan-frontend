@@ -41,6 +41,13 @@ const statusLabels: Record<PaymentStatus, { label: string; variant: 'success' | 
   EXPIRED: { label: 'Expiré', variant: 'neutral' },
 }
 
+// Logos des opérateurs affichés dans les boutons de paiement.
+// Les autres opérateurs éventuels gardent seulement leur nom.
+const operatorLogos: Record<string, string> = {
+  mtn: '/img/mtn-momo.svg',
+  orange: '/img/orange-money.svg',
+}
+
 const MAX_POLL_ATTEMPTS = 60
 // 3 s × 60 = 3 min de scrutation : une confirmation mobile money peut prendre
 // plus de 2 minutes (le client doit valider la demande sur son téléphone).
@@ -431,6 +438,14 @@ export function SubscriptionSection() {
                                 className="sr-only"
                                 {...register('network')}
                               />
+                              {operatorLogos[op.slug] ? (
+                                <img
+                                  src={operatorLogos[op.slug]}
+                                  alt=""
+                                  aria-hidden="true"
+                                  className="h-6 w-6 shrink-0 object-contain"
+                                />
+                              ) : null}
                               {op.name}
                             </label>
                           ))
