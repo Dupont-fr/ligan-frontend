@@ -1,0 +1,26 @@
+# Le "contexte" envoye a Docker ne doit contenir que le necessaire.
+# Tout ce qui est liste ici est IGNORE par COPY/ADD.
+
+# Dependances (reinstallees dans l'image via npm ci)
+node_modules
+
+# Resultat de build (recompile dans l'image)
+dist
+*.tsbuildinfo
+
+# Secrets / variables locales : ne JAMAIS embarquer dans une image
+.env
+.env.*
+!.env.example
+
+# Logs et fichiers temporaires
+*.log
+logs
+
+# Divers inutiles pour l'image
+.git
+.gitignore
+.vscode
+.idea
+coverage
+*.md
