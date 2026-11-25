@@ -7,11 +7,12 @@
   </head>
   <body>
     <script>
-      // GitHub Pages sert 404.html pour toute route inconnue (ex. /business/garage-autopro-dschang).
-      // On sauvegarde le chemin demandé puis on recharge l'index : React Router (Sprint 1)
-      // restaurera la route via sessionStorage('ligan:redirect').
+      // Hebergement statique : 404.html sert toute route inconnue (ex. /business/ma-fiche).
+      // On garde l'adresse demandee puis on recharge l'accueil du SPA ; App.tsx
+      // restaure cette adresse via sessionStorage('ligan:redirect') et React Router
+      // affiche alors la page 404 personnalisee.
       sessionStorage.setItem('ligan:redirect', window.location.pathname + window.location.search)
-      window.location.replace('./')
+      window.location.replace('/')
     </script>
   </body>
 </html>

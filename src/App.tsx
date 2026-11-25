@@ -1,5 +1,5 @@
-import { lazy, Suspense } from 'react'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { lazy, Suspense, useEffect } from 'react'
+import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom'
 import { Seo } from './components/Seo'
 import { ScrollToTop } from './components/ScrollToTop'
 import { VisitorTracker } from './components/VisitorTracker'
@@ -61,6 +61,9 @@ const DashboardPage = lazy(() =>
 )
 const HelpPage = lazy(() => import('./pages/HelpPage').then((m) => ({ default: m.HelpPage })))
 const LogoutPage = lazy(() => import('./pages/LogoutPage').then((m) => ({ default: m.LogoutPage })))
+const NotFoundPage = lazy(() =>
+  import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })),
+)
 const PricingPage = lazy(() => import('./pages/PricingPage').then((m) => ({ default: m.PricingPage })))
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then((m) => ({ default: m.PrivacyPage })))
 const TermsPage = lazy(() => import('./pages/TermsPage').then((m) => ({ default: m.TermsPage })))
@@ -77,10 +80,29 @@ function RouteFallback() {
   )
 }
 
+/**
+ * Un hébergeur statique sert `404.html` pour une route inconnue : celui-ci
+ * mémorise l'adresse demandée puis recharge l'accueil. On restaure cette
+ * adresse ici pour que React Router affiche la page 404 avec la bonne URL.
+ */
+function RestoreRequestedRoute() {
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const requested = sessionStorage.getItem('ligan:redirect')
+    if (!requested) return
+    sessionStorage.removeItem('ligan:redirect')
+    navigate(requested, { replace: true })
+  }, [navigate])
+
+  return null
+}
+
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <RestoreRequestedRoute />
         <Seo />
         <ScrollToTop />
         <VisitorTracker />
@@ -124,7 +146,7 @@ function App() {
               </Route>
             </Route>
 
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
       </BrowserRouter>
